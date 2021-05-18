@@ -1,0 +1,345 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\UserPremieum;
+use App\Models\User;
+use App\Models\Admin;
+use App\Models\ShareSite;
+use App\Models\UserSimple;
+use Illuminate\Support\Str;
+use App\Models\UserPremieumHasClient;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Carbon\Carbon;
+use Validator;
+use JWTAuth;
+
+class UserPremieumController extends Controller
+{
+    const PERSONS_DATA=[
+        "syndicat"=>[
+            "type"=>"Syndicat",
+            "name"=>"Nom Court",
+            "dataIndex"=>"nomCourt"
+        ],
+        "epic"=>[
+            "type"=>"Epic",
+            "name"=>"Nom EPIC",
+            "dataIndex"=>"nomEpic"
+        ],
+        "commune"=>[
+            "type"=>"Commune",
+            "name"=>"Nom Commune",
+            "dataIndex"=>"nomCommune"
+        ],
+        "societe"=>[
+            "type"=>"Société",
+            "name"=>"Groupe",
+            "dataIndex"=>"groupe"
+        ]
+        ];
+    
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function all(Request $request){
+        $nom=$request->get('nom');
+        $prenom=$request->get('prenom');
+        $function='where';
+        $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
+        $Query = UserPremieum::query();
+        $Query=$Query->join("users","user_premieums.id_user","=","users.id");
+        if($nom){
+            $Query=$Query->{$function}("user_premieums.nom","ILIKE","%{$nom}%");
+            $function='orWhere';
+        }
+        if($prenom){
+            $Query=$Query->{$function}("user_premieums.prenom","ILIKE","%{$prenom}%");
+            $function='orWhere';
+        }
+        $Query=$Query->where('users.typeuser','=','UserPremieume');
+        $users=$Query->orderBy("user_premieums.updated_at","DESC")
+        ->paginate($pageSize,['user_premieums.id_user_premieum AS id_user','users.init_password','user_premieums.nom','user_premieums.prenom','user_premieums.email_user_prem AS email','users.username','user_premieums.phone','user_premieums.nbAccess']);
+        return response([
+            "ok"=>true,
+            "data"=> $users
+        ],200);
+    }
+    /**
+     * Display the spicify resource.
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Request $request){
+        $prem = $this->getUserById($request["idUser"]);
+        if($prem){
+            return response([
+                "ok"=>true,
+                "data"=>$prem
+            ],200);
+        }
+        return response([
+            "ok"=>"server",
+            "data"=>"Utilisateur n'existe pas"
+        ],400);
+    }
+    private function getUserById($iduser){
+        $prem = UserPremieum::where("id_user_premieum","=",$iduser)
+        ->join("users","user_premieums.id_user","=","users.id")
+        ->first(['users.username','users.init_password','user_premieums.email_user_prem AS email','user_premieums.isPaid','user_premieums.nom','user_premieums.prenom','user_premieums.lastPaiment','user_premieums.phone','user_premieums.NbUserCreated','user_premieums.nbAccess','user_premieums.id_user_premieum AS id_user'])
+        ->toArray();
+        if($prem){
+            $client=UserPremieumHasClient::with('client')
+            ->where("id_user_premieum",$iduser)
+            ->first();
+            if($client){
+                $prem['client']=$client->client->toArray();
+                $prem['client']+=self::PERSONS_DATA[strtolower($client->typeClient)];
+            }
+        }
+        return $prem;
+    }
+    /**
+     * Show the form for creating a new resource.
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function create(Request $request){
+        $message = [
+            "numeric" => ":attribute doit être un nombre",
+            "boolean"=>":attribute doit être un boolean",
+            "required"=> ":attribute est obligatoire",
+            "email"=>":attribute doit être un email valide",
+            "unique"=>"Veuillez choisir un :attribute unique"
+        ];
+        $rules = [
+            "nom"=>["required"],
+            "client"=>['required'],
+            "prenom"=>["required"],
+            "email"=>["email","unique:user_premieums,email_user_prem"],
+            "nbSession"=>["required","numeric"]
+        ];
+        $validator = Validator::make($request->all(),$rules,$message);
+        if($validator->fails()){
+            return response([
+                "ok"=>"server",
+                "errors"=>$validator->errors()
+            ],400);
+        }
+        $admin = JWTAuth::user();
+        $admin = Admin::where("id_user","=",$admin->id)->select("id_admin")->first();
+        $username=User::getUsername($request['nom'],$request['prenom']);
+        $password=Str::random(12);
+        $user =  User::create([
+            "username"=>$username,
+            "typeuser"=>"UserPremieume",
+            "password"=>Hash::make($password),
+            "init_password"=>$password
+        ]);
+        $prem = UserPremieum::create([
+            "email_user_prem"=>$request["email"],
+            "nom"=>$request['nom'],
+            "prenom"=>$request["prenom"],
+            "isPaid"=>true,
+            "phone"=>$request['phone'],
+            "lastPaiment"=>Carbon::now(),
+            "nbAccess"=>$request["nbSession"],
+            "created_by"=>$admin->id_admin,
+            "id_user"=>$user->id
+        ]);
+        $idClient="";$typeClient="";
+        switch($request['client']['type']){
+            case "Epic":
+                $typeClient="Epic";
+                $idClient=$request['client']['id_epic'];
+                break;
+            case "Syndicat":
+                $typeClient="Syndicat";
+                $idClient=$request['client']['id_syndicat'];
+                break;
+            case "Commune":
+                $typeClient="Commune";
+                $idClient=$request['client']['id_commune'];
+                break;
+            case "Société":
+                $typeClient="Societe";
+                $idClient=$request['client']['id_societe_exploitant'];
+                break;
+        }
+        $attach=UserPremieumHasClient::create([
+            "typeClient"=>$typeClient,
+            "id_client"=>$idClient,
+            "id_user_premieum"=>$prem->id_user_premieum
+        ]);
+        return response([
+            "ok"=>true,
+            "data"=>$prem
+        ],200);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\UserPremieum  $userPremieum
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(UserPremieum $userPremieum)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request)
+    {
+        $this->validate($request,[
+            "id_user"=>['required',"exists:user_premieums,id_user_premieum"],
+            "nom"=>["required"],
+            "prenom"=>["required"],
+            "email"=>["email"],
+            "nbAccess"=>["required","numeric"]
+        ],[
+            "numeric" => ":attribute doit être un nombre",
+            "required"=> ":attribute est obligatoire",
+            "email"=>":attribute doit être un email valide",
+            "id_user.exists"=>"L'utilisateur doit être exists"
+        ]);
+        $userPrem=UserPremieum::find($request['id_user']);
+        $user=User::find($userPrem->id_user);
+        $userPrem->nom=$request['nom'];
+        $userPrem->prenom=$request['prenom'];
+        $userPrem->nbAccess=$request['nbAccess'];
+        if($userPrem->email_user_prem!=$request['email'] && !UserPremieum::where('email_user_prem', $request['email'] )->exists()){
+            $userPrem->email_user_prem=$request['email'];
+        }
+        if($user->username!=$request['username'] && !User::where('username', $request['username'] )->exists()){
+            $user->username=$request['username'];
+        }
+        if($user->init_password){
+            $user->password=Hash::make($request['init_password']);
+            $user->init_password=$request['init_password'];
+        }
+        if(!empty($request['client'])){
+            $idClient="";$typeClient="";
+            switch($request['client']['type']){
+                case "Epic":
+                    $typeClient="Epic";
+                    $idClient=$request['client']['id_epic'];
+                    break;
+                case "Syndicat":
+                    $typeClient="Syndicat";
+                    $idClient=$request['client']['id_syndicat'];
+                    break;
+                case "Commune":
+                    $typeClient="Commune";
+                    $idClient=$request['client']['id_commune'];
+                    break;
+                case "Société":
+                    $typeClient="Societe";
+                    $idClient=$request['client']['id_societe_exploitant'];
+                    break;
+            }
+            $clientUserPrem=UserPremieumHasClient::where("id_user_premieum",$request['id_user'])->first();
+            if(!$clientUserPrem){
+                $attach=UserPremieumHasClient::create([
+                    "typeClient"=>$typeClient,
+                    "id_client"=>$idClient,
+                    "id_user_premieum"=>$userPrem->id_user_premieum
+                ]);
+            }else if(!($clientUserPrem->id_client==$idClient && $clientUserPrem->typeClient==$typeClient)){
+                $clientUserPrem->delete();
+                $attach=UserPremieumHasClient::create([
+                    "typeClient"=>$typeClient,
+                    "id_client"=>$idClient,
+                    "id_user_premieum"=>$userPrem->id_user_premieum
+                ]);
+            }
+        }
+        $userPrem->save();
+        $user->save();
+        return response([
+            "ok"=>true,
+            "data"=>$this->getUserById($request["id_user"])
+        ],200);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request)
+    {
+        if(!empty($request['users']) && is_array($request['users'])){
+            $deletedLis=[];
+            foreach($request['users'] as $user){
+                $userObj=UserPremieum::find($user);
+                if($userObj){
+                    $deletedLis [] = $user;
+                    $user=User::find($userObj->id_user);
+                    $user->delete();
+                    $userObj->delete();
+                }
+            }
+            return response([
+                'ok'=>true,
+                'data'=>"async",
+                'users'=>$deletedLis
+            ]);
+        }
+        return response([
+            'ok'=>true,
+            'data'=>"no action"
+        ]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function show_sites(Request $request)
+    {
+        $idUser=$request['idUserPrem'];
+        $shareds=ShareSite::where("id_user_premieum",$idUser)
+        ->whereHas('site')
+        ->with('site')
+        ->orderBy("updated_at","DESC")
+        ->get();
+        foreach($shareds as &$share){
+            $share->start=Carbon::parse($share->start)->format('d/m/y');
+            $share->end=Carbon::parse($share->end)->format('d/m/y');
+        }
+        return response([
+            "ok"=>true,
+            "data"=>$shareds
+        ],200);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function show_sessions(Request $request)
+    {
+        $idUser=$request['idUserPrem'];
+        $users=UserSimple::where("created_by",$idUser)
+        ->get();
+        return response([
+            "ok"=>true,
+            "data"=>$users
+        ],200);
+    }
+}
