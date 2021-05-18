@@ -16,3 +16,4 @@ Procfile
 .env.example
 .editorconfig
 .idea
+.styleci.yml
