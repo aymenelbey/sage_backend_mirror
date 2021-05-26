@@ -35,8 +35,7 @@ class EPIC extends Model
     
     public function contacts(){
         return $this->belongsToMany(Contact::class, ContactHasPersonMoral::class,'idPersonMoral','id_contact','id_epic','id_contact')
-        ->wherePivot('deleted_at', null)
-        ->withPivot('function');
+        ->wherePivot('deleted_at', null);
     }
     public function communes(){
         return $this->hasMany(Commune::class,"id_epic");

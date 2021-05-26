@@ -27,8 +27,7 @@ class Commune extends Model
     protected $dates = ['deleted_at'];
     public function contacts(){
         return $this->belongsToMany(Contact::class, ContactHasPersonMoral::class,'idPersonMoral','id_contact','id_commune','id_contact')
-        ->wherePivot('deleted_at', null)
-        ->withPivot('function');
+        ->wherePivot('deleted_at', null);
     }
     public function epic(){
         return $this->belongsTo(EPIC::class,"id_epic");

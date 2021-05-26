@@ -34,8 +34,7 @@ class Syndicat extends Model
     protected $dates = ['deleted_at'];
     public function contacts(){
         return $this->belongsToMany(Contact::class, ContactHasPersonMoral::class,'idPersonMoral','id_contact','id_syndicat','id_contact')
-        ->wherePivot('deleted_at', null)
-        ->withPivot('function');
+        ->wherePivot('deleted_at', null);
     }
     public function epics(){
         return $this->hasManyThrough(EPIC::class, SyndicatHasEpic::class,'id_syndicat','id_epic','id_syndicat','id_epic');
