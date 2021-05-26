@@ -20,22 +20,22 @@ class UserPremieumController extends Controller
 {
     const PERSONS_DATA=[
         "syndicat"=>[
-            "type"=>"Syndicat",
+            "typePersonMoral"=>"Syndicat",
             "name"=>"Nom Court",
             "dataIndex"=>"nomCourt"
         ],
         "epic"=>[
-            "type"=>"Epic",
+            "typePersonMoral"=>"Epic",
             "name"=>"Nom EPIC",
             "dataIndex"=>"nomEpic"
         ],
         "commune"=>[
-            "type"=>"Commune",
+            "typePersonMoral"=>"Commune",
             "name"=>"Nom Commune",
             "dataIndex"=>"nomCommune"
         ],
         "societe"=>[
-            "type"=>"Société",
+            "typePersonMoral"=>"societe",
             "name"=>"Groupe",
             "dataIndex"=>"groupe"
         ]
@@ -109,13 +109,6 @@ class UserPremieumController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(Request $request){
-        $message = [
-            "numeric" => ":attribute doit être un nombre",
-            "boolean"=>":attribute doit être un boolean",
-            "required"=> ":attribute est obligatoire",
-            "email"=>":attribute doit être un email valide",
-            "unique"=>"Veuillez choisir un :attribute unique"
-        ];
         $rules = [
             "nom"=>["required"],
             "client"=>['required'],
@@ -123,7 +116,7 @@ class UserPremieumController extends Controller
             "email"=>["email","unique:user_premieums,email_user_prem"],
             "nbSession"=>["required","numeric"]
         ];
-        $validator = Validator::make($request->all(),$rules,$message);
+        $validator = Validator::make($request->all(),$rules);
         if($validator->fails()){
             return response([
                 "ok"=>"server",
@@ -152,7 +145,7 @@ class UserPremieumController extends Controller
             "id_user"=>$user->id
         ]);
         $idClient="";$typeClient="";
-        switch($request['client']['type']){
+        switch($request['client']['typePersonMoral']){
             case "Epic":
                 $typeClient="Epic";
                 $idClient=$request['client']['id_epic'];
@@ -165,7 +158,7 @@ class UserPremieumController extends Controller
                 $typeClient="Commune";
                 $idClient=$request['client']['id_commune'];
                 break;
-            case "Société":
+            case "Societe":
                 $typeClient="Societe";
                 $idClient=$request['client']['id_societe_exploitant'];
                 break;
@@ -217,6 +210,7 @@ class UserPremieumController extends Controller
         $userPrem->nom=$request['nom'];
         $userPrem->prenom=$request['prenom'];
         $userPrem->nbAccess=$request['nbAccess'];
+        $userPrem->phone=$request['phone'];
         if($userPrem->email_user_prem!=$request['email'] && !UserPremieum::where('email_user_prem', $request['email'] )->exists()){
             $userPrem->email_user_prem=$request['email'];
         }
@@ -229,7 +223,7 @@ class UserPremieumController extends Controller
         }
         if(!empty($request['client'])){
             $idClient="";$typeClient="";
-            switch($request['client']['type']){
+            switch($request['client']['typePersonMoral']){
                 case "Epic":
                     $typeClient="Epic";
                     $idClient=$request['client']['id_epic'];
@@ -242,7 +236,7 @@ class UserPremieumController extends Controller
                     $typeClient="Commune";
                     $idClient=$request['client']['id_commune'];
                     break;
-                case "Société":
+                case "Societe":
                     $typeClient="Societe";
                     $idClient=$request['client']['id_societe_exploitant'];
                     break;
