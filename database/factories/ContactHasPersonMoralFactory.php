@@ -42,7 +42,7 @@ class ContactHasPersonMoralFactory extends Factory
             case "Societe": 
                 $idPerson=$this->faker->randomElement(SocieteExploitant::all()->pluck('id_societe_exploitant'));
                 break;
-        }
+        };
         return [
             "idPersonMoral"=>$idPerson,
             "id_contact"=>$this->faker->unique()->randomElement(Contact::all()->pluck('id_contact')),
