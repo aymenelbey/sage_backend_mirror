@@ -13,6 +13,11 @@ class Commune extends Model
     protected $fillable = [
         "nomCommune",
         "adresse",
+        "insee",
+        "logo",
+        "serin",
+        "departement_siege",
+        "region_siege",
         'lat',
         'lang',
         "nombreHabitant",
@@ -20,7 +25,6 @@ class Commune extends Model
         'id_collectivite',
     ];
     protected $dates = ['deleted_at'];
-    
     public function contacts(){
         return $this->belongsToMany(Contact::class, ContactHasPersonMoral::class,'idPersonMoral','id_contact','id_commune','id_contact')
         ->wherePivot('deleted_at', null)
@@ -29,4 +33,14 @@ class Commune extends Model
     public function epic(){
         return $this->belongsTo(EPIC::class,"id_epic");
     }
+    public function withEnums(){
+        $dep=$this->hasOne(Enemuration::class,'id_enemuration', 'departement_siege')->first();
+        $reg=$this->hasOne(Enemuration::class, 'id_enemuration', 'region_siege')->first();
+        $this->departement_siege=$dep?$dep->__toString():'';
+        $this->region_siege=$reg?$reg->__toString():'';
+    }
+    public function logo(){
+        return $this->hasMany(ImageSage::class,"uid","logo");
+    }
+    
 }

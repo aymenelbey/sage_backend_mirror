@@ -15,12 +15,10 @@ class Gestionnaire extends Model
         "genre",
         "nom",
         "prenom",
-        "telephone1",
-        "telephone2",
-        "mobile1",
-        "mobile2",
+        "telephone",
+        "mobile",
         "email",
-        "contract",
+        "societe",
         'id_user',
         "id_admin"
     ];

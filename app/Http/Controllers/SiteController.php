@@ -77,17 +77,9 @@ class SiteController extends Controller
      */
     public function show(Request $request)
     {
-        $validator = Validator::make(["id_site"=>$request["idSite"]],[
-            "id_site"=>"exists:sites"
-        ],[
-            "exists"=>"the :attribute is not exists in the :table"
+        $this->validate($request,[
+            "id_site"=>['exists:sites,id_site']
         ]);
-        if($validator->fails()){
-            return response([
-                "status"=> "error",
-                "message"=>$validator->errors()
-            ],400); 
-        }
         $site = Site::with(['client'=>function($query){
             $query->with('client');
         },'exploitant'=>function($query){
@@ -98,10 +90,14 @@ class SiteController extends Controller
         },"gestionnaire","contracts"=>function($query){
             $query->with('contractant');
         }])
-        ->find($request['idSite']);
+        ->find($request['id_site']);
+        $siteReturn=$site->toArray();
+        $siteReturn['photos']=$site->photos->map(function($photo){
+            return $photo->__toString();
+        });
         return response([
             "ok"=>true,
-            "data"=>$site
+            "data"=>$siteReturn
         ],200);
     }
 /**
@@ -154,7 +150,7 @@ class SiteController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(Request $request){
-        $siteInfo=$request['siteInfo'];
+        $siteInfo=$request->siteInfo;
         $validator=SiteHelper::validateSiteInfo($request['siteInfo']);
         if ($validator->fails()) {
             return response([
@@ -296,26 +292,26 @@ class SiteController extends Controller
      */
     public function edit(Request $request)
     {
-        $site = Site::find($request["idSite"]);
+        $site = Site::find($request["id_site"]);
         if($site){
             $personsData=[
                 "syndicat"=>[
-                    "type"=>"Syndicat",
+                    "typePersonMoral"=>"Syndicat",
                     "name"=>"Nom Court",
                     "dataIndex"=>"nomCourt"
                 ],
                 "epic"=>[
-                    "type"=>"Epic",
+                    "typePersonMoral"=>"Epic",
                     "name"=>"Nom EPIC",
                     "dataIndex"=>"nomEpic"
                 ],
                 "commune"=>[
-                    "type"=>"Commune",
+                    "typePersonMoral"=>"Commune",
                     "name"=>"Nom Commune",
                     "dataIndex"=>"nomCommune"
                 ],
                 "societe"=>[
-                    "type"=>"Société",
+                    "typePersonMoral"=>"Societe",
                     "name"=>"Groupe",
                     "dataIndex"=>"groupe"
                 ]

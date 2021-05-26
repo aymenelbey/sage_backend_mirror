@@ -17,6 +17,8 @@ class EPIC extends Model
         "adresse",
         'lat',
         'lang',
+        'nom_court',
+        'sinoe',
         "siteInternet",
         "telephoneStandard",
         "nombreHabitant",
@@ -41,5 +43,16 @@ class EPIC extends Model
     }
     public function syndicat(){
         return $this->hasOneThrough(Syndicat::class, SyndicatHasEpic::class,'id_epic','id_syndicat','id_epic','id_syndicat');
+    }
+    public function logo(){
+        return $this->hasMany(ImageSage::class,"uid","logo");
+    }
+    public function withEnums(){
+        $dep=$this->hasOne(Enemuration::class,'id_enemuration', 'departement_siege')->first();
+        $reg=$this->hasOne(Enemuration::class, 'id_enemuration', 'region_siege')->first();
+        $nat=$this->hasOne(Enemuration::class, 'id_enemuration', 'nature_juridique')->first();
+        $this->departement_siege=$dep?$dep->__toString():'';
+        $this->region_siege=$reg?$reg->__toString():'';
+        $this->nature_juridique=$nat?$nat->__toString():'';
     }
 }

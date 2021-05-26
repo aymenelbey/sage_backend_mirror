@@ -36,18 +36,19 @@ Route::middleware('auth:api')->group(function () {
             Route::post("add",[App\Http\Controllers\ShareSiteController::class,"share"]);
             Route::get("all",[App\Http\Controllers\ShareSiteController::class,"index"]);
             Route::patch("status",[App\Http\Controllers\ShareSiteController::class,"handle_share"]);
-             Route::delete("delete",[App\Http\Controllers\ShareSiteController::class,"destroy"]);
+            Route::patch("extend",[App\Http\Controllers\ShareSiteController::class,"extend_site"]);
+            Route::delete("delete",[App\Http\Controllers\ShareSiteController::class,"destroy"]);
         });
         Route::prefix("map/")->group(function(){
             Route::get("{lat}/{lang}",[App\Http\Controllers\MapSitesController::class,"getSites"]);
         });
         Route::prefix('sites/')->group(function () {
-            Route::get("show/{idSite}",[App\Http\Controllers\SiteController::class,"show"]);
+            Route::get("show/{id_site}",[App\Http\Controllers\SiteController::class,"show"]);
             Route::delete("delete",[App\Http\Controllers\SiteController::class,"destroy"]);
             Route::get("all",[App\Http\Controllers\SiteController::class,"all"]);
             Route::post("create",[App\Http\Controllers\SiteController::class,"create"]);
             Route::patch("update",[App\Http\Controllers\SiteController::class,"update"]);
-            Route::get("edit/{idSite}",[App\Http\Controllers\SiteController::class,"edit"]);
+            Route::get("edit/{id_site}",[App\Http\Controllers\SiteController::class,"edit"]);
             //Route::post("delete",[App\Http\Controllers\auth\SiteController::class,"deleteAdmin"]);
             //Route::get("gestionnaire/{id}",[App\Http\Controllers\SiteController::class,"withGestionnaire"]);
             //Route::get("rattache/{id}",[App\Http\Controllers\SiteController::class,"rattacheA"]);
@@ -63,6 +64,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get("show/{idgestionnaire}",[App\Http\Controllers\GestionnaireController::class,"show"]);
             Route::delete("delete",[App\Http\Controllers\GestionnaireController::class,"destroy"]);
             Route::get("sites/{idgestionnaire}",[App\Http\Controllers\GestionnaireController::class,"show_sites"]);
+            Route::delete("sites/remove",[App\Http\Controllers\GestionnaireController::class,"destroy_sites"]);
             //Route::get("sites/{id}",[App\Http\Controllers\GestionnaireController::class,"listSites"]);
         });
         Route::prefix("usersimple/")->group(function(){
@@ -138,6 +140,8 @@ Route::middleware('auth:api')->group(function () {
             Route::get("edit/{id_contact}",[App\Http\Controllers\ContactController::class,"edit"]);
             Route::delete("delete",[App\Http\Controllers\ContactController::class,"destroy"]);
             Route::patch("update",[App\Http\Controllers\ContactController::class,"update"]);
+            Route::delete("function/delete",[App\Http\Controllers\ContactController::class,"delete_function"]);
+            Route::patch("function/status",[App\Http\Controllers\ContactController::class,"handle_function"]);
         });
     });
     Route::middleware(['premission:UserPremieume'])->group(function(){

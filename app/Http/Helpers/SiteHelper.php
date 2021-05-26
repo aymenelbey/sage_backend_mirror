@@ -6,6 +6,7 @@ class SiteHelper
 {
     protected static $RULES_CREATE=[
         "categorieSite"=>["required",'in:UVE,TRI,TMB,ISDND'],
+        "sinoe"=>["required"],
         "modeGestion"=>["required",'in:Gestion privée,Prestation de service,Regie,DSP'],
         "denomination"=>["required"],
         "adresse"=>['required'],
@@ -15,11 +16,6 @@ class SiteHelper
         "client"=>["required","exists:collectivites,id_collectivite"],
         "typeExploitant"=>['required','in:Syndicat,Epic,Commune,Societe'],
         "societe"=>['required']
-    ];
-    protected static $MESSAGES_CREATE=[
-        "required"=> "the :attribute is required",
-        "in"=>"the :attribute must be in :values",
-        "exists"=>"the :attribute must be in table" 
     ];
     public static function validateSiteInfo($dataEntry){
         if(!empty($dataEntry["typeExploitant"])){
@@ -38,7 +34,7 @@ class SiteHelper
                     break;
             }
         }
-        $validator = Validator::make($dataEntry,self::$RULES_CREATE,self::$MESSAGES_CREATE);
+        $validator = Validator::make($dataEntry,self::$RULES_CREATE);
         return $validator;
     }
     public static function extractTechData($techData,String $typeSite){
@@ -60,7 +56,7 @@ class SiteHelper
         return $techReturn;
     }
     public static function extractSiteData($siteinfo){
-        $infoUse=$siteinfo->only(["denomination","categorieSite","adresse","latitude","langititude","siteIntrnet","telephoneStandrad","anneeCreation","photoSite","modeGestion","perdiocitRelance"])->toArray();
+        $infoUse=$siteinfo->only(["denomination","categorieSite","adresse","latitude","langititude","siteIntrnet","telephoneStandrad","anneeCreation","photoSite","modeGestion","perdiocitRelance","sinoe"])->toArray();
         return $infoUse;
     }
 }

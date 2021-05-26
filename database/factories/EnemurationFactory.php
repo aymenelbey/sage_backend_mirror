@@ -22,8 +22,8 @@ class EnemurationFactory extends Factory
     public function definition()
     {
         return [
-            'keyEnum' => $this->faker->randomElement(["nature_juridique","region_siege","departement_siege","competence_dechet","amobe","codeape","function_person","contract","typeDechetRecus","traitementFumee","installationComplementair","voiTraiFemuee","traitementNOX","equipeProcessTF","reactif","typeTerboalternateur","constructeurInstallation","extension","typeInstallation","typeDechetAccepter","technologie","valorisationEnergitique","autreActivite"]),
-            'valueEnum' => $this->faker->name
+            'key_enum' => $this->faker->randomElement(["groupeList","nature_juridique","region_siege","departement_siege","competence_dechet","amobe","codeape","function_person","contract","typeDechetRecus","traitementFumee","installationComplementair","voiTraiFemuee","traitementNOX","equipeProcessTF","reactif","typeTerboalternateur","constructeurInstallation","extension","typeInstallation","typeDechetAccepter","technologie","valorisationEnergitique","autreActivite"]),
+            'value_enum' => $this->faker->name
         ];
     }
 }

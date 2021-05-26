@@ -15,7 +15,7 @@ class CreateSyndicatsTable extends Migration
     {
         Schema::create('syndicats', function (Blueprint $table) {
             $table->bigIncrements("id_syndicat");
-            $table->string("nomCourt",200);
+            $table->string("nomCourt");
             $table->string("denominationLegale",300);
             $table->string("serin",100);
             $table->string("adresse")->nullable();
@@ -24,7 +24,7 @@ class CreateSyndicatsTable extends Migration
             $table->string("siteInternet",300)->nullable();
             $table->string("telephoneStandard",200)->nullable();
             $table->integer("nombreHabitant")->nullable();
-            $table->string("logo",200)->nullable();
+            $table->string("logo")->nullable();
             $table->string("GEDRapport",200)->nullable();
             $table->foreignId('amobe')->references('id_enemuration')->on('enemurations');
             $table->foreignId('nature_juridique')->references('id_enemuration')->on('enemurations');

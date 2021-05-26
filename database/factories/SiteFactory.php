@@ -35,6 +35,7 @@ class SiteFactory extends Factory
     {
         return [
             "denomination"=>$this->faker->words(3, true),
+            "sinoe"=>$this->faker->words(3, true),
             "categorieSite"=>$this->faker->randomElement(['UVE','TRI','TMB','ISDND']),
             "adresse"=>$this->faker->address,
             "latitude"=>$this->faker->unique()->latitude($min = 43.5, $max = 49.5),
@@ -97,15 +98,15 @@ class SiteFactory extends Factory
                         "terboalternateur"=>$this->faker->numberBetween(0, 100),
                         "venteProduction"=>$this->faker->numberBetween(0, 100),
                         /****** */
-                        "typeDechetRecus"=>$this->faker->randomElement(Enemuration::where("keyEnum","typeDechetRecus")->get()->pluck('id_enemuration')),
-                        "traitementFumee"=>$this->faker->randomElement(Enemuration::where("keyEnum","traitementFumee")->get()->pluck('id_enemuration')),
-                        "installationComplementair"=>$this->faker->randomElement(Enemuration::where("keyEnum","installationComplementair")->get()->pluck('id_enemuration')),
-                        "voiTraiFemuee"=>$this->faker->randomElement(Enemuration::where("keyEnum","voiTraiFemuee")->get()->pluck('id_enemuration')),
-                        "traitementNOX"=>$this->faker->randomElement(Enemuration::where("keyEnum","traitementNOX")->get()->pluck('id_enemuration')),
-                        "equipeProcessTF"=>$this->faker->randomElement(Enemuration::where("keyEnum","equipeProcessTF")->get()->pluck('id_enemuration')),
-                        "reactif"=>$this->faker->randomElement(Enemuration::where("keyEnum","reactif")->get()->pluck('id_enemuration')),
-                        "typeTerboalternateur"=>$this->faker->randomElement(Enemuration::where("keyEnum","typeTerboalternateur")->get()->pluck('id_enemuration')),
-                        "constructeurInstallation"=>$this->faker->randomElement(Enemuration::where("keyEnum","constructeurInstallation")->get()->pluck('id_enemuration'))
+                        "typeDechetRecus"=>$this->faker->randomElement(Enemuration::where("key_enum","typeDechetRecus")->get()->pluck('id_enemuration')),
+                        "traitementFumee"=>$this->faker->randomElement(Enemuration::where("key_enum","traitementFumee")->get()->pluck('id_enemuration')),
+                        "installationComplementair"=>$this->faker->randomElement(Enemuration::where("key_enum","installationComplementair")->get()->pluck('id_enemuration')),
+                        "voiTraiFemuee"=>$this->faker->randomElement(Enemuration::where("key_enum","voiTraiFemuee")->get()->pluck('id_enemuration')),
+                        "traitementNOX"=>$this->faker->randomElement(Enemuration::where("key_enum","traitementNOX")->get()->pluck('id_enemuration')),
+                        "equipeProcessTF"=>$this->faker->randomElement(Enemuration::where("key_enum","equipeProcessTF")->get()->pluck('id_enemuration')),
+                        "reactif"=>$this->faker->randomElement(Enemuration::where("key_enum","reactif")->get()->pluck('id_enemuration')),
+                        "typeTerboalternateur"=>$this->faker->randomElement(Enemuration::where("key_enum","typeTerboalternateur")->get()->pluck('id_enemuration')),
+                        "constructeurInstallation"=>$this->faker->randomElement(Enemuration::where("key_enum","constructeurInstallation")->get()->pluck('id_enemuration'))
                     ];
                     break;
                 case "TRI": 
@@ -117,7 +118,7 @@ class SiteFactory extends Factory
                         "miseEnService"=>$this->faker->dateTimeBetween('-300 days', '+300 days')->format('d/m/y'),
                         "dernierConstructeur"=>$this->faker->numberBetween(0, 100),
                         /**** */
-                        "extension"=>$this->faker->randomElement(Enemuration::where("keyEnum","extension")->get()->pluck('id_enemuration'))
+                        "extension"=>$this->faker->randomElement(Enemuration::where("key_enum","extension")->get()->pluck('id_enemuration'))
                     ];
                     break;
                 case "TMB":
@@ -129,11 +130,11 @@ class SiteFactory extends Factory
                         "capaciteNominal"=>$this->faker->numberBetween(0, 100),
                         "dernierConstruct"=>$this->faker->numberBetween(0, 100),
                         /********* */
-                        "typeInstallation"=>$this->faker->randomElement(Enemuration::where("keyEnum","typeInstallation")->get()->pluck('id_enemuration')),
-                        "typeDechetAccepter"=>$this->faker->randomElement(Enemuration::where("keyEnum","typeDechetAccepter")->get()->pluck('id_enemuration')),
-                        "technologie"=>$this->faker->randomElement(Enemuration::where("keyEnum","technologie")->get()->pluck('id_enemuration')),
-                        "valorisationEnergitique"=>$this->faker->randomElement(Enemuration::where("keyEnum","valorisationEnergitique")->get()->pluck('id_enemuration')),
-                        "autreActivite"=>$this->faker->randomElement(Enemuration::where("keyEnum","autreActivite")->get()->pluck('id_enemuration'))
+                        "typeInstallation"=>$this->faker->randomElement(Enemuration::where("key_enum","typeInstallation")->get()->pluck('id_enemuration')),
+                        "typeDechetAccepter"=>$this->faker->randomElement(Enemuration::where("key_enum","typeDechetAccepter")->get()->pluck('id_enemuration')),
+                        "technologie"=>$this->faker->randomElement(Enemuration::where("key_enum","technologie")->get()->pluck('id_enemuration')),
+                        "valorisationEnergitique"=>$this->faker->randomElement(Enemuration::where("key_enum","valorisationEnergitique")->get()->pluck('id_enemuration')),
+                        "autreActivite"=>$this->faker->randomElement(Enemuration::where("key_enum","autreActivite")->get()->pluck('id_enemuration'))
                     ];
                     break;
                 case "ISDND":

@@ -13,13 +13,16 @@ class ContactHasPersonMoral extends Model
     protected $fillable = [
         "idPersonMoral",
         "id_contact",
-        "typePersonMoral",
-        "function"
+        "typePersonMoral"
     ];
     protected $dates = ['deleted_at'];
-
+    protected $with = ['person','fonction_person'];
     public function person()
     {
         return $this->morphTo(__FUNCTION__, 'typePersonMoral', 'idPersonMoral');
+    }
+    public function fonction_person()
+    {
+        return $this->hasMany(PersonFunction::class, 'id_person', 'id_contact_has_person_morals');
     }
 }

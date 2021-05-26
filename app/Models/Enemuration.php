@@ -10,7 +10,11 @@ class Enemuration extends Model
     use HasFactory;
     protected $primaryKey = "id_enemuration";
     protected $fillable = [
-        "keyEnum",
-        "valueEnum"
+        "key_enum",
+        "value_enum"
     ];
+    public function __toString()
+    {
+        return $this->value_enum;
+    }
 }

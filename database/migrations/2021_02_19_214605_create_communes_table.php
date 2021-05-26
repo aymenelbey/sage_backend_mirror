@@ -19,6 +19,7 @@ class CreateCommunesTable extends Migration
             $table->string("adresse")->nullable();
             $table->string("lat")->nullable();
             $table->string("lang")->nullable();
+            $table->string("logo")->nullable();
             $table->integer("nombreHabitant");
             $table->foreignId('id_epic')->references('id_epic')->on('epics')->nullable();
             $table->softDeletes();

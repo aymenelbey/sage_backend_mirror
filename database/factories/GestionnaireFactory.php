@@ -31,12 +31,10 @@ class GestionnaireFactory extends Factory
             "genre"=>$this->faker->randomElement(["MME","MR"]),
             "nom"=>$this->faker->firstName,
             "prenom"=>$this->faker->lastName,
-            "telephone1"=>$this->faker->phoneNumber,
-            "telephone2"=>$this->faker->phoneNumber,
-            "mobile1"=>$this->faker->mobileNumber,
-            "mobile2"=>$this->faker->mobileNumber,
+            "telephone"=>$this->faker->phoneNumber,
+            "mobile"=>$this->faker->mobileNumber,
             "email"=>$this->faker->unique()->safeEmail,
-            "contract"=>$this->faker->randomElement(Enemuration::where("keyEnum","contract")->get()->pluck('id_enemuration')),
+            "societe"=>$this->faker->randomElement(["Sage_engineering","Sage_expert","Sage_industry"]),
             'id_user'=>function() {
                 $password=Str::random(10);
                 return User::create([

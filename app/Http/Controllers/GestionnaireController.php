@@ -10,6 +10,7 @@ use App\Models\Admin;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use App\Models\GestionnaireHasSite;
 use Validator;
 use JWTAuth;
 
@@ -23,28 +24,36 @@ class GestionnaireController extends Controller
     public function all(Request $request){
         $nom=$request->get('nom');
         $prenom=$request->get('prenom');
-        $phone1=$request->get('phone1');
+        $phone=$request->get('phone');
+        $status=$request->get('status');
         $function='where';
         $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
         $queryGestionaire = Gestionnaire::query();
         $queryGestionaire=$queryGestionaire->join("users","gestionnaires.id_user","=","users.id");
-        if($nom){
-            $queryGestionaire=$queryGestionaire->{$function}("gestionnaires.nom","ILIKE","%{$nom}%");
-            $function='orWhere';
+        if($status){
+            $queryGestionaire=$queryGestionaire->where("gestionnaires.status","=",$status==1?true:false);
         }
-        if($prenom){
-            $queryGestionaire=$queryGestionaire->{$function}("gestionnaires.prenom","ILIKE","%{$prenom}%");
-            $function='orWhere';
-        }
-        if($phone1){
-            $queryGestionaire=$queryGestionaire->{$function}("gestionnaires.telephone1","ILIKE","%{$phone1}%");
-            $function='orWhere';
-        }
+        $queryGestionaire = $queryGestionaire->where(function($query) use($nom,$prenom,$phone,&$function)  {
+            if($nom){
+                $query->{$function}("gestionnaires.nom","ILIKE","%{$nom}%");
+                $function='orWhere';
+            }
+            if($prenom){
+                $query->{$function}("gestionnaires.prenom","ILIKE","%{$prenom}%");
+                $function='orWhere';
+            }
+            if($phone){
+                $query->{$function}("gestionnaires.telephone","ILIKE","%{$phone}%");
+                $function='orWhere';
+                $query->{$function}("gestionnaires.mobile","ILIKE","%{$phone}%");
+            }
+        });
         $gestionaires=$queryGestionaire->orderBy("gestionnaires.created_at","DESC")
-        ->paginate($pageSize);
+        ->paginate($pageSize,["gestionnaires.status","gestionnaires.nom","gestionnaires.prenom","gestionnaires.mobile","gestionnaires.telephone","gestionnaires.email",'gestionnaires.nom','gestionnaires.prenom','users.init_password','users.username',"gestionnaires.id_gestionnaire"]);
         return response([
             "ok"=> true,
-            "data"=>$gestionaires
+            "data"=>$gestionaires,
+            "query"=>$queryGestionaire->toSql()
         ],200);
     }
     public function listSites(Request $request){
@@ -70,15 +79,12 @@ class GestionnaireController extends Controller
             "nom"=>["required"],
             "prenom"=>["required"],
             "genre"=>["required","in:MME,MR"],
+            "societe"=>["required","in:Sage_engineering,Sage_expert,Sage_industry"],
+            "mobile"=>["required"],
             "status"=>["required","boolean"],
             "email"=>["email","unique:gestionnaires"]
         ];
-        $messages = [
-            "required"=> ":attribute est obligatoire",
-            "email"=>":attribute doit être un email valide",
-            "unique"=>"Veuillez choisir un :attribute unique"
-        ];
-        $validator = Validator::make($request->all(),$rules,$messages);
+        $validator = Validator::make($request->all(),$rules);
         if ($validator->fails()) {
             return response([
                 "ok"=> "server",
@@ -100,12 +106,10 @@ class GestionnaireController extends Controller
             "genre"=>$request["genre"],
             "nom"=>$request["nom"],
             "prenom"=>$request["prenom"],
-            "telephone1"=>isset($request["telephone1"])?$request["telephone1"]:null,
-            "telephone2"=>isset($request["telephone2"])?$request["telephone2"]:null,
-            "mobile1"=>isset($request["mobile1"])?$request["mobile1"]:null,
-            "mobile2"=>isset($request["mobile2"])?$request["mobile2"]:null,
+            "telephone"=>isset($request["telephone"])?$request["telephone"]:null,
+            "mobile"=>isset($request["mobile"])?$request["mobile"]:null,
             "email"=>isset($request["email"])?$request["email"]:null,
-            "contract"=>isset($request["contract"])?$request["contract"]:null,
+            "societe"=>$request["societe"],
             'id_user'=>$user->id,
             "id_admin"=> $admin->id_admin
         ]);
@@ -139,7 +143,7 @@ class GestionnaireController extends Controller
         if(!empty($request['idgestionnaire'])){
             $idgestionaire=$request['idgestionnaire'];
             $gestionaire=Gestionnaire::join("users","users.id","=","gestionnaires.id_user")
-            ->find($idgestionaire,["users.username","users.init_password","gestionnaires.status","gestionnaires.genre","gestionnaires.nom","gestionnaires.prenom","gestionnaires.telephone1","gestionnaires.telephone2","gestionnaires.mobile1","gestionnaires.mobile2","gestionnaires.email","gestionnaires.contract","gestionnaires.id_gestionnaire"]);
+            ->find($idgestionaire,["users.username","users.init_password","gestionnaires.status","gestionnaires.genre","gestionnaires.nom","gestionnaires.prenom","gestionnaires.telephone","gestionnaires.mobile","gestionnaires.email","gestionnaires.societe","gestionnaires.id_gestionnaire"]);
             if($gestionaire){
                 return response([
                     'ok'=>true,
@@ -191,6 +195,8 @@ class GestionnaireController extends Controller
             "prenom"=>["required"],
             "genre"=>["required","in:MME,MR"],
             "username"=>["required"],
+            "societe"=>["required","in:Sage_engineering,Sage_expert,Sage_industry"],
+            "mobile"=>["required"],
             "status"=>["required","boolean"]
         ],[
             "required"=> ":attribute est obligatoire",
@@ -204,12 +210,10 @@ class GestionnaireController extends Controller
             "genre"=>$request["genre"],
             "nom"=>$request["nom"],
             "prenom"=>$request["prenom"],
-            "telephone1"=>isset($request["telephone1"])?$request["telephone1"]:null,
-            "telephone2"=>isset($request["telephone2"])?$request["telephone2"]:null,
-            "mobile1"=>isset($request["mobile1"])?$request["mobile1"]:null,
-            "mobile2"=>isset($request["mobile2"])?$request["mobile2"]:null,
+            "telephone"=>isset($request["telephone"])?$request["telephone"]:null,
+            "mobile"=>$request["mobile"],
             "email"=>isset($request["email"])?$request["email"]:null,
-            "contract"=>isset($request["contract"])?$request["contract"]:null,
+            "societe"=>$request["societe"]
         ]);
         if($user->init_password && ($user->init_password!=$request['init_password'])){
             $user->password=Hash::make($request['init_password']);
@@ -221,7 +225,7 @@ class GestionnaireController extends Controller
         $user->save();
         return response([
             "ok"=>"server",
-            "data"=>"Gestionnaire modifier"
+            "data"=>$request->only(["id_gestionnaire","status","genre","nom","username","init_password","prenom","telephone","mobile","email","societe"])
         ],200);
     }
 
@@ -246,13 +250,44 @@ class GestionnaireController extends Controller
                 'ok'=>true,
                 'data'=>"async",
                 'gestionnaires'=>$deletedLis
-            ]);
+            ],200);
         }
         return response([
             'ok'=>true,
             'data'=>"no action"
-        ]);
+        ],200);
     }
+    /**
+     * Remove the specified site attached to an manager from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy_sites(Request $request){
+        if(isset($request['sites']) && is_array($request['sites'])){
+            $deletedLis=[];
+            foreach($request['sites'] as $site){
+                 $geshassite =  GestionnaireHasSite::where([
+                     ["id_gestionnaire","=",$request['gestionnaire']],
+                     ["id_site","=",$site]
+                 ])->first();
+                if($geshassite){
+                    $deletedLis [] = $site;
+                    $geshassite->delete();
+                }
+            }
+            return response([
+                'ok'=>true,
+                'data'=>"async",
+                'sites'=>$deletedLis
+            ],200);
+        }
+        return response([
+            'ok'=>true,
+            'data'=>"no action"
+        ],200);
+    }
+
     /**
      * Show the list of attached sites of the specified resource from storage.
      *
@@ -264,8 +299,9 @@ class GestionnaireController extends Controller
         if(!empty($request['idgestionnaire'])){
             $id_gestionnaire=$request['idgestionnaire'];
             $sites=Site::join("gestionnaire_has_sites","gestionnaire_has_sites.id_site","=","sites.id_site")
+            ->whereNull("gestionnaire_has_sites.deleted_at")
             ->where("gestionnaire_has_sites.id_gestionnaire",$id_gestionnaire)
-            ->get(["sites.id_site","sites.denomination","sites.categorieSite","sites.adresse","sites.latitude","sites.langititude","sites.siteIntrnet","sites.telephoneStandrad","sites.anneeCreation","sites.photoSite","sites.modeGestion","sites.perdiocitRelance"]);
+            ->paginate(20,["sites.id_site","sites.denomination","sites.categorieSite","sites.adresse","sites.latitude","sites.langititude","sites.siteIntrnet","sites.telephoneStandrad","sites.anneeCreation","sites.photoSite","sites.modeGestion","sites.perdiocitRelance"]);
             return response([
                 'ok'=>true,
                 'data'=>$sites

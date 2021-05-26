@@ -16,8 +16,8 @@ class EnemurationController extends Controller
     public function index()
     {
        $enums=Enemuration::orderBy('created_at', 'desc')
-       ->get(['id_enemuration AS value', 'valueEnum AS label','keyEnum'])
-       ->groupBy('keyEnum');
+       ->get(['id_enemuration AS value', 'value_enum AS label','key_enum'])
+       ->groupBy('key_enum');
        return response([
         "ok"=> true,
         "data"=> $enums
@@ -45,8 +45,8 @@ class EnemurationController extends Controller
         }
         $idEnum=$request['enemuration'];
         $enum = Enemuration::updateOrCreate(
-            ['id_enemuration' =>$idEnum , 'keyEnum' => $request["key"]],
-            ['valueEnum' => $request["value"]]
+            ['id_enemuration' =>$idEnum , 'key_enum' => $request["key"]],
+            ['value_enum' => $request["value"]]
         );
         return response([
             "ok"=>true,

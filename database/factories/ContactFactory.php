@@ -26,10 +26,8 @@ class ContactFactory extends Factory
             "genre"=>$this->faker->randomElement(["MME","MR"]),
             "nom"=>$this->faker->firstName,
             "prenom"=>$this->faker->lastName,
-            "telephone1"=>$this->faker->phoneNumber,
-            "telephone2"=>$this->faker->phoneNumber,
-            "mobile1"=>$this->faker->mobileNumber,
-            "mobile2"=>$this->faker->mobileNumber,
+            "telephone"=>$this->faker->phoneNumber,
+            "mobile"=>$this->faker->mobileNumber,
             "email"=>$this->faker->unique()->safeEmail,
             "informations"=>$this->faker->words(5, true),
             'address'=>$this->faker->address

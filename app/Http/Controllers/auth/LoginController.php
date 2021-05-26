@@ -84,7 +84,7 @@ class LoginController extends Controller{
                 $user+=$admin;
                 break;
             case "Gestionnaire":
-                $gest=Gestionnaire::where("id_user",$user['id'])->first(['nom','prenom','telephone1','email'])->toArray();
+                $gest=Gestionnaire::where("id_user",$user['id'])->first(['nom','prenom','mobile','email'])->toArray();
                 $user+=$gest;     
                 break; 
         }

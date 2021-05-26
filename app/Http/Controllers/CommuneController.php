@@ -35,7 +35,7 @@ class CommuneController extends Controller
             $communeQuery=$communeQuery->{$function."In"}("id_commune",$arrayData);
             $function='orWhere';
         }
-        $commune=$communeQuery->orderBy("created_at","DESC")
+        $commune=$communeQuery->orderBy("id_commune","DESC")
         ->paginate($pageSize);
         return response([
             "ok"=>true,
@@ -44,10 +44,13 @@ class CommuneController extends Controller
     }
     public function show(Request $request){
         if(!empty($request['idcommune'])){
-            $idcommune=$request['idcommune'];
-            $commune=Commune::with('epic')
-            ->with('contacts')
-            ->find($idcommune);
+            $commune=Commune::with(['epic','contacts','logo'])
+            ->find($request['idcommune']);
+            $commune->withEnums();
+            $commune=$commune->toArray();
+            if(!empty($commune["logo"][0])){
+                $commune["logo"]=$commune["logo"][0]["url"];
+            }
             return response([
                 'ok'=>true,
                 'data'=>$commune
@@ -64,21 +67,10 @@ class CommuneController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function updateEpic(Request $request){
-        $validator = Validator::make($request->all(),[
+        $this->validate($request,[
             "id_epic"=>["required","exists:e_p_i_c_s"],
             "id_commune"=>["required","exists:communes"]
-        ],[
-            "id_epic.required" => "L'EPCI est obligatoire",
-            "id_commune.required" => "La Commune est obligatoire",
-            "id_commune.exists"=>"La commune doit être existe dans la list",
-            "id_epic.exists"=>"L'EPCI doit être existe dans la list"
         ]);
-        if($validator->fails()){
-            return response([
-                "ok"=>false,
-                "message"=>$validator->errors()
-            ],400);
-        }
         $commune = Commune::where("id_commune","=",$request["id_commune"])->update(["id_epic"=>$request["id_epic"]]);
         if($commune){
             return response([
@@ -95,25 +87,17 @@ class CommuneController extends Controller
         $this->validate($request,[
             "nomCommune"=>["required"],
             "adresse"=>["required"],
+            "serin"=>["required","numeric","digits:9"],
+            "insee"=>["required","numeric","digits:5"],
             "nombreHabitant"=>["required","numeric"],
+            'departement_siege'=>["required","exists:enemurations,id_enemuration"],
+            'region_siege'=>["required","exists:enemurations,id_enemuration"],
             "epic"=>["required","exists:epics,id_epic"]
-        ],[
-            "required"=>":attribute est obligatoire",
-            "numeric"=>":attribute doit être un nombre",
-            "epic.exists"=>"Epic doit être existe" 
         ]);
         $client = Collectivite::create([
             "typeCollectivite"=>"Commune"
         ]);
-        $commune = Commune::create([
-            "nomCommune"=>$request["nomCommune"],
-            "adresse"=>$request["adresse"],
-            "lat"=>$request['lat'],
-            "lang"=>$request['lang'],
-            "nombreHabitant"=>$request["nombreHabitant"],
-            "id_epic"=>$request["epic"],
-            'id_collectivite'=>$client->id_collectivite
-        ]);
+        $commune = Commune::create($request->only(["nomCommune","adresse","logo","serin","insee","departement_siege","region_siege","lat","lang","nombreHabitant","id_epic"])+['id_collectivite'=>$client->id_collectivite]);
         return response([
             "ok"=>true,
             "data"=> $commune
@@ -133,21 +117,12 @@ class CommuneController extends Controller
             "nomCommune"=>["required"],
             "adresse"=>["required"],
             "nombreHabitant"=>["required","numeric"],
-            "epic"=>["required","exists:epics,id_epic"]
-        ],[
-            "required"=>":attribute est obligatoire",
-            "numeric"=>":attribute doit être un nombre",
-            "epic.exists"=>"Epic doit être existe" 
+            "epic"=>["required","exists:epics,id_epic"],
+            "serin"=>["required","numeric","digits:9"],
+            "insee"=>["required","numeric","digits:5"]
         ]);
         $commune =Commune::find($request["id_commune"]); 
-        $socU = $commune->update([
-            "nomCommune"=>$request["nomCommune"],
-            "adresse"=>$request["adresse"],
-            "lat"=>$request['lat'],
-            "lang"=>$request['lang'],
-            "nombreHabitant"=>$request["nombreHabitant"],
-            "id_epic"=>$request["epic"]
-        ]);
+        $socU = $commune->update($request->only(["nomCommune","adresse","logo","serin","insee","departement_siege","region_siege","lat","lang","nombreHabitant","id_epic"]));
         return response([
             "ok"=>true,
             "data"=>"Commune modifiée avec succée"
@@ -180,8 +155,7 @@ class CommuneController extends Controller
     public function edit(Request $request)
     {
         if(!empty($request['idcommune'])){
-            $commune=Commune::find($request['idcommune']);
-            $commune->epic;
+            $commune=Commune::with(['epic','logo'])->find($request['idcommune']);
             return response([
                 'ok'=>true,
                 'data'=>$commune

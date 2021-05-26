@@ -21,12 +21,14 @@ class Syndicat extends Model
         "telephoneStandard",
         "nombreHabitant",
         "logo",
-        "GEDRapport",
+        "ged_rapport",
         'amobe',
         'nature_juridique',
         'departement_siege',
         'competence_dechet',
         'region_siege',
+        "email",
+        "sinoe",
         "id_collectivite"
     ];
     protected $dates = ['deleted_at'];
@@ -41,6 +43,23 @@ class Syndicat extends Model
     public function sites(){
         return $this->hasManyThrough(Site::class,ClientHasSite::class,'id_collectivite','id_site','id_collectivite','id_site');
     }
-    
+    public function logo(){
+        return $this->hasMany(ImageSage::class,"uid","logo");
+    }
+    public function ged_rapport(){
+        return $this->hasMany(ImageSage::class,"uid","ged_rapport");
+    }
+    public function withEnums(){
+        $dep=$this->hasOne(Enemuration::class,'id_enemuration', 'departement_siege')->first();
+        $reg=$this->hasOne(Enemuration::class, 'id_enemuration', 'region_siege')->first();
+        $nat=$this->hasOne(Enemuration::class, 'id_enemuration', 'nature_juridique')->first();
+        $amo=$this->hasOne(Enemuration::class, 'id_enemuration', 'amobe')->first();
+        $com=$this->hasOne(Enemuration::class, 'id_enemuration', 'competence_dechet')->first();
+        $this->departement_siege=$dep?$dep->__toString():'';
+        $this->region_siege=$reg?$reg->__toString():'';
+        $this->nature_juridique=$nat?$nat->__toString():'';
+        $this->amobe=$amo?$amo->__toString():'';
+        $this->competence_dechet=$com?$com->__toString():'';
+    }
 
 }

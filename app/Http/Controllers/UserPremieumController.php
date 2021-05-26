@@ -314,8 +314,8 @@ class UserPremieumController extends Controller
         $shareds=ShareSite::where("id_user_premieum",$idUser)
         ->whereHas('site')
         ->with('site')
-        ->orderBy("updated_at","DESC")
-        ->get();
+        ->orderBy("id_share_site","DESC")
+        ->paginate(12);
         foreach($shareds as &$share){
             $share->start=Carbon::parse($share->start)->format('d/m/y');
             $share->end=Carbon::parse($share->end)->format('d/m/y');

@@ -9,10 +9,33 @@ use App\Models\ContactHasPersonMoral;
 use App\Models\ContactSite;
 use App\Models\Collectivite;
 use App\Models\SocieteExploitant;
+use App\Models\PersonFunction;
 use Validator;
 
 class ContactController extends Controller
 {
+    const PERSONS_TYPE=[
+                "syndicat"=>[
+                    "typePersonMoral"=>"Syndicat",
+                    "name"=>"Nom Court",
+                    "dataIndex"=>"nomCourt"
+                ],
+                "epic"=>[
+                    "typePersonMoral"=>"Epic",
+                    "name"=>"Nom EPIC",
+                    "dataIndex"=>"nomEpic"
+                ],
+                "commune"=>[
+                    "typePersonMoral"=>"Commune",
+                    "name"=>"Nom Commune",
+                    "dataIndex"=>"nomCommune"
+                ],
+                "societe"=>[
+                    "typePersonMoral"=>"Societe",
+                    "name"=>"Groupe",
+                    "dataIndex"=>"groupe"
+                ]];
+    
     /**
      * Display a listing of the resource.
      *
@@ -54,47 +77,28 @@ class ContactController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(Request $request){
-        $rules = [
+        $this->validate($request, [
             "status"=>["required","boolean"],
             "genre"=>["required","in:MME,MR"],
             "nom"=>["required"],
             "prenom"=>["required"],
             "address"=>["required"],
-            "personalMoral"=>["required","array"],
-        ];
-        $message = [
-            "required"=>":attribute est obligatoire",
-            "in"=>":attribute doit être dans la list :values",
-            "personalMoral.size"=>"presone moral ne respect pas la taille correspondant"
-        ];
-        $validator = Validator::make($request->all(),$rules,$message);
-        if($validator->fails()){
-            return response([
-                "ok"=>"server",
-                "errors"=>$validator->errors()
-            ],400);
-        }
-        $contact = Contact::create([
-            "status"=>$request["status"],
-            "genre"=>$request["genre"],
-            "nom"=>$request["nom"],
-            "prenom"=>$request["prenom"],
-            "telephone1"=>isset($request["telephone1"])?$request["telephone1"]:null,
-            "telephone2"=>isset($request["telephone2"])?$request["telephone2"]:null,
-            "mobile1"=>isset($request["mobile1"])?$request["mobile1"]:null,
-            "mobile2"=>isset($request["mobile2"])?$request["mobile2"]:null,
-            "email"=>isset($request["email"])?$request["email"]:null,
-            "informations"=>isset($request["informations"])?$request["informations"]:null,
-            "address"=>isset($request["address"])?$request["address"]:null,
+            "persons_moral"=>["required","array"],
         ]);
-        foreach($request['personalMoral'] as $presonMorl){
+        $contact = Contact::create($request->only(['status','genre','nom','prenom','telephone','mobile','email','informations','address']));
+        foreach($request['persons_moral'] as $presonMorl){
             if(in_array($presonMorl['type'],['Syndicat','Epic','Commune','Societe'])){
                 $contactCollect = ContactHasPersonMoral::create([
                     "idPersonMoral"=>$presonMorl['id_person'],
                     "typePersonMoral"=>$presonMorl['type'],
-                    "id_contact"=>$contact->id_contact,
-                    "function"=>$presonMorl['fonctionPerson']
+                    "id_contact"=>$contact->id_contact
                 ]);
+                foreach($presonMorl['fonction_person'] as $function){
+                    PersonFunction::create([
+                        "functionPerson"=>$function['functionPerson'],
+                        "id_person"=>$contactCollect->id_contact_has_person_morals
+                    ]);
+                } 
             }
         }
         return response([
@@ -111,52 +115,59 @@ class ContactController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request){
-        $cont = Contact::find($request["id_contact"]);
-        if(!$cont)
-            return response([
-                "ok"=>"server",
-                "errors"=>"Contact n'existe pas"
-            ],400);
-        $rules = [
+        $this->validate($request,[
+            "id_contact"=>["required","exists:contacts,id_contact"],
             "status"=>["required","boolean"],
             "genre"=>["required","in:MME,MR"],
             "nom"=>["required"],
             "prenom"=>["required"],
             "address"=>["required"],
-            "personalMoral"=>["required","array"],
-        ];
-        $message = [
-            "required"=>":attribute est obligatoire",
-            "in"=>":attribute doit être dans la list :values",
-            "personalMoral.size"=>"presone moral ne respect pas la taille correspondant"
-        ];
-        $validator = Validator::make($request->all(),$rules,$message);
-        if($validator->fails()){
-            return response([
-                "ok"=>"server",
-                "errors"=>$validator->errors()
-            ],400);
-        }
-        $cont->update(collect($request)->only(["status","genre","nom","prenom","telephone1","telephone2","mobile1","mobile2","email","informations","address"])->toArray());
+            "persons_moral"=>["required","array"]
+        ]);
+        $cont=Contact::find($request["id_contact"])->update($request->only(["status","genre","nom","prenom","telephone","mobile","email","informations","address"]));
         $ignorekey=[];
         $persons=ContactHasPersonMoral::where('id_contact',$request["id_contact"])->get();
-        $personSearch=array_column($request['personalMoral'],'id_person');
+        $personSearch=array_column($request['persons_moral'],'id_person');
         foreach($persons as $person){
             $keySearch=array_search($person->idPersonMoral,$personSearch);
-            if($keySearch>-1 && $person->function==$request['personalMoral'][$keySearch]['fonctionPerson'] && $person->typePersonMoral==$request['personalMoral'][$keySearch]['type']){
+            if($keySearch>-1 && $person->typePersonMoral==$request['persons_moral'][$keySearch]['type']){
                 $ignorekey[]=$keySearch;
+                $ignFunc=[];
+                $ignoreFunc=array_column($request['persons_moral'][$keySearch]['fonction_person'],'functionPerson');
+                $functions=PersonFunction::where('id_person',$person->id_contact_has_person_morals)->get();
+                foreach($functions as $function){
+                    $keyFun=array_search($function->functionPerson,$ignoreFunc);
+                    if($keyFun>-1){
+                        $ignFunc []=$keyFun;
+                    }else{
+                        $function->delete();
+                    }
+                }
+                foreach($request['persons_moral'][$keySearch]['fonction_person'] as $key=>$function){
+                    if(!in_array($key,$ignFunc)){
+                         PersonFunction::create([
+                            "functionPerson"=>$function['functionPerson'],
+                            "id_person"=>$person->id_contact_has_person_morals
+                        ]);
+                    }
+                }
             }else{
                 $person->delete();
             }
         } 
-        foreach($request['personalMoral'] as $key=>$person){
+        foreach($request['persons_moral'] as $key=>$person){
             if(!in_array($key,$ignorekey)){
                 $contactCollect = ContactHasPersonMoral::create([
                     "idPersonMoral"=>$person['id_person'],
                     "typePersonMoral"=>$person['type'],
-                    "id_contact"=>$request["id_contact"],
-                    "function"=>$person['fonctionPerson']
+                    "id_contact"=>$request["id_contact"]
                 ]);
+                foreach($person['fonction_person'] as $function){
+                    PersonFunction::create([
+                        "functionPerson"=>$function['functionPerson'],
+                        "id_person"=>$contactCollect->id_contact_has_person_morals
+                    ]);
+                } 
             }
         }
         return response([
@@ -183,13 +194,25 @@ class ContactController extends Controller
      */
     public function show(Request $request)
     {
-        $contact=Contact::with(['personsMoral'=>function($query){
-            $query->with('person');
-        }])->find($request['id_contact']);
+        $contact = Contact::with(['persons_moral'])->find($request["id_contact"]);
+        if($contact){
+            $result=$contact->toArray();
+            $result['persons_moral']=$contact->persons_moral->map(function($person_moral){
+                return self::PERSONS_TYPE[strtolower($person_moral->typePersonMoral)]+[
+                    'id_person'=>$person_moral->idPersonMoral,
+                    "id_person_moral"=>$person_moral->id_contact_has_person_morals,
+                    'fonction_person'=>$person_moral->fonction_person->append('function_string')
+                ]+$person_moral->person->only(['adresse',self::PERSONS_TYPE[strtolower($person_moral->typePersonMoral)]['dataIndex']]);
+            });
+            return response([
+                "ok"=>true,
+                "data"=>json_encode($result)
+            ],200);
+        }
         return response([
-            'ok'=>true,
-            'data'=>$contact
-        ]);
+            "ok"=>"server",
+            "errors"=>"Contact n'existe pas"
+        ],400);
     }
 
     /**
@@ -200,49 +223,18 @@ class ContactController extends Controller
      */
     public function edit(Request $request)
     {
-        $contact = Contact::find($request["id_contact"]);
+        $contact = Contact::with(['persons_moral'])->find($request["id_contact"]);
         if($contact){
-            $personsData=[
-                "syndicat"=>[
-                    "typePersonMoral"=>"Syndicat",
-                    "name"=>"Nom Court",
-                    "dataIndex"=>"nomCourt"
-                ],
-                "epic"=>[
-                    "typePersonMoral"=>"Epic",
-                    "name"=>"Nom EPIC",
-                    "dataIndex"=>"nomEpic"
-                ],
-                "commune"=>[
-                    "typePersonMoral"=>"Commune",
-                    "name"=>"Nom Commune",
-                    "dataIndex"=>"nomCommune"
-                ],
-                "societe"=>[
-                    "typePersonMoral"=>"Societe",
-                    "name"=>"Groupe",
-                    "dataIndex"=>"groupe"
-                ]
-            ];
-            $cnt=$contact->toArray();
-            $cnt['personalMoral']=[];
-            $persons=$contact->personsMoral;
-            foreach($persons as $person){
-                $tmpArray=[];
-                $indexLower=$personsData[strtolower($person->typePersonMoral)];
-                $tmpArray+=$indexLower;
-                $client=$person->person;
-                if($client){
-                    $tmpArray[$indexLower['dataIndex']]=$client[$indexLower['dataIndex']];
-                    $tmpArray["adresse"]=$client->adresse;
-                    $tmpArray["id_person"]=$person->idPersonMoral;
-                    $tmpArray["fonctionPerson"]=$person->function;
-                    $cnt['personalMoral'] [] =$tmpArray;
-                }
-            }
+            $result=$contact->toArray();
+            $result['persons_moral']=$contact->persons_moral->map(function($person_moral){
+                return self::PERSONS_TYPE[strtolower($person_moral->typePersonMoral)]+[
+                    'id_person'=>$person_moral->idPersonMoral,
+                    'fonction_person'=>$person_moral->fonction_person
+                ]+$person_moral->person->only(['adresse',self::PERSONS_TYPE[strtolower($person_moral->typePersonMoral)]['dataIndex']]);
+            });
             return response([
                 "ok"=>true,
-                "data"=>$cnt
+                "data"=>json_encode($result)
             ],200);
         }
         return response([
@@ -250,8 +242,6 @@ class ContactController extends Controller
             "errors"=>"Contact n'existe pas"
         ],400);
     }
-
-    
 
     /**
      * Remove the specified resource from storage.
@@ -277,8 +267,84 @@ class ContactController extends Controller
             ]);
         }
         return response([
-            'ok'=>true,
+            'ok'=>false,
             'data'=>"no action"
+        ],400);
+    }
+
+    /**
+     * Remove an function of person in a contact from the specified resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function delete_function(Request $request)
+    {
+        $this->validate($request,[
+            'contact'=>['required','exists:contacts,id_contact'],
+            'function_person'=>['required'],
+            'person_moral'=>['required']
         ]);
+        $person=ContactHasPersonMoral::where([
+            ['id_contact_has_person_morals','=',$request['person_moral']],
+            ['id_contact','=',$request['contact']]
+        ])->first();
+        if($person){
+            $funtion=PersonFunction::where([
+                ['id_person_function','=',$request['function_person']],
+                ['id_person','=',$request['person_moral']]
+            ])->first();
+            if($funtion){
+                $funtion->delete();
+                return response([
+                    'ok'=>true,
+                    'async'=>true
+                ],200);
+            }
+        }
+        return response([
+            'ok'=>false,
+            'data'=>"no action"
+        ],400);
+
+    }
+
+    /**
+     * able/enable an function of person in a contact from the specified resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function handle_function(Request $request)
+    {
+         $this->validate($request,[
+            'contact'=>['required','exists:contacts,id_contact'],
+            'function_person'=>['required'],
+            'person_moral'=>['required']
+        ]);
+        $person=ContactHasPersonMoral::where([
+            ['id_contact_has_person_morals','=',$request['person_moral']],
+            ['id_contact','=',$request['contact']]
+        ])->first();
+        if($person){
+            $funtion=PersonFunction::where([
+                ['id_person_function','=',$request['function_person']],
+                ['id_person','=',$request['person_moral']]
+            ])->first();
+            if($funtion){
+                $funtion->status=!$funtion->status;
+                $funtion->save();
+                $funtion->append('function_string');
+                return response([
+                    'ok'=>true,
+                    'async'=>true,
+                    'data'=>$funtion
+                ],200);
+            }
+        }
+        return response([
+            'ok'=>false,
+            'data'=>"no action"
+        ],400);
     }
 }

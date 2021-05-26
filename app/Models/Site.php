@@ -14,7 +14,9 @@ class Site extends Model
     protected $fillable = [
         "denomination",
         "categorieSite",
+        "sinoe",
         "adresse",
+        "sinoe",
         "latitude",
         "langititude",
         "siteIntrnet",

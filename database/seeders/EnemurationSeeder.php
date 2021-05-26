@@ -15,7 +15,7 @@ class EnemurationSeeder extends Seeder
     public function run()
     {
         Enemuration::factory()
-            ->count(150)
+            ->count(500)
             ->create();
     }
 }

@@ -33,11 +33,11 @@ class SyndicatFactory extends Factory
             "siteInternet"=>$this->faker->url,
             "telephoneStandard"=>$this->faker->phoneNumber,
             "nombreHabitant"=>$this->faker->numberBetween(0, 2000),
-            'amobe'=>$this->faker->randomElement(Enemuration::where("keyEnum","amobe")->get()->pluck('id_enemuration')),
-            'nature_juridique'=>$this->faker->randomElement(Enemuration::where("keyEnum","nature_juridique")->get()->pluck('id_enemuration')),
-            'departement_siege'=>$this->faker->randomElement(Enemuration::where("keyEnum","departement_siege")->get()->pluck('id_enemuration')),
-            'competence_dechet'=>$this->faker->randomElement(Enemuration::where("keyEnum","competence_dechet")->get()->pluck('id_enemuration')),
-            'region_siege'=>$this->faker->randomElement(Enemuration::where("keyEnum","region_siege")->get()->pluck('id_enemuration')),
+            'amobe'=>$this->faker->randomElement(Enemuration::where("key_enum","amobe")->get()->pluck('id_enemuration')),
+            'nature_juridique'=>$this->faker->randomElement(Enemuration::where("key_enum","nature_juridique")->get()->pluck('id_enemuration')),
+            'departement_siege'=>$this->faker->randomElement(Enemuration::where("key_enum","departement_siege")->get()->pluck('id_enemuration')),
+            'competence_dechet'=>$this->faker->randomElement(Enemuration::where("key_enum","competence_dechet")->get()->pluck('id_enemuration')),
+            'region_siege'=>$this->faker->randomElement(Enemuration::where("key_enum","region_siege")->get()->pluck('id_enemuration')),
             "id_collectivite"=>Collectivite::create([
                     "typeCollectivite"=>"Syndicat"
                 ])->id_collectivite

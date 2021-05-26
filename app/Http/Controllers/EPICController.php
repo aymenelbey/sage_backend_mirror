@@ -70,12 +70,7 @@ class EPICController extends Controller
             "id_epic"=>["required","exists:e_p_i_c_s"],
             "id_communes"=>["required"]
         ];
-        $message = [
-            "id_epic.required"=>"Veuillez selectioner votre EPIC",
-            "id_communes.required"=>"Veuillez entrer vos Communes",
-            "id_epic.exists"=>"Veuillez selectionner une EPIC valide"
-        ];
-        $validator = Validator::make($request->all(),$rules,$message);
+        $validator = Validator::make($request->all(),$rules);
         if($validator->fails()){
             return response([
                 "ok"=>false,
@@ -105,12 +100,7 @@ class EPICController extends Controller
             "id_epic"=>["required","exists:e_p_i_c_s"],
             "id_syndicat"=>["required"]
         ];
-        $message = [
-            "id_epic.required"=>"Veuillez selectioner votre EPIC",
-            "id_syndicat.required"=>"Veuillez entrer vos Syndicats",
-            "id_epic.exists"=>"Veuillez selectionner une EPIC valide"
-        ];
-        $validator = Validator::make($request->all(),$rules,$message);
+        $validator = Validator::make($request->all(),$rules);
         if($validator->fails()){
             return response([
                 "ok"=>false,
@@ -147,53 +137,26 @@ class EPICController extends Controller
      */
     public function create(Request $request)
     {
-        $rules = [
+        $this->validate($request,[
             "nomEpic"=>["required","string"],
-            "serin"=>["required","string"],
+            'nom_court'=>["required"],
+            "sinoe"=>['required'],
+            "serin"=>["required","numeric","digits:9"],
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],
             'departement_siege'=>["required","exists:enemurations,id_enemuration"],
             'competence_dechet'=>["required","exists:enemurations,id_enemuration"],
-            'region_siege'=>["required","exists:enemurations,id_enemuration"]
-        ];
-        $message = [
-            "required"=>"the :attribute is required",
-            "string"=>"the :attribute must be a string",
-            "exists"=>":attribute doit être existe"
-        ];
-        $validator = Validator::make($request->all(),$rules,$message);
-        if($validator->fails()){
-            return response([
-                "ok"=>'server',
-                "errors"=> $validator->errors()
-            ],400);
-        }
+            'region_siege'=>["required","exists:enemurations,id_enemuration"], 
+        ]);
         $client = Collectivite::create([
             "typeCollectivite"=>"EPIC"
         ]);
-        $epic = EPIC::create([
-            "nomEpic"=>$request["nomEpic"],
-            "serin"=>$request["serin"],
-            "adresse"=>isset($request["adresse"])?$request["adresse"]:null,
-            "lat"=>isset($request["lat"])?$request["lat"]:null,
-            "lang"=>isset($request["lang"])?$request["lang"]:null,
-            "siteInternet"=>isset($request["siteInternet"])?$request["siteInternet"]:null,
-            "telephoneStandard"=>isset($request["telephoneStandard"])?$request["telephoneStandard"]:null,
-            "nombreHabitant"=>isset($request["nombreHabitant"])?$request["nombreHabitant"]:null,
-            "logo"=>isset($request["logo"])?$request["logo"]:null,
-            "nature_juridique"=>$request["nature_juridique"],
-            "departement_siege"=>$request["departement_siege"],
-            "competence_dechet"=>$request["competence_dechet"],
-            "region_siege"=>$request["region_siege"],
-            "exerciceCompetance"=>$request['exerciceCompetance'],
-            "id_collectivite"=>$client->id_collectivite
-        ]);
+        $epic = EPIC::create($request->only(["nomEpic","serin","nom_court","sinoe","adresse","lat","lang","siteInternet","telephoneStandard","nombreHabitant","logo","nature_juridique","departement_siege","competence_dechet","region_siege","exerciceCompetance"])+['id_collectivite'=>$client->id_collectivite]);
         if(isset($request['id_syndicat']) && $request['exerciceCompetance']=="déléguée"){
             $syndhas = SyndicatHasEpic::create([
                 "id_epic"=>$epic->id_epic,
                 "id_syndicat"=>$request['id_syndicat']
             ]);
         }
-        
         return response([
             "ok"=>true,
             "data"=>$epic
@@ -212,15 +175,13 @@ class EPICController extends Controller
         $this->validate($request,[
             "id_epic"=>["required","exists:epics"],
             "nomEpic"=>["required","string"],
-            "serin"=>["required","string"],
+            "sinoe"=>['required'],
+            "serin"=>["required","numeric","digits:9"],
+            'nom_court'=>["required"],
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],
             'departement_siege'=>["required","exists:enemurations,id_enemuration"],
             'competence_dechet'=>["required","exists:enemurations,id_enemuration"],
             'region_siege'=>["required","exists:enemurations,id_enemuration"]
-        ],[
-            "required"=>"the :attribute is required",
-            "string"=>"the :attribute must be a string",
-            "exists"=>":attribute doit être existe"
         ]);
         $reqeustClt=collect($request);
         $epic = EPIC::find($request["id_epic"]);
@@ -231,7 +192,7 @@ class EPICController extends Controller
                 $prevRattach->delete();
             }
         }
-        $epic->update($reqeustClt->only(["nomEpic","serin","adresse","lat","lang","siteInternet","telephoneStandard","nombreHabitant","logo","nature_juridique","departement_siege","competence_dechet","region_siege","exerciceCompetance"])->toArray());
+        $epic->update($reqeustClt->only(["nomEpic","nom_court","sinoe","serin","adresse","lat","lang","siteInternet","telephoneStandard","nombreHabitant","logo","nature_juridique","departement_siege","competence_dechet","region_siege","exerciceCompetance"])->toArray());
         if($CreateNew){
             $syndhas = SyndicatHasEpic::create([
                 "id_epic"=>$epic->id_epic,
@@ -239,7 +200,7 @@ class EPICController extends Controller
             ]);
         }
         return response([
-            "ok"=>"server",
+            "ok"=>true,
             "data"=>$epic
         ],200);
     }
@@ -264,10 +225,13 @@ class EPICController extends Controller
     {
         if(!empty($request['idepic'])){
             $idEpic=$request['idepic'];
-            $epic=EPIC::with('communes')
-            ->with('syndicat')
-            ->with('contacts')
+            $epic=EPIC::with(['communes','syndicat','contacts','logo'])
             ->find($idEpic);
+            $epic->withEnums();
+            $epic=$epic->toArray();
+            if(!empty($epic["logo"][0])){
+                $epic["logo"]=$epic["logo"][0]["url"];
+            }
             return response([
                 'ok'=>true,
                 'data'=>$epic
@@ -289,8 +253,7 @@ class EPICController extends Controller
     {
         if(!empty($request['idepic'])){
             $idEpic=$request['idepic'];
-            $epic=EPIC::find($idEpic);
-            $epic->syndicat;
+            $epic=EPIC::with(['syndicat','logo'])->find($idEpic);
             return response([
                 'ok'=>true,
                 'data'=>$epic

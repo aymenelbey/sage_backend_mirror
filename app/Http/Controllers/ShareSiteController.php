@@ -114,4 +114,36 @@ class ShareSiteController extends Controller
             'data'=>"no action"
         ]);
     }
+    public function extend_site(Request $request){
+        
+        $this->validate($request,[
+            "share"=>['required','exists:share_sites,id_share_site'],
+            "start"=>["required"],
+            "end"=>['required']
+        ],[
+            "share.exists"=>["Le partage que voullez renouveller n'exits pas"],
+            "start.required"=>['La nouvelle date début de partage et obligatoire'],
+            "end.required"=>['La nouvelle date fin de partage et obligatoire']
+        ]);
+        $share=ShareSite::find($request['share']);
+        $share->start=Carbon::createFromFormat('d/m/Y', $request->start)->format('Y-m-d');
+        $share->end=Carbon::createFromFormat('d/m/Y', $request->end)->format('Y-m-d');
+        if(isset($request["columns"]) && is_array($request["columns"])){
+            $columns='';
+            foreach($request['columns'] as $key=>$value){
+                if(in_array($key,self::VALID_COLOMNS) && $value){
+                    $columns.=$key.'|';
+                }
+            }
+            $share->columns=$columns;
+        }
+        $share->save();
+        $share->site;
+        $share->start=Carbon::parse($share->start)->format('d/m/y');
+        $share->end=Carbon::parse($share->end)->format('d/m/y');
+        return response([
+            'ok'=>true,
+            "data"=>$share
+        ]);
+    }
 }

@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\ContactHasPersonMoral;
 use App\Models\Enemuration;
+use App\Models\PersonFunction;
 use App\Models\Contact;
 use App\Models\Syndicat;
 use App\Models\EPIC;
@@ -45,8 +46,17 @@ class ContactHasPersonMoralFactory extends Factory
         return [
             "idPersonMoral"=>$idPerson,
             "id_contact"=>$this->faker->unique()->randomElement(Contact::all()->pluck('id_contact')),
-            "typePersonMoral"=>$typePerson,
-            "function"=>$this->faker->randomElement(Enemuration::where("keyEnum","function_person")->get()->pluck('id_enemuration'))
+            "typePersonMoral"=>$typePerson
         ];
+    }
+    public function configure(){
+        return $this->afterCreating(function (ContactHasPersonMoral $person_moral) {
+            PersonFunction::factory()
+            ->count($this->faker->numberBetween(1, 4))
+            ->create([
+                "functionPerson"=>$this->faker->randomElement(Enemuration::where("key_enum","function_person")->get()->pluck('id_enemuration')),
+                "id_person"=>$person_moral->id_contact_has_person_morals
+            ]);
+        });
     }
 }

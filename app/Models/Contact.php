@@ -15,16 +15,14 @@ class Contact extends Model
         "genre",
         "nom",
         "prenom",
-        "telephone1",
-        "telephone2",
-        "mobile1",
-        "mobile2",
+        "telephone",
+        "mobile",
         "email",
         "informations",
         'address'
     ];
     protected $dates = ['deleted_at'];
-    public function personsMoral(){
+    public function persons_moral(){
         return $this->hasMany(ContactHasPersonMoral::class,"id_contact","id_contact");
     }
 }

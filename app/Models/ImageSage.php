@@ -19,4 +19,12 @@ class ImageSage extends Model
         "status"
     ];
     protected $dates = ['deleted_at'];
+    public function __toString()
+    {
+        return $this->url;
+    }
+    /*public function toArray()
+    {
+        return $this->url;
+    }*/
 }
