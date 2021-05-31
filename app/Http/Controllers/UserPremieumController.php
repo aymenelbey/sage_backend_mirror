@@ -49,6 +49,8 @@ class UserPremieumController extends Controller
     public function all(Request $request){
         $nom=$request->get('nom');
         $prenom=$request->get('prenom');
+        $sort=$request->get('sort');
+        $sorter=$request->get('sorter');
         $function='where';
         $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
         $Query = UserPremieum::query();
@@ -62,8 +64,12 @@ class UserPremieumController extends Controller
             $function='orWhere';
         }
         $Query=$Query->where('users.typeuser','=','UserPremieume');
-        $users=$Query->orderBy("user_premieums.updated_at","DESC")
-        ->paginate($pageSize,['user_premieums.id_user_premieum AS id_user','users.init_password','user_premieums.nom','user_premieums.prenom','user_premieums.email_user_prem AS email','users.username','user_premieums.phone','user_premieums.nbAccess']);
+        if(in_array($sort,['ASC','DESC']) && in_array($sorter,['nom','prenom','phone','nbAccess'])){
+            $Query=$Query->orderBy("user_premieums.".$sorter,$sort);
+        }else{
+            $Query=$Query->orderBy("user_premieums.updated_at","DESC");
+        }
+        $users=$Query->paginate($pageSize,['user_premieums.id_user_premieum AS id_user','users.init_password','user_premieums.nom','user_premieums.prenom','user_premieums.email_user_prem AS email','users.username','user_premieums.phone','user_premieums.nbAccess']);
         return response([
             "ok"=>true,
             "data"=> $users

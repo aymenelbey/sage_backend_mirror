@@ -26,8 +26,10 @@ class GestionnaireController extends Controller
         $prenom=$request->get('prenom');
         $phone=$request->get('phone');
         $status=$request->get('status');
+        $sort=$request->get('sort');
+        $sorter=$request->get('sorter');
         $function='where';
-        $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
+        $pageSize=$request->get('pageSize')?$request->get('pageSize'):20;
         $queryGestionaire = Gestionnaire::query();
         $queryGestionaire=$queryGestionaire->join("users","gestionnaires.id_user","=","users.id");
         if($status){
@@ -48,8 +50,12 @@ class GestionnaireController extends Controller
                 $query->{$function}("gestionnaires.mobile","ILIKE","%{$phone}%");
             }
         });
-        $gestionaires=$queryGestionaire->orderBy("gestionnaires.created_at","DESC")
-        ->paginate($pageSize,["gestionnaires.status","gestionnaires.nom","gestionnaires.prenom","gestionnaires.mobile","gestionnaires.telephone","gestionnaires.email",'gestionnaires.nom','gestionnaires.prenom','users.init_password','users.username',"gestionnaires.id_gestionnaire"]);
+        if(in_array($sort,['ASC','DESC']) && in_array($sorter,['status','nom','prenom','telephone','email','mobile'])){
+            $queryGestionaire=$queryGestionaire->orderBy("gestionnaires.".$sorter,$sort);
+        }else{
+            $queryGestionaire=$queryGestionaire->orderBy("gestionnaires.updated_at","DESC");
+        }
+        $gestionaires=$queryGestionaire->paginate($pageSize,["gestionnaires.status","gestionnaires.nom","gestionnaires.prenom","gestionnaires.mobile","gestionnaires.telephone","gestionnaires.email",'gestionnaires.nom','gestionnaires.prenom','users.init_password','users.username',"gestionnaires.id_gestionnaire"]);
         return response([
             "ok"=> true,
             "data"=>$gestionaires,

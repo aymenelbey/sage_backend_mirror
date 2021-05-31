@@ -43,12 +43,17 @@ class ContactController extends Controller
      */
     public function index(Request $request)
     {
-
-        $nom=$request->get('nom');
-        $prenom=$request->get('prenom');
-        $address=$request->get('address');
+        $search=$request->get('search');
+        $status=$request->get('status');
+        $nom=$request->get('nom');$nom=$nom?$nom:$search;
+        $prenom=$request->get('prenom');$prenom=$prenom?$prenom:$search;
+        $address=$request->get('address');$address=$address?$address:$search;
+        $telephone=$request->get('telephone');$telephone=$telephone?$telephone:$search;
+        $email=$request->get('email');$email=$email?$email:$search;
+        $sort=$request->get('sort');
+        $sorter=$request->get('sorter');
         $function='where';
-        $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
+        $pageSize=$request->get('pageSize')?$request->get('pageSize'):20;
         $contactQuery = Contact::query();
         if($nom){
             $contactQuery=$contactQuery->{$function}("nom","ILIKE","%{$nom}%");
@@ -59,11 +64,27 @@ class ContactController extends Controller
             $function='orWhere';
         }
         if($address){
-            $contactQuery=$contactQuery->{$function}("adresse","ILIKE","%{$address}%");
+            $contactQuery=$contactQuery->{$function}("address","ILIKE","%{$address}%");
             $function='orWhere';
         }
-        $contacts=$contactQuery->orderBy("created_at","DESC")
-        ->paginate($pageSize);
+        if($telephone){
+            $contactQuery=$contactQuery->{$function}("telephone","ILIKE","%{$telephone}%");
+            $function='orWhere';
+        }
+        if($email){
+            $contactQuery=$contactQuery->{$function}("email","ILIKE","%{$email}%");
+            $function='orWhere';
+        }
+        if(in_array($status,['active','inactive'])){
+            $contactQuery=$contactQuery->{$function}("status","=",$status=='active'?true:false);
+            $function='orWhere';
+        }
+        if(in_array($sort,['ASC','DESC']) && in_array($sorter,["status","genre","nom","prenom","telephone","mobile","email","informations",'address'])){
+           $contactQuery=$contactQuery->orderBy($sorter,$sort);
+        }else{
+           $contactQuery=$contactQuery->orderBy("updated_at","DESC");
+        }
+        $contacts=$contactQuery->paginate($pageSize);
         return response([
             "ok"=>true,
             "data"=>$contacts

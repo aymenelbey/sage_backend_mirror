@@ -14,7 +14,7 @@ class Authenticate extends Middleware
      * @param  \Illuminate\Http\Request  $request
      * @return string|null
      */
-    public function handle($request, Closure $next)
+    public function handle($request, Closure $next,...$guards)
     {
         try {
             $user = JWTAuth::parseToken()->authenticate();

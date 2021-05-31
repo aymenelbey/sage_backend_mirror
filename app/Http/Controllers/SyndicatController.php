@@ -17,21 +17,83 @@ class SyndicatController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function all(Request $request){
-        $nomCourt=$request->get('nomCourt');
-        $address=$request->get('address');
+        $search=$request->get('search');
+        $nomCourt=$request->get('nomCourt');$nomCourt=$nomCourt?$nomCourt:$search;
+        $address=$request->get('address');$address=$address?$address:$search;
+        $denomination=$request->get('denomination');$denomination=$denomination?$denomination:$search;
+        $serin=$request->get('serin');$serin=$serin?$serin:$search;
+        $nature_juridique=$request->get('nature_juridique');
+        $region_siege=$request->get('region_siege');
+        $departement_siege=$request->get('departement_siege');
+        $competence_dechet=$request->get('competence_dechet');
+        $amobe=$request->get('amobe');
+        $sort=$request->get('sort');
+        $sorter=$request->get('sorter');
         $function='where';
+        $funHas='whereHas';
         $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
         $syndicatQuery = Syndicat::query();
         if($nomCourt){
             $syndicatQuery=$syndicatQuery->{$function}("nomCourt","ILIKE","%{$nomCourt}%");
             $function='orWhere';
+            $funHas='orWhereHas';
         }
         if($address){
             $syndicatQuery=$syndicatQuery->{$function}("adresse","ILIKE","%{$address}%");
             $function='orWhere';
+            $funHas='orWhereHas';
         }
-        $syndicat=$syndicatQuery->orderBy("id_syndicat","ASC")
-        ->paginate($pageSize);
+        if($denomination){
+            $syndicatQuery=$syndicatQuery->{$function}("denominationLegale","ILIKE","%{$denomination}%");
+            $function='orWhere';
+            $funHas='orWhereHas';
+        }
+        if($serin){
+            $syndicatQuery=$syndicatQuery->{$function}("serin","ILIKE","%{$serin}%");
+            $function='orWhere';
+            $funHas='orWhereHas';
+        }
+        if($nature_juridique){
+            $syndicatQuery=$syndicatQuery->{$funHas}("nature_juridique",function($query)use($nature_juridique){
+                $query->where('value_enum', 'ILIKE', "%{$nature_juridique}%");
+            });
+            $function='orWhere';
+            $funHas='orWhereHas';
+        }
+        if($region_siege){
+            $syndicatQuery=$syndicatQuery->{$funHas}("region_siege",function($query)use($region_siege){
+                $query->where('value_enum', 'ILIKE', "%{$region_siege}%");
+            });
+            $function='orWhere';
+            $funHas='orWhereHas';
+        }
+        if($departement_siege){
+            $syndicatQuery=$syndicatQuery->{$funHas}("departement_siege",function($query)use($departement_siege){
+                $query->where('value_enum', 'ILIKE', "%{$departement_siege}%");
+            });
+            $function='orWhere';
+            $funHas='orWhereHas';
+        }
+        if($competence_dechet){
+            $syndicatQuery=$syndicatQuery->{$funHas}("competence_dechet",function($query)use($competence_dechet){
+                $query->where('value_enum', 'ILIKE', "%{$competence_dechet}%");
+            });
+            $function='orWhere';
+            $funHas='orWhereHas';
+        }
+        if($amobe){
+            $syndicatQuery=$syndicatQuery->{$funHas}("amobe",function($query)use($amobe){
+                $query->where('value_enum', 'ILIKE', "%{$amobe}%");
+            });
+            $function='orWhere';
+            $funHas='orWhereHas';
+        }
+        if(in_array($sort,['ASC','DESC']) && in_array($sorter,["nomCourt","denominationLegale","serin","adresse","siteInternet","telephoneStandard","nombreHabitant",'amobe','nature_juridique','departement_siege','competence_dechet','region_siege',"email","sinoe"])){
+            $syndicatQuery=$syndicatQuery->orderBy($sorter,$sort);
+        }else{
+            $syndicatQuery=$syndicatQuery->orderBy("updated_at","ASC");
+        }
+        $syndicat=$syndicatQuery->paginate($pageSize);
         return response([
             "ok"=>true,
             "data"=> $syndicat

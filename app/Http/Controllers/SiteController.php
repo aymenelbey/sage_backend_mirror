@@ -44,29 +44,47 @@ class SiteController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function all(Request $request){
-        $cateSite=$request->get('cateSite');
-        $modGest=$request->get('modGest');
-        $address=$request->get('address');
+        $search=$request->get('search');
+        $categorieSite=$request->get('categorieSite');
+        $modeGestion=$request->get('modeGestion');
+        $address=$request->get('adresse');$address=$address?$address:$search;
+        $denomination=$request->get('denomination');$denomination=$denomination?$denomination:$search;
+        $telephoneStandrad=$request->get('telephoneStandrad');$telephoneStandrad=$telephoneStandrad?$telephoneStandrad:$search;
+        $sort=$request->get('sort');
+        $sorter=$request->get('sorter');
         $function='where';
-        $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
+        $pageSize=$request->get('pageSize')?$request->get('pageSize'):20;
         $siteQuery = Site::query();
-        if($cateSite){
-            $siteQuery=$siteQuery->{$function}("categorieSite","ILIKE","{$cateSite}");
+        if(!empty($denomination)){
+            $siteQuery=$siteQuery->{$function}("denomination","ILIKE","%{$denomination}%");
             $function='orWhere';
         }
-        if($modGest){
-            $siteQuery=$siteQuery->{$function}("modeGestion","ILIKE","{$modGest}");
+        if(in_array($categorieSite,["UVE","TRI","TMB","ISDND"])){
+            $siteQuery=$siteQuery->{$function}("categorieSite","=","{$categorieSite}");
+            $function='orWhere';
+        }
+        if(in_array($modeGestion,["Gestion privée","Prestation de service","Regie","DSP"])){
+            $siteQuery=$siteQuery->{$function}("modeGestion","=","{$modeGestion}");
             $function='orWhere';
         }
         if($address){
             $siteQuery=$siteQuery->{$function}("adresse","ILIKE","%{$address}%");
             $function='orWhere';
         }
-        $sites=$siteQuery->orderBy("created_at","DESC")
-        ->paginate($pageSize);
+        if($telephoneStandrad){
+            $siteQuery=$siteQuery->{$function}("telephoneStandrad","ILIKE","%{$telephoneStandrad}%");
+            $function='orWhere';
+        }
+        if(in_array($sort,['ASC','DESC']) && in_array($sorter,["denomination","categorieSite","sinoe","adresse","sinoe","siteIntrnet","telephoneStandrad","anneeCreation","modeGestion","perdiocitRelance"])){
+           $siteQuery=$siteQuery->orderBy($sorter,$sort);
+        }else{
+           $siteQuery=$siteQuery->orderBy("updated_at","DESC");
+        }
+        $sites=$siteQuery->paginate($pageSize);
         return response([
             "ok"=>true,
-            "data"=> $sites
+            "data"=> $sites,
+            "sql"=>$siteQuery->toSql()
         ],200);
 
     }

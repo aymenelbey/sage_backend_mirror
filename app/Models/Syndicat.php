@@ -48,6 +48,21 @@ class Syndicat extends Model
     public function ged_rapport(){
         return $this->hasMany(ImageSage::class,"uid","ged_rapport");
     }
+    public function departement_siege(){
+        return $this->hasOne(Enemuration::class,'id_enemuration', 'departement_siege');
+    }
+    public function nature_juridique(){
+        return $this->hasOne(Enemuration::class,'id_enemuration', 'nature_juridique');
+    }
+    public function competence_dechet(){
+        return $this->hasOne(Enemuration::class,'id_enemuration', 'competence_dechet');
+    }
+    public function region_siege(){
+        return $this->hasOne(Enemuration::class,'id_enemuration', 'region_siege');
+    }
+    public function amobe(){
+        return $this->hasOne(Enemuration::class,'id_enemuration', 'amobe');
+    }
     public function withEnums(){
         $dep=$this->hasOne(Enemuration::class,'id_enemuration', 'departement_siege')->first();
         $reg=$this->hasOne(Enemuration::class, 'id_enemuration', 'region_siege')->first();

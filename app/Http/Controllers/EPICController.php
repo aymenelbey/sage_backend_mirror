@@ -20,8 +20,10 @@ class EPICController extends Controller
     {
         $nomEpic=$request->get('nomepic');
         $address=$request->get('address');
+        $sort=$request->get('sort');
+        $sorter=$request->get('sorter');
         $function='where';
-        $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
+        $pageSize=$request->get('pageSize')?$request->get('pageSize'):20;
         $epicQuery = EPIC::query();
         if($nomEpic){
             $epicQuery=$epicQuery->{$function}("nomEpic","ILIKE","%{$nomEpic}%");
@@ -31,8 +33,13 @@ class EPICController extends Controller
             $epicQuery=$epicQuery->{$function}("adresse","ILIKE","%{$address}%");
             $function='orWhere';
         }
-        $epics=$epicQuery->orderBy("created_at","DESC")
-        ->paginate($pageSize);
+        if(in_array($sort,['ASC','DESC']) && in_array($sorter,["nomEpic","serin","adresse",'nom_court','sinoe',"siteInternet","telephoneStandard","nombreHabitant",
+        "nature_juridique","departement_siege","competence_dechet","region_siege","exerciceCompetance","id_epic"])){
+            $epicQuery=$epicQuery->orderBy($sorter,$sort);
+        }else{
+           $epicQuery=$epicQuery->orderBy("created_at","DESC");
+        }
+        $epics=$epicQuery->paginate($pageSize);
         return response([
             "ok"=>true,
             "data"=> $epics

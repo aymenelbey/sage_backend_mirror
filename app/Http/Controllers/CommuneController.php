@@ -19,8 +19,10 @@ class CommuneController extends Controller
         $nomCommune=$request->get('nomCommune');
         $address=$request->get('address');
         $requireList=$request->get('list');
+        $sort=$request->get('sort');
+        $sorter=$request->get('sorter');
         $function='where';
-        $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
+        $pageSize=$request->get('pageSize')?$request->get('pageSize'):20;
         $communeQuery = Commune::query();
         if($nomCommune){
             $communeQuery=$communeQuery->{$function}("nomCommune","ILIKE","%{$nomCommune}%");
@@ -35,8 +37,12 @@ class CommuneController extends Controller
             $communeQuery=$communeQuery->{$function."In"}("id_commune",$arrayData);
             $function='orWhere';
         }
-        $commune=$communeQuery->orderBy("id_commune","DESC")
-        ->paginate($pageSize);
+        if(in_array($sort,['ASC','DESC']) && in_array($sorter,["nomCommune","adresse","insee","serin","departement_siege","region_siege","nombreHabitant","id_commune"])){
+            $communeQuery=$communeQuery->orderBy($sorter,$sort);
+        }else{
+           $communeQuery=$communeQuery->orderBy("id_commune","DESC");
+        }
+        $commune=$communeQuery->paginate($pageSize);
         return response([
             "ok"=>true,
             "data"=>$commune
