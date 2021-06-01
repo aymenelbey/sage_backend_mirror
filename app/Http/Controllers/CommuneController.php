@@ -16,26 +16,48 @@ class CommuneController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function all(Request $request){
-        $nomCommune=$request->get('nomCommune');
-        $address=$request->get('address');
+        $search=$request->get('search');
+        $typeJoin=$request->get('typeFilter');
+        $nomCommune=$request->get('nomCommune');$nomCommune=$nomCommune?$nomCommune:$search;
+        $address=$request->get('address');$address=$address?$address:$search;
+        $serin=$request->get('serin');$serin=$serin?$serin:$search;
+        $insee=$request->get('insee');$insee=$insee?$insee:$search;
+        $nombreHabitant=$request->get('nombreHabitant');
+        $id_commune=$request->get('id_commune');
         $requireList=$request->get('list');
         $sort=$request->get('sort');
         $sorter=$request->get('sorter');
         $function='where';
         $pageSize=$request->get('pageSize')?$request->get('pageSize'):20;
         $communeQuery = Commune::query();
+        if($id_commune){
+            $communeQuery=$communeQuery->{$function}("id_commune","=",$id_commune);
+            $function=$typeJoin=="inter"?"where":"orWhere";
+        }
         if($nomCommune){
             $communeQuery=$communeQuery->{$function}("nomCommune","ILIKE","%{$nomCommune}%");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
+        }
+        if($nombreHabitant){
+            $communeQuery=$communeQuery->{$function}("nombreHabitant","<=",$nombreHabitant);
+            $function=$typeJoin=="inter"?"where":"orWhere";
+        }
+        if($serin){
+            $communeQuery=$communeQuery->{$function}("serin","ILIKE","%{$serin}%");
+            $function=$typeJoin=="inter"?"where":"orWhere";
+        }
+        if($insee){
+            $communeQuery=$communeQuery->{$function}("insee","ILIKE","%{$insee}%");
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if($address){
             $communeQuery=$communeQuery->{$function}("adresse","ILIKE","%{$address}%");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if($requireList && ($nomCommune || $address)){
             $arrayData=explode(".",$requireList);
             $communeQuery=$communeQuery->{$function."In"}("id_commune",$arrayData);
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if(in_array($sort,['ASC','DESC']) && in_array($sorter,["nomCommune","adresse","insee","serin","departement_siege","region_siege","nombreHabitant","id_commune"])){
             $communeQuery=$communeQuery->orderBy($sorter,$sort);

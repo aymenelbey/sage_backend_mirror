@@ -18,6 +18,7 @@ class SyndicatController extends Controller
      */
     public function all(Request $request){
         $search=$request->get('search');
+        $typeJoin=$request->get('typeFilter');
         $nomCourt=$request->get('nomCourt');$nomCourt=$nomCourt?$nomCourt:$search;
         $address=$request->get('address');$address=$address?$address:$search;
         $denomination=$request->get('denomination');$denomination=$denomination?$denomination:$search;
@@ -35,58 +36,58 @@ class SyndicatController extends Controller
         $syndicatQuery = Syndicat::query();
         if($nomCourt){
             $syndicatQuery=$syndicatQuery->{$function}("nomCourt","ILIKE","%{$nomCourt}%");
-            $function='orWhere';
-            $funHas='orWhereHas';
+            $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
         }
         if($address){
             $syndicatQuery=$syndicatQuery->{$function}("adresse","ILIKE","%{$address}%");
-            $function='orWhere';
-            $funHas='orWhereHas';
+            $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
         }
         if($denomination){
             $syndicatQuery=$syndicatQuery->{$function}("denominationLegale","ILIKE","%{$denomination}%");
-            $function='orWhere';
-            $funHas='orWhereHas';
+           $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
         }
         if($serin){
             $syndicatQuery=$syndicatQuery->{$function}("serin","ILIKE","%{$serin}%");
-            $function='orWhere';
-            $funHas='orWhereHas';
+            $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
         }
         if($nature_juridique){
             $syndicatQuery=$syndicatQuery->{$funHas}("nature_juridique",function($query)use($nature_juridique){
                 $query->where('value_enum', 'ILIKE', "%{$nature_juridique}%");
             });
-            $function='orWhere';
-            $funHas='orWhereHas';
+            $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
         }
         if($region_siege){
             $syndicatQuery=$syndicatQuery->{$funHas}("region_siege",function($query)use($region_siege){
                 $query->where('value_enum', 'ILIKE', "%{$region_siege}%");
             });
-            $function='orWhere';
-            $funHas='orWhereHas';
+            $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
         }
         if($departement_siege){
             $syndicatQuery=$syndicatQuery->{$funHas}("departement_siege",function($query)use($departement_siege){
                 $query->where('value_enum', 'ILIKE', "%{$departement_siege}%");
             });
-            $function='orWhere';
-            $funHas='orWhereHas';
+            $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
         }
         if($competence_dechet){
             $syndicatQuery=$syndicatQuery->{$funHas}("competence_dechet",function($query)use($competence_dechet){
                 $query->where('value_enum', 'ILIKE', "%{$competence_dechet}%");
             });
-            $function='orWhere';
-            $funHas='orWhereHas';
+            $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
         }
         if($amobe){
             $syndicatQuery=$syndicatQuery->{$funHas}("amobe",function($query)use($amobe){
                 $query->where('value_enum', 'ILIKE', "%{$amobe}%");
             });
-            $function='orWhere';
-            $funHas='orWhereHas';
+            $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
         }
         if(in_array($sort,['ASC','DESC']) && in_array($sorter,["nomCourt","denominationLegale","serin","adresse","siteInternet","telephoneStandard","nombreHabitant",'amobe','nature_juridique','departement_siege','competence_dechet','region_siege',"email","sinoe"])){
             $syndicatQuery=$syndicatQuery->orderBy($sorter,$sort);

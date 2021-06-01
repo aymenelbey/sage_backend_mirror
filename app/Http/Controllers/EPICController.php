@@ -18,20 +18,67 @@ class EPICController extends Controller
      */
     public function all(Request $request)
     {
-        $nomEpic=$request->get('nomepic');
-        $address=$request->get('address');
+        $search=$request->get('search');
+        $typeJoin=$request->get('typeFilter');
+        $nomEpic=$request->get('nomEpic');$nomEpic=$nomEpic?$nomEpic:$search;
+        $address=$request->get('address');$address=$address?$address:$search;
+        $serin=$request->get('serin');$serin=$serin?$serin:$search;
+        $nombreHabitant=$request->get('nombreHabitant');
+        $id_epic=$request->get('id_epic');
         $sort=$request->get('sort');
         $sorter=$request->get('sorter');
+        $nature_juridique=$request->get('nature_juridique');
+        $region_siege=$request->get('region_siege');
+        $departement_siege=$request->get('departement_siege');
         $function='where';
+        $funHas='whereHas';
         $pageSize=$request->get('pageSize')?$request->get('pageSize'):20;
         $epicQuery = EPIC::query();
+        if($id_epic){
+            $epicQuery=$epicQuery->{$function}("id_epic","=",$id_epic);
+            $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
+        }
         if($nomEpic){
             $epicQuery=$epicQuery->{$function}("nomEpic","ILIKE","%{$nomEpic}%");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
         }
         if($address){
             $epicQuery=$epicQuery->{$function}("adresse","ILIKE","%{$address}%");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
+        }
+        if($serin){
+            $epicQuery=$epicQuery->{$function}("serin","ILIKE","%{$serin}%");
+            $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
+        }
+        if($nombreHabitant){
+            $epicQuery=$epicQuery->{$function}("nombreHabitant","<=",$nombreHabitant);
+            $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
+        }
+        if($nature_juridique){
+            $epicQuery=$epicQuery->{$funHas}("nature_juridique",function($query)use($nature_juridique){
+                $query->where('value_enum', 'ILIKE', "%{$nature_juridique}%");
+            });
+            $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
+        }
+        if($region_siege){
+            $epicQuery=$epicQuery->{$funHas}("region_siege",function($query)use($region_siege){
+                $query->where('value_enum', 'ILIKE', "%{$region_siege}%");
+            });
+            $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
+        }
+        if($departement_siege){
+            $epicQuery=$epicQuery->{$funHas}("departement_siege",function($query)use($departement_siege){
+                $query->where('value_enum', 'ILIKE', "%{$departement_siege}%");
+            });
+            $function=$typeJoin=="inter"?"where":"orWhere";
+            $funHas=$typeJoin=="inter"?"whereHas":"orWhereHas";
         }
         if(in_array($sort,['ASC','DESC']) && in_array($sorter,["nomEpic","serin","adresse",'nom_court','sinoe',"siteInternet","telephoneStandard","nombreHabitant",
         "nature_juridique","departement_siege","competence_dechet","region_siege","exerciceCompetance","id_epic"])){

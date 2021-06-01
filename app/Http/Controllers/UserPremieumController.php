@@ -47,21 +47,38 @@ class UserPremieumController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function all(Request $request){
-        $nom=$request->get('nom');
-        $prenom=$request->get('prenom');
+        $search=$request->get('search');
+        $typeJoin=$request->get('typeFilter');
+        $nom=$request->get('nom');$nom=$nom?$nom:$search;
+        $prenom=$request->get('prenom');$prenom=$prenom?$prenom:$search;
+        $nbAccess=$request->get('nbAccess');
+        $email=$request->get('email');$email=$email?$email:$search;
+        $phone=$request->get('phone');$phone=$phone?$phone:$search;
         $sort=$request->get('sort');
         $sorter=$request->get('sorter');
         $function='where';
-        $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
+        $pageSize=$request->get('pageSize')?$request->get('pageSize'):20;
         $Query = UserPremieum::query();
         $Query=$Query->join("users","user_premieums.id_user","=","users.id");
         if($nom){
             $Query=$Query->{$function}("user_premieums.nom","ILIKE","%{$nom}%");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if($prenom){
             $Query=$Query->{$function}("user_premieums.prenom","ILIKE","%{$prenom}%");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
+        }
+        if($email){
+            $Query=$Query->{$function}("user_premieums.email_user_prem","ILIKE","%{$email}%");
+            $function=$typeJoin=="inter"?"where":"orWhere";
+        }
+        if($phone){
+            $Query=$Query->{$function}("user_premieums.phone","ILIKE","%{$phone}%");
+            $function=$typeJoin=="inter"?"where":"orWhere";
+        }
+        if($nbAccess){
+            $Query=$Query->{$function}("user_premieums.nbAccess","<=",$nbAccess);
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         $Query=$Query->where('users.typeuser','=','UserPremieume');
         if(in_array($sort,['ASC','DESC']) && in_array($sorter,['nom','prenom','phone','nbAccess'])){

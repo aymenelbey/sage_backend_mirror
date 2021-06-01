@@ -46,6 +46,15 @@ class EPIC extends Model
     public function logo(){
         return $this->hasMany(ImageSage::class,"uid","logo");
     }
+    public function nature_juridique(){
+        return $this->hasOne(Enemuration::class,'id_enemuration', 'nature_juridique');
+    }
+    public function departement_siege(){
+        return $this->hasOne(Enemuration::class,'id_enemuration', 'departement_siege');
+    }
+    public function region_siege(){
+        return $this->hasOne(Enemuration::class,'id_enemuration', 'region_siege');
+    }
     public function withEnums(){
         $dep=$this->hasOne(Enemuration::class,'id_enemuration', 'departement_siege')->first();
         $reg=$this->hasOne(Enemuration::class, 'id_enemuration', 'region_siege')->first();

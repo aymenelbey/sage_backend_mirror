@@ -22,9 +22,12 @@ class GestionnaireController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function all(Request $request){
-        $nom=$request->get('nom');
-        $prenom=$request->get('prenom');
-        $phone=$request->get('phone');
+        $search=$request->get('search');
+        $typeJoin=$request->get('typeFilter');
+        $nom=$request->get('nom');$nom=$nom?$nom:$search;
+        $prenom=$request->get('prenom');$prenom=$prenom?$prenom:$search;
+        $phone=$request->get('phone');$phone=$phone?$phone:$search;
+        $email=$request->get('email');$email=$email?$email:$search;
         $status=$request->get('status');
         $sort=$request->get('sort');
         $sorter=$request->get('sorter');
@@ -32,22 +35,25 @@ class GestionnaireController extends Controller
         $pageSize=$request->get('pageSize')?$request->get('pageSize'):20;
         $queryGestionaire = Gestionnaire::query();
         $queryGestionaire=$queryGestionaire->join("users","gestionnaires.id_user","=","users.id");
-        if($status){
-            $queryGestionaire=$queryGestionaire->where("gestionnaires.status","=",$status==1?true:false);
+        if(in_array($status,['active','inactive'])){
+            $queryGestionaire=$queryGestionaire->where("gestionnaires.status","=",$status=='active'?true:false);
         }
-        $queryGestionaire = $queryGestionaire->where(function($query) use($nom,$prenom,$phone,&$function)  {
+        $queryGestionaire = $queryGestionaire->where(function($query) use($nom,$prenom,$phone,&$function,$typeJoin,$email)  {
             if($nom){
                 $query->{$function}("gestionnaires.nom","ILIKE","%{$nom}%");
-                $function='orWhere';
+                $function=$typeJoin=="inter"?"where":"orWhere";
             }
             if($prenom){
                 $query->{$function}("gestionnaires.prenom","ILIKE","%{$prenom}%");
-                $function='orWhere';
+                $function=$typeJoin=="inter"?"where":"orWhere";
             }
             if($phone){
-                $query->{$function}("gestionnaires.telephone","ILIKE","%{$phone}%");
-                $function='orWhere';
                 $query->{$function}("gestionnaires.mobile","ILIKE","%{$phone}%");
+                $function=$typeJoin=="inter"?"where":"orWhere";
+            }
+            if($email){
+                $query->{$function}("gestionnaires.email","ILIKE","%{$email}%");
+                $function=$typeJoin=="inter"?"where":"orWhere";
             }
         });
         if(in_array($sort,['ASC','DESC']) && in_array($sorter,['status','nom','prenom','telephone','email','mobile'])){
@@ -58,8 +64,7 @@ class GestionnaireController extends Controller
         $gestionaires=$queryGestionaire->paginate($pageSize,["gestionnaires.status","gestionnaires.nom","gestionnaires.prenom","gestionnaires.mobile","gestionnaires.telephone","gestionnaires.email",'gestionnaires.nom','gestionnaires.prenom','users.init_password','users.username',"gestionnaires.id_gestionnaire"]);
         return response([
             "ok"=> true,
-            "data"=>$gestionaires,
-            "query"=>$queryGestionaire->toSql()
+            "data"=>$gestionaires
         ],200);
     }
     public function listSites(Request $request){
@@ -330,30 +335,47 @@ class GestionnaireController extends Controller
     {
         $gestionnaire = JWTAuth::user();
         $gestionnaire = Gestionnaire::where("id_user","=",$gestionnaire->id)->first();
-        $cateSite=$request->get('cateSite');
-        $modGest=$request->get('modGest');
-        $address=$request->get('address');
+        $search=$request->get('search');
+        $typeJoin=$request->get('typeFilter');
+        $categorieSite=$request->get('categorieSite');
+        $modeGestion=$request->get('modeGestion');
+        $address=$request->get('adresse');$address=$address?$address:$search;
+        $denomination=$request->get('denomination');$denomination=$denomination?$denomination:$search;
+        $telephoneStandrad=$request->get('telephoneStandrad');$telephoneStandrad=$telephoneStandrad?$telephoneStandrad:$search;
+        $sort=$request->get('sort');
+        $sorter=$request->get('sorter');
         $function='where';
-        $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
+        $pageSize=$request->get('pageSize')?$request->get('pageSize'):20;
         $siteQuery = Site::query();
         $siteQuery=$siteQuery->whereHas('gestionnaire', function($query) use ($gestionnaire) {
             $query->where('gestionnaire_has_sites.id_gestionnaire', $gestionnaire->id_gestionnaire);
         });
-        //innerJoin('gestionnaire_has_sites','gestionnaire_has_sites.id_site','=','sites.id_site');
-        if($cateSite){
-            $siteQuery=$siteQuery->{$function}("categorieSite","ILIKE","{$cateSite}");
-            $function='orWhere';
+         if(!empty($denomination)){
+            $siteQuery=$siteQuery->{$function}("denomination","ILIKE","%{$denomination}%");
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
-        if($modGest){
-            $siteQuery=$siteQuery->{$function}("modeGestion","ILIKE","{$modGest}");
-            $function='orWhere';
+        if(in_array($categorieSite,["UVE","TRI","TMB","ISDND"])){
+            $siteQuery=$siteQuery->{$function}("categorieSite","=","{$categorieSite}");
+            $function=$typeJoin=="inter"?"where":"orWhere";
+        }
+        if(in_array($modeGestion,["Gestion privée","Prestation de service","Regie","DSP"])){
+            $siteQuery=$siteQuery->{$function}("modeGestion","=","{$modeGestion}");
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if($address){
             $siteQuery=$siteQuery->{$function}("adresse","ILIKE","%{$address}%");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
-        $sites=$siteQuery->orderBy("created_at","DESC")
-        ->paginate($pageSize);
+        if($telephoneStandrad){
+            $siteQuery=$siteQuery->{$function}("telephoneStandrad","ILIKE","%{$telephoneStandrad}%");
+            $function=$typeJoin=="inter"?"where":"orWhere";
+        }
+        if(in_array($sort,['ASC','DESC']) && in_array($sorter,["denomination","categorieSite","sinoe","adresse","sinoe","siteIntrnet","telephoneStandrad","anneeCreation","modeGestion","perdiocitRelance"])){
+           $siteQuery=$siteQuery->orderBy($sorter,$sort);
+        }else{
+           $siteQuery=$siteQuery->orderBy("updated_at","DESC");
+        }
+        $sites=$siteQuery->paginate($pageSize);
         return response([
             "ok"=>true,
             "data"=> $sites

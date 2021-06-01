@@ -44,6 +44,7 @@ class ContactController extends Controller
     public function index(Request $request)
     {
         $search=$request->get('search');
+        $typeJoin=$request->get('typeFilter');
         $status=$request->get('status');
         $nom=$request->get('nom');$nom=$nom?$nom:$search;
         $prenom=$request->get('prenom');$prenom=$prenom?$prenom:$search;
@@ -57,27 +58,27 @@ class ContactController extends Controller
         $contactQuery = Contact::query();
         if($nom){
             $contactQuery=$contactQuery->{$function}("nom","ILIKE","%{$nom}%");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if($prenom){
             $contactQuery=$contactQuery->{$function}("prenom","ILIKE","%{$prenom}%");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if($address){
             $contactQuery=$contactQuery->{$function}("address","ILIKE","%{$address}%");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if($telephone){
             $contactQuery=$contactQuery->{$function}("telephone","ILIKE","%{$telephone}%");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if($email){
             $contactQuery=$contactQuery->{$function}("email","ILIKE","%{$email}%");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if(in_array($status,['active','inactive'])){
             $contactQuery=$contactQuery->{$function}("status","=",$status=='active'?true:false);
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if(in_array($sort,['ASC','DESC']) && in_array($sorter,["status","genre","nom","prenom","telephone","mobile","email","informations",'address'])){
            $contactQuery=$contactQuery->orderBy($sorter,$sort);

@@ -31,7 +31,6 @@ Route::middleware('auth:api')->group(function () {
         });
     });
     Route::middleware(['premission:Admin'])->group(function(){
-        Route::post("move/file",[App\Http\Controllers\CommonActionsController::class,"move_file"]);
         Route::prefix("shareds/")->group(function(){
             Route::post("add",[App\Http\Controllers\ShareSiteController::class,"share"]);
             Route::get("all",[App\Http\Controllers\ShareSiteController::class,"index"]);
@@ -151,19 +150,20 @@ Route::middleware('auth:api')->group(function () {
         });
     });
     Route::middleware(['premission:Gestionnaire'])->group(function(){
+        Route::post("move/file",[App\Http\Controllers\CommonActionsController::class,"move_file"]);
         Route::get("enums/show",[App\Http\Controllers\EnemurationController::class,"index"]);
         Route::prefix("managers/sites/")->group(function(){
             Route::get("all",[App\Http\Controllers\GestionnaireController::class,"list_sites"]);
             Route::middleware(['gestionnairePerm:idSite'])->group(function(){
-                Route::get("show/{idSite}",[App\Http\Controllers\SiteController::class,"show"]);
-                Route::get("edit/{idSite}",[App\Http\Controllers\SiteController::class,"edit"]);
+                Route::get("show/{id_site}",[App\Http\Controllers\SiteController::class,"show"]);
+                Route::get("edit/{id_site}",[App\Http\Controllers\SiteController::class,"edit"]);
             });
             Route::delete("delete",[App\Http\Controllers\SiteController::class,"destroy"])->middleware(['gestionnairePerm:delete']);
             Route::patch("update",[App\Http\Controllers\SiteController::class,"update"])->middleware(['gestionnairePerm:update']);
             //Route::post("create",[App\Http\Controllers\SiteController::class,"create"]);
         });
         Route::prefix("managers/map/")->group(function(){
-            Route::get("{lat}/{lang}/{zoom}",[App\Http\Controllers\MapSitesController::class,"getSites_manager"]);
+            Route::get("{lat}/{lang}",[App\Http\Controllers\MapSitesController::class,"getSites_manager"]);
         });
     });
 });

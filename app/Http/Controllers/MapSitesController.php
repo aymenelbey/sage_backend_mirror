@@ -38,7 +38,6 @@ class MapSitesController extends Controller
         $gestionnaire = JWTAuth::user();
         $gestionnaire = Gestionnaire::where("id_user","=",$gestionnaire->id)->first();
         $lat=$request['lat'];$lang=$request['lang'];
-        $range=$this->getRange($zoom);
         $catg=$request->get('catg');
         $function='where';
         $sitemapQuery = Site::query();
@@ -48,6 +47,14 @@ class MapSitesController extends Controller
         if($catg && in_array($catg,['UVE',"TMB",'TRI','ISDND'])){
             $sitemapQuery=$sitemapQuery->{$function}("categorieSite","=",$catg);
             $function='orWhere';
+        }
+        if($lat){
+            $lat=explode(',',$lat);
+            $sitemapQuery=$sitemapQuery->whereBetween("latitude",$lat);
+        }
+        if($lang){
+            $lang=explode(',',$lang);
+            $sitemapQuery=$sitemapQuery->whereBetween("langititude",$lang);
         }
         $sites=$sitemapQuery->get(['latitude AS lat','langititude AS lang','id_site','adresse','categorieSite AS iconType']);
         return response([

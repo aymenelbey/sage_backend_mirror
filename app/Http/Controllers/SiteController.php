@@ -45,6 +45,7 @@ class SiteController extends Controller
      */
     public function all(Request $request){
         $search=$request->get('search');
+        $typeJoin=$request->get('typeFilter');
         $categorieSite=$request->get('categorieSite');
         $modeGestion=$request->get('modeGestion');
         $address=$request->get('adresse');$address=$address?$address:$search;
@@ -57,23 +58,23 @@ class SiteController extends Controller
         $siteQuery = Site::query();
         if(!empty($denomination)){
             $siteQuery=$siteQuery->{$function}("denomination","ILIKE","%{$denomination}%");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if(in_array($categorieSite,["UVE","TRI","TMB","ISDND"])){
             $siteQuery=$siteQuery->{$function}("categorieSite","=","{$categorieSite}");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if(in_array($modeGestion,["Gestion privée","Prestation de service","Regie","DSP"])){
             $siteQuery=$siteQuery->{$function}("modeGestion","=","{$modeGestion}");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if($address){
             $siteQuery=$siteQuery->{$function}("adresse","ILIKE","%{$address}%");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if($telephoneStandrad){
             $siteQuery=$siteQuery->{$function}("telephoneStandrad","ILIKE","%{$telephoneStandrad}%");
-            $function='orWhere';
+            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if(in_array($sort,['ASC','DESC']) && in_array($sorter,["denomination","categorieSite","sinoe","adresse","sinoe","siteIntrnet","telephoneStandrad","anneeCreation","modeGestion","perdiocitRelance"])){
            $siteQuery=$siteQuery->orderBy($sorter,$sort);
@@ -83,8 +84,7 @@ class SiteController extends Controller
         $sites=$siteQuery->paginate($pageSize);
         return response([
             "ok"=>true,
-            "data"=> $sites,
-            "sql"=>$siteQuery->toSql()
+            "data"=> $sites
         ],200);
 
     }
