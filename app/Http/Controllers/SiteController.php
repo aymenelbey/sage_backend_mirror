@@ -172,10 +172,10 @@ class SiteController extends Controller
         $validator=SiteHelper::validateSiteInfo($request['siteInfo']);
         if ($validator->fails()) {
             return response([
-                "ok"=> 'server',
+                "message"=> "The given data was invalid.",
                 "level"=>0,
                 "errors"=>$validator->errors()
-            ],400);        
+            ],401);        
         }
         $techData=SiteHelper::extractTechData(collect($request[$siteInfo["categorieSite"]]),$siteInfo["categorieSite"]);
         $useradmin = JWTAuth::user();
@@ -310,7 +310,7 @@ class SiteController extends Controller
      */
     public function edit(Request $request)
     {
-        $site = Site::find($request["id_site"]);
+        $site = Site::with(['departement_siege:id_departement,id_departement AS value,name_departement AS label','region_siege:id_region,id_region AS value,name_region AS label'])->find($request["id_site"]);
         if($site){
             $personsData=[
                 "syndicat"=>[
@@ -334,7 +334,12 @@ class SiteController extends Controller
                     "dataIndex"=>"groupe"
                 ]
             ];
+            $arraySite=$site->toArray();
             $siteReturn=['siteInfo'=>$site->toArray()];
+            $siteReturn['departement_siege']=$arraySite['departement_siege'];
+            $siteReturn['region_siege']=$arraySite['region_siege'];
+            $siteReturn['siteInfo']['departement_siege']=$arraySite['departement_siege']['value'];
+            $siteReturn['siteInfo']['region_siege']=$arraySite['region_siege']['value'];
             $client=$site->client;
             if($client){
                 $siteReturn['siteInfo']['client']=$client->client->toArray();
@@ -356,9 +361,9 @@ class SiteController extends Controller
             ],200);
         }
         return response([
-            "ok"=>"server",
+            "message"=>"The given data was invalid.",
             "errors"=>"Site n'existe pas"
-        ],400);
+        ],401);
     }
 
     /**
@@ -377,10 +382,10 @@ class SiteController extends Controller
                 $validator=SiteHelper::validateSiteInfo($request['siteInfo']);
                 if ($validator->fails()) {
                     return response([
-                        "ok"=> 'server',
+                        "message"=> "The given data was invalid.",
                         "level"=>0,
                         "errors"=>$validator->errors()
-                    ],400);        
+                    ],401);        
                 }
                 $sitetoUpdate->update(SiteHelper::extractSiteData(collect($siteInfo)));
                 $useradmin = JWTAuth::user();
@@ -449,10 +454,10 @@ class SiteController extends Controller
             }
         }
         return response([
-            "ok"=> "server",
+            "message"=> "The given data was invalid.",
             "level"=>0,
             "errors"=>"Site n'exists pas"
-        ],400);
+        ],401);
     }
 
     /**

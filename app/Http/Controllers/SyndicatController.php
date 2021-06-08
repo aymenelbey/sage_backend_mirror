@@ -32,7 +32,7 @@ class SyndicatController extends Controller
         $sorter=$request->get('sorter');
         $function='where';
         $funHas='whereHas';
-        $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
+        $pageSize=$request->get('pageSize')?$request->get('pageSize'):20;
         $syndicatQuery = Syndicat::query();
         if($nomCourt){
             $syndicatQuery=$syndicatQuery->{$function}("nomCourt","ILIKE","%{$nomCourt}%");
@@ -92,12 +92,15 @@ class SyndicatController extends Controller
         if(in_array($sort,['ASC','DESC']) && in_array($sorter,["nomCourt","denominationLegale","serin","adresse","siteInternet","telephoneStandard","nombreHabitant",'amobe','nature_juridique','departement_siege','competence_dechet','region_siege',"email","sinoe"])){
             $syndicatQuery=$syndicatQuery->orderBy($sorter,$sort);
         }else{
-            $syndicatQuery=$syndicatQuery->orderBy("updated_at","ASC");
+            $syndicatQuery=$syndicatQuery->orderBy("updated_at","DESC");
         }
-        $syndicat=$syndicatQuery->paginate($pageSize);
+        $syndicats=$syndicatQuery->paginate($pageSize);
+        $syndicats->map(function($syndicat){
+           $syndicat->withEnums();
+        });
         return response([
             "ok"=>true,
-            "data"=> $syndicat
+            "data"=> $syndicats
         ],200);
     }
     public function show(Request $request){
@@ -172,18 +175,20 @@ class SyndicatController extends Controller
     public function create(Request $request){
         $this->validate($request,[
             "nomCourt"=>["required","string"],
-            "serin"=>["required","numeric","digits_between:1,14"],
+            "serin"=>["required","numeric","digits:14"],
             "sinoe"=>["required"],
             "email"=>["nullable","email"],
             "logo"=>["nullable","uuid","exists:image_sages,uid"],
             "ged_rapport"=>["nullable","uuid","exists:image_sages,uid"],
             "denominationLegale"=>["required","string"],
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],
-            'departement_siege'=>["required","exists:enemurations,id_enemuration"],
             'competence_dechet'=>["required","exists:enemurations,id_enemuration"],
-            'region_siege'=>["required","exists:enemurations,id_enemuration"],
+            'departement_siege'=>["required","exists:departements,id_departement"],
+            'region_siege'=>["required","exists:regions,id_region"],
             'adresse'=>['required']
-        ]);
+        ],[],
+            ['serin'=>'siren']
+        );
         $client = Collectivite::create([
             "typeCollectivite"=>"Syndicat"
         ]);
@@ -218,18 +223,20 @@ class SyndicatController extends Controller
         $this->validate($request,[
             "id_syndicat"=>["required","exists:syndicats"],
             "nomCourt"=>["required","string"],
-            "serin"=>["required","numeric","digits_between:1,14"],
+            "serin"=>["required","numeric","digits:14"],
             "sinoe"=>["required"],
             "email"=>["nullable","email"],
             "logo"=>["nullable","uuid","exists:image_sages,uid"],
             "ged_rapport"=>["nullable","uuid","exists:image_sages,uid"],
             "denominationLegale"=>["required","string"],
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],
-            'departement_siege'=>["required","exists:enemurations,id_enemuration"],
             'competence_dechet'=>["required","exists:enemurations,id_enemuration"],
-            'region_siege'=>["required","exists:enemurations,id_enemuration"],
+            'departement_siege'=>["required","exists:departements,id_departement"],
+            'region_siege'=>["required","exists:regions,id_region"],
             'adresse'=>['required']
-        ]);
+        ],[],
+            ['serin'=>'siren']
+        );
         $syndicat=Syndicat::find($request['id_syndicat']);
         $syndicat->update($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","nombreHabitant","logo","ged_rapport",'amobe','nature_juridique','departement_siege','competence_dechet','region_siege',"email","sinoe"]));
         return response([
@@ -264,7 +271,7 @@ class SyndicatController extends Controller
      */
     public function edit(Request $request)
     {
-        $syndicat=Syndicat::with(['logo','ged_rapport'])->find($request['idSyndicat']);
+        $syndicat=Syndicat::with(['logo','ged_rapport','departement_siege:id_departement,id_departement AS value,name_departement AS label','region_siege:id_region,id_region AS value,name_region AS label'])->find($request['idSyndicat']);
         if($syndicat){
             return response([
                 'ok'=>true,

@@ -21,6 +21,10 @@ class CreateCommunesTable extends Migration
             $table->string("lang")->nullable();
             $table->string("logo")->nullable();
             $table->integer("nombreHabitant");
+            $table->integer("insee")->nullable();
+            $table->integer("serin")->nullable();
+            $table->foreignId('region_siege')->nullable()->references('id_region')->on('regions');
+            $table->foreignId('departement_siege')->nullable()->references('id_departement')->on('departements');
             $table->foreignId('id_epic')->references('id_epic')->on('epics')->nullable();
             $table->softDeletes();
             $table->timestamps();

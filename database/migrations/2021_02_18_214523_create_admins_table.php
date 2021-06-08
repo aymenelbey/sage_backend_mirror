@@ -17,7 +17,7 @@ class CreateAdminsTable extends Migration
             $table->bigIncrements("id_admin");
             $table->string("nom",100)->nullable();
             $table->string("prenom",100)->nullable();
-            $table->string('email_admin')->unique()->nullable();
+            $table->string('email')->unique()->nullable();
             $table->foreignId('id_user')->references('id')->on('users');
             $table->softDeletes();
             $table->timestamps();

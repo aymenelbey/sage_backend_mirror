@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\EPIC;
 use App\Models\Collectivite;
 use App\Models\SyndicatHasEpic;
+use App\Models\CompetanceDechet;
 use Illuminate\Http\Request;
 use Validator;
 use Carbon\Carbon;
@@ -84,9 +85,12 @@ class EPICController extends Controller
         "nature_juridique","departement_siege","competence_dechet","region_siege","exerciceCompetance","id_epic"])){
             $epicQuery=$epicQuery->orderBy($sorter,$sort);
         }else{
-           $epicQuery=$epicQuery->orderBy("created_at","DESC");
+           $epicQuery=$epicQuery->orderBy("updated_at","DESC");
         }
         $epics=$epicQuery->paginate($pageSize);
+        $epics->map(function($epic){
+           $epic->withEnums();
+        });
         return response([
             "ok"=>true,
             "data"=> $epics
@@ -197,20 +201,43 @@ class EPICController extends Controller
             "sinoe"=>['required'],
             "serin"=>["required","numeric","digits:9"],
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],
-            'departement_siege'=>["required","exists:enemurations,id_enemuration"],
-            'competence_dechet'=>["required","exists:enemurations,id_enemuration"],
-            'region_siege'=>["required","exists:enemurations,id_enemuration"], 
+            'departement_siege'=>["required","exists:departements,id_departement"],
+            'region_siege'=>["required","exists:regions,id_region"],
+            "competance_exercee"=>['required',"array"],
+            "competance_delegue"=>['required',"array"]
         ]);
         $client = Collectivite::create([
             "typeCollectivite"=>"EPIC"
         ]);
-        $epic = EPIC::create($request->only(["nomEpic","serin","nom_court","sinoe","adresse","lat","lang","siteInternet","telephoneStandard","nombreHabitant","logo","nature_juridique","departement_siege","competence_dechet","region_siege","exerciceCompetance"])+['id_collectivite'=>$client->id_collectivite]);
-        if(isset($request['id_syndicat']) && $request['exerciceCompetance']=="déléguée"){
-            $syndhas = SyndicatHasEpic::create([
-                "id_epic"=>$epic->id_epic,
-                "id_syndicat"=>$request['id_syndicat']
-            ]);
-        }
+        $epic = EPIC::create($request->only(["nomEpic","serin","nom_court","sinoe","adresse","lat","lang","siteInternet","telephoneStandard","nombreHabitant","logo","nature_juridique","departement_siege","region_siege"])+['id_collectivite'=>$client->id_collectivite]);
+        foreach($request->competance_exercee as $competance){
+            if($competance['code'] && $competance['competence_dechet']){
+                CompetanceDechet::create([
+                    'code'=>$competance['code'],
+                    'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
+                    'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                    'comment'=>$competance['comment'],
+                    'owner_competance'=>$epic->id_epic,
+                    'owner_type'=>"EPIC",
+                    'competence_dechet'=>$competance['competence_dechet']
+                ]);
+            }
+        };
+        foreach($request->competance_delegue as $competance){
+            if($competance['code'] && $competance['competence_dechet'] && $competance['delegue_competance']){
+                CompetanceDechet::create([
+                    'code'=>$competance['code'],
+                    'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
+                    'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                    'comment'=>$competance['comment'],
+                    'owner_competance'=>$epic->id_epic,
+                    'owner_type'=>"EPIC",
+                    'competence_dechet'=>$competance['competence_dechet'],
+                    'delegue_competance'=>$competance['delegue_competance']['id_person'],
+                    'delegue_type'=>$competance['delegue_competance']['typePersonMoral']
+                ]);
+            }
+        };
         return response([
             "ok"=>true,
             "data"=>$epic
@@ -233,25 +260,90 @@ class EPICController extends Controller
             "serin"=>["required","numeric","digits:9"],
             'nom_court'=>["required"],
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],
-            'departement_siege'=>["required","exists:enemurations,id_enemuration"],
-            'competence_dechet'=>["required","exists:enemurations,id_enemuration"],
-            'region_siege'=>["required","exists:enemurations,id_enemuration"]
+            'region_siege'=>["required","exists:regions,id_region"],
+            "competance_exercee"=>['required',"array"],
+            "competance_delegue"=>['required',"array"]
         ]);
-        $reqeustClt=collect($request);
         $epic = EPIC::find($request["id_epic"]);
-        $prevRattach=SyndicatHasEpic::where("id_epic",$request["id_epic"])->first();
-        $CreateNew=(!$prevRattach || $prevRattach->id_syndicat!=$request['id_syndicat']) && $request['exerciceCompetance']=="déléguée";
-        if($prevRattach){
-            if($request['exerciceCompetance']!="déléguée" || $prevRattach->id_syndicat!=$request['id_syndicat']){
-                $prevRattach->delete();
+        $epic->update($request->only(["nomEpic","nom_court","sinoe","serin","adresse","lat","lang","siteInternet","telephoneStandard","nombreHabitant","logo","nature_juridique","departement_siege","region_siege"]));
+        $competanceExercee=$epic->competance_exercee->toArray();
+        $searchedComp=array_column($competanceExercee,'id_competance_dechet');
+        foreach($request->competance_exercee as $competance){
+            if(!empty($competance['id_competance_dechet'])){
+                $indexItem=array_search($competance['id_competance_dechet'],$searchedComp);
+                if($indexItem>-1){
+                    if($competance['code'] && $competance['competence_dechet']){
+                        CompetanceDechet::where('id_competance_dechet',$competance['id_competance_dechet'])->update([
+                            'code'=>$competance['code'],
+                            'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
+                            'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                            'comment'=>$competance['comment'],
+                            'competence_dechet'=>$competance['competence_dechet']
+                        ]);
+                    }
+                }
+            }else{
+                if($competance['code'] && $competance['competence_dechet']){
+                    CompetanceDechet::create([
+                        'code'=>$competance['code'],
+                        'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
+                        'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                        'comment'=>$competance['comment'],
+                        'owner_competance'=>$epic->id_epic,
+                        'owner_type'=>"EPIC",
+                        'competence_dechet'=>$competance['competence_dechet']
+                    ]);
+                }
+            }
+        };
+        $toBeDeleted=array_column($request['competance_exercee'],'id_competance_dechet');
+        foreach($epic->competance_exercee as $compe){
+            $indexItem=array_search($compe['id_competance_dechet'],$toBeDeleted);
+            if(!($indexItem>-1)){
+                $compe->delete();
             }
         }
-        $epic->update($reqeustClt->only(["nomEpic","nom_court","sinoe","serin","adresse","lat","lang","siteInternet","telephoneStandard","nombreHabitant","logo","nature_juridique","departement_siege","competence_dechet","region_siege","exerciceCompetance"])->toArray());
-        if($CreateNew){
-            $syndhas = SyndicatHasEpic::create([
-                "id_epic"=>$epic->id_epic,
-                "id_syndicat"=>$request['id_syndicat']
-            ]);
+        /**** delegue part */
+        $competanceExercee=$epic->competance_delegue->toArray();
+        $searchedComp=array_column($competanceExercee,'id_competance_dechet');
+        foreach($request->competance_delegue as $competance){
+            if(!empty($competance['id_competance_dechet'])){
+                $indexItem=array_search($competance['id_competance_dechet'],$searchedComp);
+                if($indexItem>-1){
+                    if($competance['code'] && $competance['competence_dechet'] && $competance['delegue_competance']){
+                        CompetanceDechet::where('id_competance_dechet',$competance['id_competance_dechet'])->update([
+                            'code'=>$competance['code'],
+                            'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
+                            'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                            'comment'=>$competance['comment'],
+                            'competence_dechet'=>$competance['competence_dechet'],
+                            'delegue_competance'=>$competance['delegue_competance']['id_person'],
+                            'delegue_type'=>$competance['delegue_competance']['typePersonMoral']
+                        ]);
+                    }
+                }
+            }else{
+                if($competance['code'] && $competance['competence_dechet'] && $competance['delegue_competance']){
+                    CompetanceDechet::create([
+                        'code'=>$competance['code'],
+                        'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
+                        'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                        'comment'=>$competance['comment'],
+                        'owner_competance'=>$epic->id_epic,
+                        'owner_type'=>"EPIC",
+                        'competence_dechet'=>$competance['competence_dechet'],
+                        'delegue_competance'=>$competance['delegue_competance']['id_person'],
+                        'delegue_type'=>$competance['delegue_competance']['typePersonMoral']
+                    ]);
+                }
+            }
+        };
+        $toBeDeleted=array_column($request['competance_delegue'],'id_competance_dechet');
+        foreach($epic->competance_delegue as $compe){
+            $indexItem=array_search($compe['id_competance_dechet'],$toBeDeleted);
+            if(!($indexItem>-1)){
+                $compe->delete();
+            }
         }
         return response([
             "ok"=>true,
@@ -279,7 +371,7 @@ class EPICController extends Controller
     {
         if(!empty($request['idepic'])){
             $idEpic=$request['idepic'];
-            $epic=EPIC::with(['communes','syndicat','contacts','logo'])
+            $epic=EPIC::with(['communes','syndicat','contacts','logo','competance_exercee','competance_delegue','competance_recu'])
             ->find($idEpic);
             $epic->withEnums();
             $epic=$epic->toArray();
@@ -307,10 +399,15 @@ class EPICController extends Controller
     {
         if(!empty($request['idepic'])){
             $idEpic=$request['idepic'];
-            $epic=EPIC::with(['syndicat','logo'])->find($idEpic);
+            $epic=EPIC::with(['syndicat','logo','departement_siege:id_departement,id_departement AS value,name_departement AS label','region_siege:id_region,id_region AS value,name_region AS label'])->find($idEpic);
+            $returnedData=$epic->toArray();
+            $returnedData['competances']=[
+                'exercee'=>$epic->competance_exercee,
+                'delegue'=>$epic->competance_delegue
+            ];
             return response([
                 'ok'=>true,
-                'data'=>$epic
+                'data'=>json_encode($returnedData)
             ],200);
         }
         return response([

@@ -86,7 +86,7 @@ class GestionnaireController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(Request $request){
-        $rules = [
+        $this->validate($request,[
             "nom"=>["required"],
             "prenom"=>["required"],
             "genre"=>["required","in:MME,MR"],
@@ -94,14 +94,7 @@ class GestionnaireController extends Controller
             "mobile"=>["required"],
             "status"=>["required","boolean"],
             "email"=>["email","unique:gestionnaires"]
-        ];
-        $validator = Validator::make($request->all(),$rules);
-        if ($validator->fails()) {
-            return response([
-                "ok"=> "server",
-                "errors"=>$validator->errors()
-            ],400);        
-        }
+        ]);
         $adminuser = JWTAuth::user();
         $admin = Admin::where("id_user","=",$adminuser->id)->select("id_admin")->first();
         $username=User::getUsername($request['nom'],$request['prenom']);

@@ -80,7 +80,7 @@ class LoginController extends Controller{
         switch($user['typeuser']){
             case "SupAdmin":
             case "Admin":
-                $admin=Admin::where("id_user",$user['id'])->first(['nom','prenom','phone','email_admin'])->toArray();
+                $admin=Admin::where("id_user",$user['id'])->first(['nom','prenom','phone','email AS email_admin'])->toArray();
                 $user+=$admin;
                 break;
             case "Gestionnaire":

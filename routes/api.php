@@ -13,9 +13,12 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::post('/users/send-email', [App\Http\Controllers\auth\ForgotPasswordController::class,"forgot"]);
 Route::post('/login', [App\Http\Controllers\auth\LoginController::class,"login"]);
 Route::post('/create/admin', [App\Http\Controllers\auth\LoginController::class,"createAdmin"]);
 Route::middleware('auth:api')->group(function () {
+    Route::get('departement/list', [App\Http\Controllers\DepartementController::class,"index"]);
+    Route::get('region/list', [App\Http\Controllers\RegionController::class,"index"]);
     Route::get('info/me', [App\Http\Controllers\auth\LoginController::class,"user"]);
     Route::patch('password/update', [App\Http\Controllers\UserController::class,"updatePassword"]);
     Route::middleware(['premission:SupAdmin'])->group(function(){

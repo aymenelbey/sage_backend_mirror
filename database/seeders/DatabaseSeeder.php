@@ -22,7 +22,6 @@ class DatabaseSeeder extends Seeder
             UserPremieumSeeder::class,
             SyndicatSeeder::class,
             EPICSeeder::class,
-            SyndicatHasEpicSeeder::class,
             CommuneSeeder::class,
             ContactSeeder::class,
             ContactHasPersonMoralSeeder::class,

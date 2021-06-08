@@ -24,10 +24,11 @@ class CreateEPICSTable extends Migration
             $table->string("telephoneStandard")->nullable();
             $table->integer("nombreHabitant")->nullable();
             $table->string("logo")->nullable();
+            $table->string("nom_court")->nullable();
+            $table->string("sinoe")->nullable();
             $table->foreignId('nature_juridique')->references('id_enemuration')->on('enemurations');
-            $table->foreignId('departement_siege')->references('id_enemuration')->on('enemurations');
-            $table->foreignId('competence_dechet')->references('id_enemuration')->on('enemurations');
-            $table->foreignId('region_siege')->references('id_enemuration')->on('enemurations');
+            $table->foreignId('departement_siege')->references('id_departement')->on('departements');
+            $table->foreignId('region_siege')->references('id_region')->on('regions');
             $table->foreignId('id_collectivite')->references('id_collectivite')->on('collectivites');
             $table->softDeletes();
             $table->timestamps();

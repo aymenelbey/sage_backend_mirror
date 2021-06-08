@@ -62,12 +62,12 @@ class CommuneController extends Controller
         if(in_array($sort,['ASC','DESC']) && in_array($sorter,["nomCommune","adresse","insee","serin","departement_siege","region_siege","nombreHabitant","id_commune"])){
             $communeQuery=$communeQuery->orderBy($sorter,$sort);
         }else{
-           $communeQuery=$communeQuery->orderBy("id_commune","DESC");
+           $communeQuery=$communeQuery->orderBy("updated_at","DESC");
         }
-        $commune=$communeQuery->paginate($pageSize);
+        $communes=$communeQuery->paginate($pageSize);
         return response([
             "ok"=>true,
-            "data"=>$commune
+            "data"=>$communes
         ],200);
     }
     public function show(Request $request){
@@ -120,7 +120,7 @@ class CommuneController extends Controller
             "nombreHabitant"=>["required","numeric"],
             'departement_siege'=>["required","exists:enemurations,id_enemuration"],
             'region_siege'=>["required","exists:enemurations,id_enemuration"],
-            "epic"=>["required","exists:epics,id_epic"]
+            "id_epic"=>["required","exists:epics,id_epic"]
         ]);
         $client = Collectivite::create([
             "typeCollectivite"=>"Commune"
@@ -145,7 +145,9 @@ class CommuneController extends Controller
             "nomCommune"=>["required"],
             "adresse"=>["required"],
             "nombreHabitant"=>["required","numeric"],
-            "epic"=>["required","exists:epics,id_epic"],
+            "id_epic"=>["required","exists:epics,id_epic"],
+            'departement_siege'=>["required","exists:enemurations,id_enemuration"],
+            'region_siege'=>["required","exists:enemurations,id_enemuration"],
             "serin"=>["required","numeric","digits:9"],
             "insee"=>["required","numeric","digits:5"]
         ]);
@@ -183,7 +185,7 @@ class CommuneController extends Controller
     public function edit(Request $request)
     {
         if(!empty($request['idcommune'])){
-            $commune=Commune::with(['epic','logo'])->find($request['idcommune']);
+            $commune=Commune::with(['epic','logo','departement_siege:id_departement,id_departement AS value,name_departement AS label','region_siege:id_region,id_region AS value,name_region AS label'])->find($request['idcommune']);
             return response([
                 'ok'=>true,
                 'data'=>$commune

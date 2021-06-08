@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
             'TRI' => 'App\Models\DataTechnTRI',
             'TMB' => 'App\Models\DataTechnTMB',
             'ISDND' => 'App\Models\DataTechnISDND',
-            'UVE' => 'App\Models\DataTechnUVE',
+            'UVE' => 'App\Models\DataTechnUVE'
         ]);
     }
 }

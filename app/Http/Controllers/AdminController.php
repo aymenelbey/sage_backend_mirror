@@ -34,7 +34,7 @@ class AdminController extends Controller
         }
         $adminQuery=$adminQuery->where('users.typeuser','=','Admin');
         $admins=$adminQuery->orderBy("admins.updated_at","DESC")
-        ->paginate($pageSize,['admins.id_admin','users.init_password','admins.nom','admins.prenom','admins.email_admin','users.username','admins.phone']);
+        ->paginate($pageSize,['admins.id_admin','users.init_password','admins.nom','admins.prenom','admins.email AS email_admin','users.username','admins.phone']);
         return response([
             "ok"=>true,
             "data"=> $admins
@@ -48,22 +48,11 @@ class AdminController extends Controller
      */
     public function create(Request $request)
     {
-        $message = [
-            "required"=>"the :attribute is required",
-            "exists"=>":attribute doit être existe"
-        ];
-        $rules = [
+        $this->validate($request,[
             "nom"=>["required"],
             "prenom"=>["required"],
-            "email"=>["required","email","unique:admins,email_admin"],
-        ];
-        $validator = Validator::make($request->all(),$rules,$message);
-        if($validator->fails()){
-            return response([
-                "ok"=>"server",
-                "errors"=> $validator->errors()
-            ],400);
-        }
+            "email"=>["required","email","unique:admins,email"]
+        ]);
         $username=User::getUsername($request['nom'],$request['prenom']);
         $password=Str::random(12);
         $user =  User::create([
@@ -77,7 +66,7 @@ class AdminController extends Controller
             "nom"=>$request['nom'],
             "prenom"=>$request['prenom'],
             "phone"=>isset($request['phone'])?$request['phone']:null,
-            "email_admin"=>$request['email']
+            "email"=>$request['email']
         ]);
         return response([
             "ok"=>true,
@@ -140,8 +129,8 @@ class AdminController extends Controller
             if(isset($request['phone'])){
                 $admin->phone=$request['phone'];
             }
-            if(isset($request['email_admin']) && !Admin::where('email_admin','=', $request['email_admin'] )->exists()){
-                $admin->email_admin=$request['email_admin'];
+            if(isset($request['email_admin']) && !Admin::where('email','=', $request['email_admin'] )->exists()){
+                $admin->email=$request['email_admin'];
             }
             if(isset($request['username']) && !User::where('username','=', $request['username'] )->exists()){
                 $user->username=$request['username'];
@@ -158,8 +147,8 @@ class AdminController extends Controller
             ],200);
         }
         return response([
-            "ok"=>'server',
-            "data"=>"admin is required"
+            "message"=>'The given data was invalid.',
+            "errors"=>"admin is required"
         ],400);
     }
 
@@ -186,11 +175,11 @@ class AdminController extends Controller
                 'ok'=>true,
                 'data'=>"async",
                 'admins'=>$deletedLis
-            ]);
+            ],200);
         }
         return response([
             'ok'=>true,
             'data'=>"no action"
-        ]);
+        ],200);
     }
 }

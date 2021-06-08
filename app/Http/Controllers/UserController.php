@@ -12,26 +12,19 @@ class UserController extends Controller
     public function updatePassword(Request $request){
         $this->validate($request,[
             "password"=>['required'],
-            "cPassword"=>['required'],
-            "currentPassword"=>['required']
+            "cPassword"=>['required','min:6'],
+            "currentPassword"=>['required','same:cPassword']
         ]);
         $user=JWTAuth::user();
         $passed=Hash::check($request['currentPassword'], $user->password);
         if($passed){
-            $passed=$request['cPassword']==$request['password'];
-            if($passed){
-                $user->password=Hash::make($request['password']);
-                $user->init_password=null;
-                $user->save();
-                return response([
-                    "ok"=>true,
-                    "data"=>"Password updated"
-                ]);
-            }
+            $user->password=Hash::make($request['password']);
+            $user->init_password=null;
+            $user->save();
             return response([
-                "message"=>"The given data was invalid.",
-                "errors"=>"Le mot de passe et la confirmation du mot de passe ne correspondent pas"
-            ],400);
+                "ok"=>true,
+                "data"=>"Password updated"
+            ]);
         }
         return response([
             "message"=>"The given data was invalid.",

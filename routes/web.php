@@ -16,3 +16,5 @@ use Intervention\Image\Facades\Image;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/password/reset/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class,"index"])->name('password.reset');
+Route::post('/password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class,"reset_password"])->name('password.update');

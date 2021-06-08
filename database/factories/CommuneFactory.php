@@ -5,6 +5,8 @@ namespace Database\Factories;
 use App\Models\Commune;
 use App\Models\EPIC;
 use App\Models\Enemuration;
+use App\Models\Departement;
+use App\Models\Region;
 use App\Models\Collectivite;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -32,8 +34,8 @@ class CommuneFactory extends Factory
             "lat"=>$this->faker->latitude($min = 44, $max = 49),
             "lang"=>$this->faker->longitude($min = -0.4, $max = 5),
             "nombreHabitant"=>$this->faker->numberBetween(0, 2000),
-            "departement_siege"=>$this->faker->randomElement(Enemuration::where("key_enum","departement_siege")->get()->pluck('id_enemuration')),
-            "region_siege"=>$this->faker->randomElement(Enemuration::where("key_enum","region_siege")->get()->pluck('id_enemuration')),
+            "departement_siege"=>$this->faker->randomElement(Departement::all()->pluck('id_departement')),
+            "region_siege"=>$this->faker->randomElement(Region::all()->pluck('id_region')),
             'id_epic'=>$this->faker->randomElement(EPIC::all()->pluck('id_epic')),
             'id_collectivite'=>Collectivite::create([
                     "typeCollectivite"=>"Commune"

@@ -14,6 +14,8 @@ class Site extends Model
     protected $fillable = [
         "denomination",
         "categorieSite",
+        "departement_siege",
+        "region_siege",
         "sinoe",
         "adresse",
         "sinoe",
@@ -44,5 +46,11 @@ class Site extends Model
     }
     public function exploitant(){
         return $this->hasOne(SocieteExpSite::class,"id_site");
+    }
+    public function departement_siege(){
+        return $this->hasOne(Departement::class,'id_departement', 'departement_siege');
+    }
+    public function region_siege(){
+        return $this->hasOne(Region::class,'id_region', 'region_siege');
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+
 class EPIC extends Model
 {
     use HasFactory,SoftDeletes;
@@ -25,14 +26,21 @@ class EPIC extends Model
         "logo",
         "nature_juridique",
         "departement_siege",
-        "competence_dechet",
         "region_siege",
-        "exerciceCompetance",
         "id_collectivite"
     ];
 
     protected $dates = ['deleted_at'];
-    
+    protected $appends = ['typePersonMoral','dataIndex','id_person'];
+    public function getTypePersonMoralAttribute(){
+        return "EPIC";
+    }
+    public function getIdPersonAttribute(){
+        return $this->id_epic;
+    }
+    public function getDataIndexAttribute(){
+        return "nomEpic";
+    }
     public function contacts(){
         return $this->belongsToMany(Contact::class, ContactHasPersonMoral::class,'idPersonMoral','id_contact','id_epic','id_contact')
         ->wherePivot('deleted_at', null);
@@ -50,14 +58,25 @@ class EPIC extends Model
         return $this->hasOne(Enemuration::class,'id_enemuration', 'nature_juridique');
     }
     public function departement_siege(){
-        return $this->hasOne(Enemuration::class,'id_enemuration', 'departement_siege');
+        return $this->hasOne(Departement::class,'id_departement', 'departement_siege');
     }
+    /* competances */
+    public function competance_exercee(){
+        return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_epic')->whereNull('delegue_competance');
+    }
+    public function competance_delegue(){
+        return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_epic')->with('delegue_competance')->whereNotNull('delegue_competance');
+    }
+    public function competance_recu(){
+        return $this->hasMany(CompetanceDechet::class,'delegue_competance', 'id_epic')->with('owner_competance');
+    }
+    /* end competances */
     public function region_siege(){
-        return $this->hasOne(Enemuration::class,'id_enemuration', 'region_siege');
+        return $this->hasOne(Region::class,'id_region', 'region_siege');
     }
     public function withEnums(){
-        $dep=$this->hasOne(Enemuration::class,'id_enemuration', 'departement_siege')->first();
-        $reg=$this->hasOne(Enemuration::class, 'id_enemuration', 'region_siege')->first();
+        $dep=$this->hasOne(Departement::class,'id_departement', 'departement_siege')->first();
+        $reg=$this->hasOne(Region::class,'id_region', 'region_siege')->first();
         $nat=$this->hasOne(Enemuration::class, 'id_enemuration', 'nature_juridique')->first();
         $this->departement_siege=$dep?$dep->__toString():'';
         $this->region_siege=$reg?$reg->__toString():'';

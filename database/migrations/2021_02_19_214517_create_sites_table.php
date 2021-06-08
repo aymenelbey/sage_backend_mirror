@@ -24,6 +24,8 @@ class CreateSitesTable extends Migration
             $table->string("telephoneStandrad")->nullable();
             $table->string("anneeCreation")->nullable();
             $table->string("photoSite")->nullable();
+            $table->foreignId('region_siege')->nullable()->references('id_region')->on('regions');
+            $table->foreignId('departement_siege')->nullable()->references('id_departement')->on('departements');
             $table->enum("modeGestion",["Gestion privée", "Prestation de service", "Regie", "DSP"]);
             $table->string("perdiocitRelance");
             $table->softDeletes();

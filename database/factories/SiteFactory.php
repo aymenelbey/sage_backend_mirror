@@ -15,6 +15,8 @@ use App\Models\SocieteExploitant;
 use App\Models\EPIC;
 use App\Models\Syndicat;
 use App\Models\Commune;
+use App\Models\Departement;
+use App\Models\Region;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class SiteFactory extends Factory
@@ -44,7 +46,9 @@ class SiteFactory extends Factory
             "telephoneStandrad"=>$this->faker->phoneNumber,
             "anneeCreation"=>$this->faker->year(),
             "modeGestion"=>$this->faker->randomElement(['Gestion privée','Prestation de service','Regie','DSP']),
-            "perdiocitRelance"=>$this->faker->dateTimeBetween('-300 days', '+300 days')->format('m/yy')
+            "perdiocitRelance"=>$this->faker->dateTimeBetween('-300 days', '+300 days')->format('m/yy'),
+            "departement_siege"=>$this->faker->randomElement(Departement::all()->pluck('id_departement')),
+            "region_siege"=>$this->faker->randomElement(Region::all()->pluck('id_region')),
         ];
     }
     public function configure(){

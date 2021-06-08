@@ -25,13 +25,22 @@ class Syndicat extends Model
         'amobe',
         'nature_juridique',
         'departement_siege',
-        'competence_dechet',
         'region_siege',
         "email",
         "sinoe",
         "id_collectivite"
     ];
     protected $dates = ['deleted_at'];
+    protected $appends = ['typePersonMoral','dataIndex','id_person'];
+    public function getTypePersonMoralAttribute(){
+        return "Syndicat";
+    }
+    public function getIdPersonAttribute(){
+        return $this->id_syndicat;
+    }
+    public function getDataIndexAttribute(){
+        return "nomCourt";
+    }
     public function contacts(){
         return $this->belongsToMany(Contact::class, ContactHasPersonMoral::class,'idPersonMoral','id_contact','id_syndicat','id_contact')
         ->wherePivot('deleted_at', null);
@@ -48,32 +57,27 @@ class Syndicat extends Model
     public function ged_rapport(){
         return $this->hasMany(ImageSage::class,"uid","ged_rapport");
     }
-    public function departement_siege(){
-        return $this->hasOne(Enemuration::class,'id_enemuration', 'departement_siege');
-    }
     public function nature_juridique(){
         return $this->hasOne(Enemuration::class,'id_enemuration', 'nature_juridique');
     }
-    public function competence_dechet(){
-        return $this->hasOne(Enemuration::class,'id_enemuration', 'competence_dechet');
+    public function departement_siege(){
+        return $this->hasOne(Departement::class,'id_departement', 'departement_siege');
     }
     public function region_siege(){
-        return $this->hasOne(Enemuration::class,'id_enemuration', 'region_siege');
+        return $this->hasOne(Region::class,'id_region', 'region_siege');
     }
     public function amobe(){
         return $this->hasOne(Enemuration::class,'id_enemuration', 'amobe');
     }
     public function withEnums(){
-        $dep=$this->hasOne(Enemuration::class,'id_enemuration', 'departement_siege')->first();
-        $reg=$this->hasOne(Enemuration::class, 'id_enemuration', 'region_siege')->first();
+        $dep=$this->hasOne(Departement::class,'id_departement', 'departement_siege')->first();
+        $reg=$this->hasOne(Region::class,'id_region', 'region_siege')->first();
         $nat=$this->hasOne(Enemuration::class, 'id_enemuration', 'nature_juridique')->first();
         $amo=$this->hasOne(Enemuration::class, 'id_enemuration', 'amobe')->first();
-        $com=$this->hasOne(Enemuration::class, 'id_enemuration', 'competence_dechet')->first();
         $this->departement_siege=$dep?$dep->__toString():'';
         $this->region_siege=$reg?$reg->__toString():'';
         $this->nature_juridique=$nat?$nat->__toString():'';
         $this->amobe=$amo?$amo->__toString():'';
-        $this->competence_dechet=$com?$com->__toString():'';
     }
 
 }

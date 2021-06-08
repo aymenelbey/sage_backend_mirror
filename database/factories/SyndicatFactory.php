@@ -5,6 +5,8 @@ namespace Database\Factories;
 use App\Models\Syndicat;
 use App\Models\Collectivite;
 use App\Models\Enemuration;
+use App\Models\Departement;
+use App\Models\Region;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class SyndicatFactory extends Factory
@@ -35,9 +37,8 @@ class SyndicatFactory extends Factory
             "nombreHabitant"=>$this->faker->numberBetween(0, 2000),
             'amobe'=>$this->faker->randomElement(Enemuration::where("key_enum","amobe")->get()->pluck('id_enemuration')),
             'nature_juridique'=>$this->faker->randomElement(Enemuration::where("key_enum","nature_juridique")->get()->pluck('id_enemuration')),
-            'departement_siege'=>$this->faker->randomElement(Enemuration::where("key_enum","departement_siege")->get()->pluck('id_enemuration')),
-            'competence_dechet'=>$this->faker->randomElement(Enemuration::where("key_enum","competence_dechet")->get()->pluck('id_enemuration')),
-            'region_siege'=>$this->faker->randomElement(Enemuration::where("key_enum","region_siege")->get()->pluck('id_enemuration')),
+            "departement_siege"=>$this->faker->randomElement(Departement::all()->pluck('id_departement')),
+            "region_siege"=>$this->faker->randomElement(Region::all()->pluck('id_region')),
             "id_collectivite"=>Collectivite::create([
                     "typeCollectivite"=>"Syndicat"
                 ])->id_collectivite

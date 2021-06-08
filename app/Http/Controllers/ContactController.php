@@ -109,17 +109,19 @@ class ContactController extends Controller
         ]);
         $contact = Contact::create($request->only(['status','genre','nom','prenom','telephone','mobile','email','informations','address']));
         foreach($request['persons_moral'] as $presonMorl){
-            if(in_array($presonMorl['type'],['Syndicat','Epic','Commune','Societe'])){
+            if(in_array($presonMorl['type'],['Syndicat','Epic','Commune','Societe']) && !ContactHasPersonMoral::where('idPersonMoral', $presonMorl['id_person'])->where('typePersonMoral',$presonMorl['type'])->where('id_contact',$contact->id_contact)->exists()){
                 $contactCollect = ContactHasPersonMoral::create([
                     "idPersonMoral"=>$presonMorl['id_person'],
                     "typePersonMoral"=>$presonMorl['type'],
                     "id_contact"=>$contact->id_contact
                 ]);
                 foreach($presonMorl['fonction_person'] as $function){
-                    PersonFunction::create([
-                        "functionPerson"=>$function['functionPerson'],
-                        "id_person"=>$contactCollect->id_contact_has_person_morals
-                    ]);
+                    if(!PersonFunction::where('functionPerson',$function['functionPerson'])->where('id_person',$contactCollect->id_contact_has_person_morals)->exists()){
+                        PersonFunction::create([
+                            "functionPerson"=>$function['functionPerson'],
+                            "id_person"=>$contactCollect->id_contact_has_person_morals
+                        ]);
+                    }
                 } 
             }
         }
@@ -166,7 +168,7 @@ class ContactController extends Controller
                     }
                 }
                 foreach($request['persons_moral'][$keySearch]['fonction_person'] as $key=>$function){
-                    if(!in_array($key,$ignFunc)){
+                    if(!in_array($key,$ignFunc) && !PersonFunction::where('functionPerson',$function['functionPerson'])->where('id_person',$person->id_contact_has_person_morals)->exists()){
                          PersonFunction::create([
                             "functionPerson"=>$function['functionPerson'],
                             "id_person"=>$person->id_contact_has_person_morals
@@ -178,17 +180,19 @@ class ContactController extends Controller
             }
         } 
         foreach($request['persons_moral'] as $key=>$person){
-            if(!in_array($key,$ignorekey)){
+            if(!in_array($key,$ignorekey) && !ContactHasPersonMoral::where('idPersonMoral', $person['id_person'])->where('typePersonMoral',$person['type'])->where('id_contact',$request["id_contact"])->exists()){
                 $contactCollect = ContactHasPersonMoral::create([
                     "idPersonMoral"=>$person['id_person'],
                     "typePersonMoral"=>$person['type'],
                     "id_contact"=>$request["id_contact"]
                 ]);
                 foreach($person['fonction_person'] as $function){
-                    PersonFunction::create([
-                        "functionPerson"=>$function['functionPerson'],
-                        "id_person"=>$contactCollect->id_contact_has_person_morals
-                    ]);
+                    if(!PersonFunction::where('functionPerson',$function['functionPerson'])->where('id_person',$contactCollect->id_contact_has_person_morals)->exists()){
+                        PersonFunction::create([
+                            "functionPerson"=>$function['functionPerson'],
+                            "id_person"=>$contactCollect->id_contact_has_person_morals
+                        ]);
+                    }
                 } 
             }
         }

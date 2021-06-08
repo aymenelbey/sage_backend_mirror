@@ -18,7 +18,7 @@ class AdminSeeder extends Seeder
             "id_user"=>1,
             "nom"=>"zino",
             "prenom"=>"nino",
-            "email_admin"=>"itachibatna@gmail.com"
+            "email"=>"itachibatna@gmail.com"
         ]);
         Admin::factory()
             ->count(50)

@@ -15,6 +15,8 @@ class SiteHelper
         "gestionaire"=>["required","exists:gestionnaires,id_gestionnaire"],
         "client"=>["required","exists:collectivites,id_collectivite"],
         "typeExploitant"=>['required','in:Syndicat,Epic,Commune,Societe'],
+        'departement_siege'=>["required","exists:enemurations,id_enemuration"],
+        'region_siege'=>["required","exists:enemurations,id_enemuration"],
         "societe"=>['required']
     ];
     public static function validateSiteInfo($dataEntry){
@@ -56,7 +58,7 @@ class SiteHelper
         return $techReturn;
     }
     public static function extractSiteData($siteinfo){
-        $infoUse=$siteinfo->only(["denomination","categorieSite","adresse","latitude","langititude","siteIntrnet","telephoneStandrad","anneeCreation","photoSite","modeGestion","perdiocitRelance","sinoe"])->toArray();
+        $infoUse=$siteinfo->only(["denomination","categorieSite","adresse","latitude","langititude","siteIntrnet","telephoneStandrad","anneeCreation","photoSite","modeGestion","perdiocitRelance","sinoe","departement_siege","region_siege"])->toArray();
         return $infoUse;
     }
 }
