@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Syndicat;
 use App\Models\Collectivite;
 use App\Models\SyndicatHasEpic;
+use App\Models\CompetanceDechet;
 use Illuminate\Http\Request;
 use Validator;
 use Carbon\Carbon;
@@ -106,7 +107,7 @@ class SyndicatController extends Controller
     public function show(Request $request){
         if(!empty($request['idSyndicat'])){
             $idSyndicat=$request['idSyndicat'];
-            $syndicat=Syndicat::with(['contacts','epics','sites','logo','ged_rapport'])
+            $syndicat=Syndicat::with(['contacts','competance_exercee','competance_delegue','competance_recu','sites','logo','ged_rapport'])
             ->find($idSyndicat);
             $syndicat->withEnums();
             $syndicat=$syndicat->toArray();
@@ -182,17 +183,46 @@ class SyndicatController extends Controller
             "ged_rapport"=>["nullable","uuid","exists:image_sages,uid"],
             "denominationLegale"=>["required","string"],
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],
-            'competence_dechet'=>["required","exists:enemurations,id_enemuration"],
             'departement_siege'=>["required","exists:departements,id_departement"],
             'region_siege'=>["required","exists:regions,id_region"],
-            'adresse'=>['required']
+            'adresse'=>['required'],
+            "competance_exercee"=>["array"],
+            "competance_delegue"=>["array"]
         ],[],
             ['serin'=>'siren']
         );
         $client = Collectivite::create([
             "typeCollectivite"=>"Syndicat"
         ]);
-        $syndicat = Syndicat::create($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","nombreHabitant","logo","ged_rapport",'amobe','nature_juridique','departement_siege','competence_dechet','region_siege',"email","sinoe"])+['id_collectivite'=>$client->id_collectivite]);
+        $syndicat = Syndicat::create($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","nombreHabitant","logo","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe"])+['id_collectivite'=>$client->id_collectivite]);
+        foreach($request->competance_exercee as $competance){
+            if($competance['code'] && $competance['competence_dechet']){
+                CompetanceDechet::create([
+                    'code'=>$competance['code'],
+                    'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
+                    'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                    'comment'=>$competance['comment'],
+                    'owner_competance'=>$syndicat->id_syndicat,
+                    'owner_type'=>"Syndicat",
+                    'competence_dechet'=>$competance['competence_dechet']
+                ]);
+            }
+        };
+        foreach($request->competance_delegue as $competance){
+            if($competance['code'] && $competance['competence_dechet'] && $competance['delegue_competance']){
+                CompetanceDechet::create([
+                    'code'=>$competance['code'],
+                    'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
+                    'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                    'comment'=>$competance['comment'],
+                    'owner_competance'=>$syndicat->id_syndicat,
+                    'owner_type'=>"Syndicat",
+                    'competence_dechet'=>$competance['competence_dechet'],
+                    'delegue_competance'=>$competance['delegue_competance']['id_person'],
+                    'delegue_type'=>$competance['delegue_competance']['typePersonMoral']
+                ]);
+            }
+        };
         /*if(isset($request["epics"])&&sizeof($request["epics"])>0){
             $epics_array = [];
             foreach($request["epics"] as $id){
@@ -230,15 +260,95 @@ class SyndicatController extends Controller
             "ged_rapport"=>["nullable","uuid","exists:image_sages,uid"],
             "denominationLegale"=>["required","string"],
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],
-            'competence_dechet'=>["required","exists:enemurations,id_enemuration"],
             'departement_siege'=>["required","exists:departements,id_departement"],
             'region_siege'=>["required","exists:regions,id_region"],
-            'adresse'=>['required']
+            'adresse'=>['required'],
+            "competance_exercee"=>["array"],
+            "competance_delegue"=>["array"]
         ],[],
             ['serin'=>'siren']
         );
         $syndicat=Syndicat::find($request['id_syndicat']);
-        $syndicat->update($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","nombreHabitant","logo","ged_rapport",'amobe','nature_juridique','departement_siege','competence_dechet','region_siege',"email","sinoe"]));
+        $syndicat->update($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","nombreHabitant","logo","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe"]));
+        $competanceExercee=$syndicat->competance_exercee->toArray();
+        $searchedComp=array_column($competanceExercee,'id_competance_dechet');
+        foreach($request->competance_exercee as $competance){
+            if(!empty($competance['id_competance_dechet'])){
+                $indexItem=array_search($competance['id_competance_dechet'],$searchedComp);
+                if($indexItem>-1){
+                    if($competance['code'] && $competance['competence_dechet']){
+                        CompetanceDechet::where('id_competance_dechet',$competance['id_competance_dechet'])->update([
+                            'code'=>$competance['code'],
+                            'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
+                            'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                            'comment'=>$competance['comment'],
+                            'competence_dechet'=>$competance['competence_dechet']
+                        ]);
+                    }
+                }
+            }else{
+                if($competance['code'] && $competance['competence_dechet']){
+                    CompetanceDechet::create([
+                        'code'=>$competance['code'],
+                        'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
+                        'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                        'comment'=>$competance['comment'],
+                        'owner_competance'=>$syndicat->id_syndicat,
+                        'owner_type'=>"Syndicat",
+                        'competence_dechet'=>$competance['competence_dechet']
+                    ]);
+                }
+            }
+        };
+        $toBeDeleted=array_column($request['competance_exercee'],'id_competance_dechet');
+        foreach($syndicat->competance_exercee as $compe){
+            $indexItem=array_search($compe['id_competance_dechet'],$toBeDeleted);
+            if(!($indexItem>-1)){
+                $compe->delete();
+            }
+        }
+        /**** delegue part */
+        $competanceExercee=$syndicat->competance_delegue->toArray();
+        $searchedComp=array_column($competanceExercee,'id_competance_dechet');
+        foreach($request->competance_delegue as $competance){
+            if(!empty($competance['id_competance_dechet'])){
+                $indexItem=array_search($competance['id_competance_dechet'],$searchedComp);
+                if($indexItem>-1){
+                    if($competance['code'] && $competance['competence_dechet'] && $competance['delegue_competance']){
+                        CompetanceDechet::where('id_competance_dechet',$competance['id_competance_dechet'])->update([
+                            'code'=>$competance['code'],
+                            'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
+                            'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                            'comment'=>$competance['comment'],
+                            'competence_dechet'=>$competance['competence_dechet'],
+                            'delegue_competance'=>$competance['delegue_competance']['id_person'],
+                            'delegue_type'=>$competance['delegue_competance']['typePersonMoral']
+                        ]);
+                    }
+                }
+            }else{
+                if($competance['code'] && $competance['competence_dechet'] && $competance['delegue_competance']){
+                    CompetanceDechet::create([
+                        'code'=>$competance['code'],
+                        'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
+                        'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                        'comment'=>$competance['comment'],
+                        'owner_competance'=>$syndicat->id_syndicat,
+                        'owner_type'=>"Syndicat",
+                        'competence_dechet'=>$competance['competence_dechet'],
+                        'delegue_competance'=>$competance['delegue_competance']['id_person'],
+                        'delegue_type'=>$competance['delegue_competance']['typePersonMoral']
+                    ]);
+                }
+            }
+        };
+        $toBeDeleted=array_column($request['competance_delegue'],'id_competance_dechet');
+        foreach($syndicat->competance_delegue as $compe){
+            $indexItem=array_search($compe['id_competance_dechet'],$toBeDeleted);
+            if(!($indexItem>-1)){
+                $compe->delete();
+            }
+        }
         return response([
             "ok"=>true,
             "data"=>$syndicat
@@ -273,9 +383,14 @@ class SyndicatController extends Controller
     {
         $syndicat=Syndicat::with(['logo','ged_rapport','departement_siege:id_departement,id_departement AS value,name_departement AS label','region_siege:id_region,id_region AS value,name_region AS label'])->find($request['idSyndicat']);
         if($syndicat){
+            $returnedData=$syndicat->toArray();
+            $returnedData['competances']=[
+                'exercee'=>$syndicat->competance_exercee,
+                'delegue'=>$syndicat->competance_delegue
+            ];
             return response([
                 'ok'=>true,
-                "data"=>$syndicat
+                "data"=>json_encode($returnedData)
             ]);
         }
         return response([

@@ -203,8 +203,8 @@ class EPICController extends Controller
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],
             'departement_siege'=>["required","exists:departements,id_departement"],
             'region_siege'=>["required","exists:regions,id_region"],
-            "competance_exercee"=>['required',"array"],
-            "competance_delegue"=>['required',"array"]
+            "competance_exercee"=>["array"],
+            "competance_delegue"=>["array"]
         ]);
         $client = Collectivite::create([
             "typeCollectivite"=>"EPIC"
@@ -261,8 +261,8 @@ class EPICController extends Controller
             'nom_court'=>["required"],
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],
             'region_siege'=>["required","exists:regions,id_region"],
-            "competance_exercee"=>['required',"array"],
-            "competance_delegue"=>['required',"array"]
+            "competance_exercee"=>["array"],
+            "competance_delegue"=>["array"]
         ]);
         $epic = EPIC::find($request["id_epic"]);
         $epic->update($request->only(["nomEpic","nom_court","sinoe","serin","adresse","lat","lang","siteInternet","telephoneStandard","nombreHabitant","logo","nature_juridique","departement_siege","region_siege"]));

@@ -62,13 +62,13 @@ class EPIC extends Model
     }
     /* competances */
     public function competance_exercee(){
-        return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_epic')->whereNull('delegue_competance');
+        return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_epic')->where('owner_type','EPIC')->whereNull('delegue_competance');
     }
     public function competance_delegue(){
-        return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_epic')->with('delegue_competance')->whereNotNull('delegue_competance');
+        return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_epic')->with('delegue_competance')->where('owner_type','EPIC')->whereNotNull('delegue_competance');
     }
     public function competance_recu(){
-        return $this->hasMany(CompetanceDechet::class,'delegue_competance', 'id_epic')->with('owner_competance');
+        return $this->hasMany(CompetanceDechet::class,'delegue_competance', 'id_epic')->where('delegue_type','EPIC')->with('owner_competance');
     }
     /* end competances */
     public function region_siege(){

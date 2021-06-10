@@ -19,7 +19,8 @@ class CreateShareSitesTable extends Migration
             $table->date('end');
             $table->text('columns');
             $table->foreignId('id_user_premieum')->nullable()->references('id_user_premieum')->on('user_premieums');
-            $table->foreignId('id_site')->nullable()->references('id_site')->on('sites');
+            $table->integer('id_data_share');
+            $table->string('type_data_share');
             $table->foreignId('id_admin')->nullable()->references('id_admin')->on('admins');
             $table->softDeletes();
             $table->timestamps();

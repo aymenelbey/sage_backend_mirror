@@ -45,9 +45,6 @@ class Syndicat extends Model
         return $this->belongsToMany(Contact::class, ContactHasPersonMoral::class,'idPersonMoral','id_contact','id_syndicat','id_contact')
         ->wherePivot('deleted_at', null);
     }
-    public function epics(){
-        return $this->hasManyThrough(EPIC::class, SyndicatHasEpic::class,'id_syndicat','id_epic','id_syndicat','id_epic');
-    }
     public function sites(){
         return $this->hasManyThrough(Site::class,ClientHasSite::class,'id_collectivite','id_site','id_collectivite','id_site');
     }
@@ -69,6 +66,17 @@ class Syndicat extends Model
     public function amobe(){
         return $this->hasOne(Enemuration::class,'id_enemuration', 'amobe');
     }
+    /* competances */
+    public function competance_exercee(){
+        return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_syndicat')->where('owner_type','Syndicat')->whereNull('delegue_competance');
+    }
+    public function competance_delegue(){
+        return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_syndicat')->with('delegue_competance')->where('owner_type','Syndicat')->whereNotNull('delegue_competance');
+    }
+    public function competance_recu(){
+        return $this->hasMany(CompetanceDechet::class,'delegue_competance', 'id_syndicat')->where('delegue_type','Syndicat')->with('owner_competance');
+    }
+    /* end competances */
     public function withEnums(){
         $dep=$this->hasOne(Departement::class,'id_departement', 'departement_siege')->first();
         $reg=$this->hasOne(Region::class,'id_region', 'region_siege')->first();
@@ -79,5 +87,4 @@ class Syndicat extends Model
         $this->nature_juridique=$nat?$nat->__toString():'';
         $this->amobe=$amo?$amo->__toString():'';
     }
-
 }

@@ -328,10 +328,23 @@ class UserPremieumController extends Controller
     public function show_sites(Request $request)
     {
         $idUser=$request['idUserPrem'];
-        $shareds=ShareSite::where("id_user_premieum",$idUser)
-        ->whereHas('site')
-        ->with('site')
-        ->orderBy("id_share_site","DESC")
+        $typeShare=$request->get('type');
+        $queryBuilder=ShareSite::query();
+        $queryBuilder=$queryBuilder->where("id_user_premieum",$idUser)
+        ->where('type_data_share',$typeShare);
+        if($typeShare==="Site"){
+            $queryBuilder=$queryBuilder->whereHas('site')
+            ->with('site');
+        }
+        if($typeShare==="Departement"){
+            $queryBuilder=$queryBuilder->whereHas('departement')
+            ->with('departement');
+        }
+        if($typeShare==="Region"){
+            $queryBuilder=$queryBuilder->whereHas('region')
+            ->with('region');
+        }
+        $shareds=$queryBuilder->orderBy("id_share_site","DESC")
         ->paginate(12);
         foreach($shareds as &$share){
             $share->start=Carbon::parse($share->start)->format('d/m/y');
