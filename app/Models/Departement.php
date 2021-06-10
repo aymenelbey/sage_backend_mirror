@@ -21,4 +21,7 @@ class Departement extends Model
     {
         return $this->name_departement;
     }
+    public function sites(){
+        return $this->hasMany(Site::class,"departement_siege","id_departement");
+    }
 }

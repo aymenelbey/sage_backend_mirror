@@ -20,4 +20,7 @@ class Region extends Model
     {
         return $this->name_region;
     }
+    public function sites(){
+        return $this->hasMany(Site::class,"region_siege","id_region");
+    }
 }
