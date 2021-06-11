@@ -23,7 +23,7 @@ class CreateEPICSTable extends Migration
             $table->string("siteInternet",200)->nullable();
             $table->string("telephoneStandard")->nullable();
             $table->integer("nombreHabitant")->nullable();
-            $table->date("date_enter")->nullable();
+            $table->timestamp("date_enter")->nullable();
             $table->string("logo")->nullable();
             $table->string("nom_court")->nullable();
             $table->string("sinoe")->nullable();

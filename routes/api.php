@@ -34,6 +34,7 @@ Route::middleware('auth:api')->group(function () {
         });
     });
     Route::middleware(['premission:Admin'])->group(function(){
+        Route::get('history/fetch',[App\Http\Controllers\InfoHistoryController::class,'fetchHistory']);
         Route::prefix("shareds/")->group(function(){
             Route::post("add",[App\Http\Controllers\ShareSiteController::class,"share"]);
             Route::get("all",[App\Http\Controllers\ShareSiteController::class,"index"]);

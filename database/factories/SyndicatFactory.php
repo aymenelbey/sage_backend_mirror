@@ -29,7 +29,9 @@ class SyndicatFactory extends Factory
         return [
             "nomCourt"=>$this->faker->words(2, true),
             "denominationLegale"=>$this->faker->words(2, true),
-            "serin"=>$this->faker->siren,
+            "serin"=>$this->faker->randomNumber(9, true).''.$this->faker->randomNumber(5, true),
+            "email"=>$this->faker->email,
+            "sinoe"=>$this->faker->randomNumber(5, true),
             "adresse"=>$this->faker->address,
             "lat"=>$this->faker->latitude($min = 44, $max = 49),
             "lang"=>$this->faker->longitude($min = -0.4, $max = 5),

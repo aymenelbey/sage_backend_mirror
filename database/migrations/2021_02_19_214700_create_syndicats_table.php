@@ -24,7 +24,7 @@ class CreateSyndicatsTable extends Migration
             $table->string("siteInternet",300)->nullable();
             $table->string("telephoneStandard",200)->nullable();
             $table->integer("nombreHabitant")->nullable();
-            $table->date("date_enter")->nullable();
+            $table->timestamp("date_enter")->nullable();
             $table->string("logo")->nullable();
             $table->string("GEDRapport",200)->nullable();
             $table->string("email")->nullable();
