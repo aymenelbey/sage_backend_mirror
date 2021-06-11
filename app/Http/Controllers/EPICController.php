@@ -6,6 +6,7 @@ use App\Models\EPIC;
 use App\Models\Collectivite;
 use App\Models\SyndicatHasEpic;
 use App\Models\CompetanceDechet;
+use App\Models\InfoClientHistory;
 use Illuminate\Http\Request;
 use Validator;
 use Carbon\Carbon;
@@ -182,7 +183,7 @@ class EPICController extends Controller
             ];
             array_push($array_syndicat,$temp);
         }
-        $syndic = SyndicatHasEpic::insert($array_syndica);
+        $syndic = SyndicatHasEpic::insert($array_syndicat);
         return response([
             "ok"=>true,
             "message"=>"Données insérées avec succées"
@@ -209,7 +210,7 @@ class EPICController extends Controller
         $client = Collectivite::create([
             "typeCollectivite"=>"EPIC"
         ]);
-        $epic = EPIC::create($request->only(["nomEpic","serin","nom_court","sinoe","adresse","lat","lang","siteInternet","telephoneStandard","nombreHabitant","logo","nature_juridique","departement_siege","region_siege"])+['id_collectivite'=>$client->id_collectivite]);
+        $epic = EPIC::create($request->only(["nomEpic","serin","nom_court","sinoe","adresse","lat","lang","siteInternet","telephoneStandard","nombreHabitant","logo","nature_juridique","departement_siege","region_siege"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
         foreach($request->competance_exercee as $competance){
             if($competance['code'] && $competance['competence_dechet']){
                 CompetanceDechet::create([
@@ -242,9 +243,9 @@ class EPICController extends Controller
             "ok"=>true,
             "data"=>$epic
         ],200);
-        
+
     }
-    /** 
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -265,7 +266,21 @@ class EPICController extends Controller
             "competance_delegue"=>["array"]
         ]);
         $epic = EPIC::find($request["id_epic"]);
-        $epic->update($request->only(["nomEpic","nom_court","sinoe","serin","adresse","lat","lang","siteInternet","telephoneStandard","nombreHabitant","logo","nature_juridique","departement_siege","region_siege"]));
+        $moreItems=[];
+        if($epic->nombreHabitant!=$request['nombreHabitant']){
+            $moreItems=[
+                'nombreHabitant'=>$request['nombreHabitant'],
+                'date_enter'=>Carbon::now()
+            ];
+            InfoClientHistory::create([
+                'id_reference'=>$epic->id_epic,
+                'referenced_table'=>"Epic",
+                'referenced_column'=>'nombreHabitant',
+                'date_reference'=>$epic->date_enter,
+                'prev_value'=>$epic->nombreHabitant
+            ]);
+        }
+        $epic->update($request->only(["nomEpic","nom_court","sinoe","serin","adresse","lat","lang","siteInternet","telephoneStandard","logo","nature_juridique","departement_siege","region_siege"])+$moreItems);
         $competanceExercee=$epic->competance_exercee->toArray();
         $searchedComp=array_column($competanceExercee,'id_competance_dechet');
         foreach($request->competance_exercee as $competance){
@@ -416,7 +431,7 @@ class EPICController extends Controller
         ],400);
     }
 
-    
+
 
     /**
      * Remove the specified resource from storage.

@@ -24,9 +24,10 @@ class CreateSyndicatsTable extends Migration
             $table->string("siteInternet",300)->nullable();
             $table->string("telephoneStandard",200)->nullable();
             $table->integer("nombreHabitant")->nullable();
+            $table->date("date_enter")->nullable();
             $table->string("logo")->nullable();
             $table->string("GEDRapport",200)->nullable();
-             $table->string("email")->nullable();
+            $table->string("email")->nullable();
             $table->string("sinoe")->nullable();
             $table->foreignId('amobe')->references('id_enemuration')->on('enemurations');
             $table->foreignId('nature_juridique')->references('id_enemuration')->on('enemurations');

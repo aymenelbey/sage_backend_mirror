@@ -8,6 +8,7 @@ use App\Models\Enemuration;
 use App\Models\Departement;
 use App\Models\Region;
 use App\Models\Collectivite;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CommuneFactory extends Factory
@@ -37,6 +38,7 @@ class CommuneFactory extends Factory
             "departement_siege"=>$this->faker->randomElement(Departement::all()->pluck('id_departement')),
             "region_siege"=>$this->faker->randomElement(Region::all()->pluck('id_region')),
             'id_epic'=>$this->faker->randomElement(EPIC::all()->pluck('id_epic')),
+            'date_enter'=>Carbon::now(),
             'id_collectivite'=>Collectivite::create([
                     "typeCollectivite"=>"Commune"
                 ])->id_collectivite,

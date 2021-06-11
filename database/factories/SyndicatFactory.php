@@ -7,6 +7,7 @@ use App\Models\Collectivite;
 use App\Models\Enemuration;
 use App\Models\Departement;
 use App\Models\Region;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class SyndicatFactory extends Factory
@@ -39,6 +40,7 @@ class SyndicatFactory extends Factory
             'nature_juridique'=>$this->faker->randomElement(Enemuration::where("key_enum","nature_juridique")->get()->pluck('id_enemuration')),
             "departement_siege"=>$this->faker->randomElement(Departement::all()->pluck('id_departement')),
             "region_siege"=>$this->faker->randomElement(Region::all()->pluck('id_region')),
+            'date_enter'=>Carbon::now(),
             "id_collectivite"=>Collectivite::create([
                     "typeCollectivite"=>"Syndicat"
                 ])->id_collectivite

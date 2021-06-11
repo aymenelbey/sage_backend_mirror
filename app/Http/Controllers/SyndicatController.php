@@ -6,6 +6,7 @@ use App\Models\Syndicat;
 use App\Models\Collectivite;
 use App\Models\SyndicatHasEpic;
 use App\Models\CompetanceDechet;
+use App\Models\InfoClientHistory;
 use Illuminate\Http\Request;
 use Validator;
 use Carbon\Carbon;
@@ -149,8 +150,8 @@ class SyndicatController extends Controller
                         "ok"=>false,
                         "message"=> $validator->errors()
                     ],400);
-                } 
-            } 
+                }
+            }
             $array_syndica = [];
             foreach($request["epics"] as $id){
                 $temp = [
@@ -194,7 +195,7 @@ class SyndicatController extends Controller
         $client = Collectivite::create([
             "typeCollectivite"=>"Syndicat"
         ]);
-        $syndicat = Syndicat::create($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","nombreHabitant","logo","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe"])+['id_collectivite'=>$client->id_collectivite]);
+        $syndicat = Syndicat::create($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","nombreHabitant","logo","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
         foreach($request->competance_exercee as $competance){
             if($competance['code'] && $competance['competence_dechet']){
                 CompetanceDechet::create([
@@ -223,24 +224,11 @@ class SyndicatController extends Controller
                 ]);
             }
         };
-        /*if(isset($request["epics"])&&sizeof($request["epics"])>0){
-            $epics_array = [];
-            foreach($request["epics"] as $id){
-                $temp = [
-                    "id_epic"=>$id,
-                    "id_syndicat"=>$syndicat->id_syndicat,
-                    'created_at'=>Carbon::now(),
-                    "updated_at"=>Carbon::now()
-                ];
-                array_push($epics_array,$temp);
-            }
-            $syndhas = SyndicatHasEpic::insert($epics_array);
-        }*/
         return response([
             "ok"=>true,
             "data"=>$syndicat
         ],200);
-       
+
     }
     /**
      * Update the specified resource in storage.
@@ -269,7 +257,21 @@ class SyndicatController extends Controller
             ['serin'=>'siren']
         );
         $syndicat=Syndicat::find($request['id_syndicat']);
-        $syndicat->update($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","nombreHabitant","logo","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe"]));
+        $moreItems=[];
+        if($syndicat->nombreHabitant!=$request['nombreHabitant']){
+            $moreItems=[
+                'nombreHabitant'=>$request['nombreHabitant'],
+                'date_enter'=>Carbon::now()
+            ];
+            InfoClientHistory::create([
+                'id_reference'=>$syndicat->id_syndicat,
+                'referenced_table'=>"Syndicat",
+                'referenced_column'=>'nombreHabitant',
+                'date_reference'=>$syndicat->date_enter,
+                'prev_value'=>$syndicat->nombreHabitant
+            ]);
+        }
+        $syndicat->update($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","logo","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe"])+$moreItems);
         $competanceExercee=$syndicat->competance_exercee->toArray();
         $searchedComp=array_column($competanceExercee,'id_competance_dechet');
         foreach($request->competance_exercee as $competance){
@@ -371,7 +373,7 @@ class SyndicatController extends Controller
      * @param  \App\Models\Syndicat  $syndicat
      * @return \Illuminate\Http\Response
      */
-    
+
 
     /**
      * Show the form for editing the specified resource.
@@ -399,7 +401,7 @@ class SyndicatController extends Controller
         ]);
     }
 
-    
+
 
     /**
      * Remove the specified resource from storage.

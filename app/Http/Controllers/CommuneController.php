@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Commune;
-use App\Models\EPIC;
 use App\Models\Collectivite;
+use App\Models\InfoClientHistory;
 use Illuminate\Http\Request;
 use Validator;
+use Carbon\Carbon;
 
 class CommuneController extends Controller
 {
@@ -57,7 +58,6 @@ class CommuneController extends Controller
         if($requireList && ($nomCommune || $address)){
             $arrayData=explode(".",$requireList);
             $communeQuery=$communeQuery->{$function."In"}("id_commune",$arrayData);
-            $function=$typeJoin=="inter"?"where":"orWhere";
         }
         if(in_array($sort,['ASC','DESC']) && in_array($sorter,["nomCommune","adresse","insee","serin","departement_siege","region_siege","nombreHabitant","id_commune"])){
             $communeQuery=$communeQuery->orderBy($sorter,$sort);
@@ -125,7 +125,7 @@ class CommuneController extends Controller
         $client = Collectivite::create([
             "typeCollectivite"=>"Commune"
         ]);
-        $commune = Commune::create($request->only(["nomCommune","adresse","logo","serin","insee","departement_siege","region_siege","lat","lang","nombreHabitant","id_epic"])+['id_collectivite'=>$client->id_collectivite]);
+        $commune = Commune::create($request->only(["nomCommune","adresse","logo","serin","insee","departement_siege","region_siege","lat","lang","nombreHabitant","id_epic"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
         return response([
             "ok"=>true,
             "data"=> $commune
@@ -151,8 +151,22 @@ class CommuneController extends Controller
             "serin"=>["required","numeric","digits:9"],
             "insee"=>["required","numeric","digits:5"]
         ]);
-        $commune =Commune::find($request["id_commune"]); 
-        $socU = $commune->update($request->only(["nomCommune","adresse","logo","serin","insee","departement_siege","region_siege","lat","lang","nombreHabitant","id_epic"]));
+        $commune =Commune::find($request["id_commune"]);
+        $moreItems=[];
+        if($commune->nombreHabitant!=$request['nombreHabitant']){
+            $moreItems=[
+                'nombreHabitant'=>$request['nombreHabitant'],
+                'date_enter'=>Carbon::now()
+            ];
+            InfoClientHistory::create([
+                'id_reference'=>$commune->id_commune,
+                'referenced_table'=>"Commune",
+                'referenced_column'=>'nombreHabitant',
+                'date_reference'=>$commune->date_enter,
+                'prev_value'=>$commune->nombreHabitant
+            ]);
+        }
+        $commune->update($request->only(["nomCommune","adresse","logo","serin","insee","departement_siege","region_siege","lat","lang","id_epic"])+$moreItems);
         return response([
             "ok"=>true,
             "data"=>"Commune modifiée avec succée"
@@ -197,7 +211,7 @@ class CommuneController extends Controller
         ],400);
     }
 
-    
+
 
     /**
      * Remove the specified resource from storage.

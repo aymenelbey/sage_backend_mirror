@@ -20,6 +20,7 @@ class Syndicat extends Model
         "siteInternet",
         "telephoneStandard",
         "nombreHabitant",
+        "date_enter",
         "logo",
         "ged_rapport",
         'amobe',

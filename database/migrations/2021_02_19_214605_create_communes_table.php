@@ -21,6 +21,7 @@ class CreateCommunesTable extends Migration
             $table->string("lang")->nullable();
             $table->string("logo")->nullable();
             $table->integer("nombreHabitant");
+            $table->date("date_enter")->nullable();
             $table->integer("insee")->nullable();
             $table->integer("serin")->nullable();
             $table->foreignId('region_siege')->nullable()->references('id_region')->on('regions');

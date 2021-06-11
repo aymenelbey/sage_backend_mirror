@@ -27,6 +27,7 @@ class EPIC extends Model
         "nature_juridique",
         "departement_siege",
         "region_siege",
+        "date_enter",
         "id_collectivite"
     ];
 
