@@ -23,8 +23,10 @@ class ImageSage extends Model
     {
         return $this->url;
     }
-    /*public function toArray()
+    protected static function booted()
     {
-        return $this->url;
-    }*/
+        static::retrieved(function ($model) {
+            $model->url=asset($model->url);
+        });
+    }
 }

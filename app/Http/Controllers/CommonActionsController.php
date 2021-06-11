@@ -10,7 +10,6 @@ class CommonActionsController extends Controller{
         if($request['file'])
          {
             $path=$request->file('file')->store('images');
-            $path=asset($path);
             $image=ImageSage::create([
                 "name"=>$request->file('file')->getClientOriginalName(),
                 "status"=>"done",
@@ -20,7 +19,7 @@ class CommonActionsController extends Controller{
                 'ok'=>true,
                 'image'=>[
                     "name"=>$image->name,
-                    "url"=>$image->url,
+                    "url"=>asset($image->url),
                     "status"=>$image->status,
                     "uid"=>$image->uid
                 ]
