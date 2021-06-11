@@ -18,6 +18,7 @@ class InfoHistoryController extends  Controller
             ->where('referenced_column',$typeColumn)
             ->orderBy('date_reference','DESC')
             ->get(['prev_value AS value','date_reference AS date']);
+
         return response([
             'ok'=>true,
             'list'=>$list
