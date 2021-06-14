@@ -11,9 +11,12 @@ class UserController extends Controller
 {
     public function updatePassword(Request $request){
         $this->validate($request,[
-            "password"=>['required'],
-            "cPassword"=>['required','min:6'],
-            "currentPassword"=>['required','same:cPassword']
+            "password"=>['required','same:cPassword','min:6'],
+            "cPassword"=>['required'],
+            "currentPassword"=>['required']
+        ],[],[
+            'cPassword'=>"Mot de pass de confirmation",
+            "password"=>"Mot de pass"
         ]);
         $user=JWTAuth::user();
         $passed=Hash::check($request['currentPassword'], $user->password);

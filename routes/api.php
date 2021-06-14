@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::get('sage/test', function(){
+    return response('here sage');
+});
 Route::post('/users/send-email', [App\Http\Controllers\auth\ForgotPasswordController::class,"forgot"]);
 Route::post('/login', [App\Http\Controllers\auth\LoginController::class,"login"]);
 Route::post('/create/admin', [App\Http\Controllers\auth\LoginController::class,"createAdmin"]);
