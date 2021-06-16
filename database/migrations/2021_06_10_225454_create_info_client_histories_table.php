@@ -15,11 +15,11 @@ class CreateInfoClientHistoriesTable extends Migration
     {
         Schema::create('info_client_histories', function (Blueprint $table) {
             $table->bigIncrements('id_history');
-            $table->integer('id_reference');
-            $table->string('prev_value');
-            $table->string('referenced_table');
-            $table->string('referenced_column');
-            $table->timestamp('date_reference');
+            $table->integer('id_reference')->nullable();
+            $table->string('prev_value')->nullable();
+            $table->string('referenced_table')->nullable();
+            $table->string('referenced_column')->nullable();
+            $table->timestamp('date_reference')->nullable();
         });
     }
 

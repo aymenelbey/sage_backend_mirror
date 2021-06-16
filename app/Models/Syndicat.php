@@ -29,6 +29,9 @@ class Syndicat extends Model
         'region_siege',
         "email",
         "sinoe",
+        "city",
+        "country",
+        "postcode",
         "id_collectivite"
     ];
     protected $dates = ['deleted_at'];

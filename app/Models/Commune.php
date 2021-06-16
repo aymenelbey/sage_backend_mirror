@@ -22,6 +22,9 @@ class Commune extends Model
         'lang',
         "nombreHabitant",
         "date_enter",
+        "city",
+        "country",
+        "postcode",
         'id_epic',
         'id_collectivite',
     ];

@@ -115,6 +115,9 @@ class CommuneController extends Controller
         $this->validate($request,[
             "nomCommune"=>["required"],
             "adresse"=>["required"],
+            "city"=>["required"],
+            "country"=>['required'],
+            "postcode"=>['required'],
             "serin"=>["required","numeric","digits:9"],
             "insee"=>["required","numeric","digits:5"],
             "nombreHabitant"=>["required","numeric"],
@@ -125,7 +128,7 @@ class CommuneController extends Controller
         $client = Collectivite::create([
             "typeCollectivite"=>"Commune"
         ]);
-        $commune = Commune::create($request->only(["nomCommune","adresse","logo","serin","insee","departement_siege","region_siege","lat","lang","nombreHabitant","id_epic"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
+        $commune = Commune::create($request->only(["nomCommune","adresse","logo","serin","insee","departement_siege","region_siege","lat","lang","nombreHabitant","id_epic","city","country","postcode"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
         return response([
             "ok"=>true,
             "data"=> $commune
@@ -166,7 +169,7 @@ class CommuneController extends Controller
                 'prev_value'=>$commune->nombreHabitant
             ]);
         }
-        $commune->update($request->only(["nomCommune","adresse","logo","serin","insee","departement_siege","region_siege","lat","lang","id_epic"])+$moreItems);
+        $commune->update($request->only(["nomCommune","adresse","logo","serin","insee","departement_siege","region_siege","lat","lang","city","country","postcode","id_epic"])+$moreItems);
         return response([
             "ok"=>true,
             "data"=>"Commune modifiée avec succée"

@@ -187,6 +187,9 @@ class SyndicatController extends Controller
             'departement_siege'=>["required","exists:departements,id_departement"],
             'region_siege'=>["required","exists:regions,id_region"],
             'adresse'=>['required'],
+            "city"=>["required"],
+            "country"=>['required'],
+            "postcode"=>['required'],
             "competance_exercee"=>["array"],
             "competance_delegue"=>["array"]
         ],[],
@@ -195,7 +198,7 @@ class SyndicatController extends Controller
         $client = Collectivite::create([
             "typeCollectivite"=>"Syndicat"
         ]);
-        $syndicat = Syndicat::create($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","nombreHabitant","logo","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
+        $syndicat = Syndicat::create($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","nombreHabitant","logo","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe","city","country","postcode"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
         foreach($request->competance_exercee as $competance){
             if($competance['code'] && $competance['competence_dechet']){
                 CompetanceDechet::create([
@@ -271,7 +274,7 @@ class SyndicatController extends Controller
                 'prev_value'=>$syndicat->nombreHabitant
             ]);
         }
-        $syndicat->update($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","logo","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe"])+$moreItems);
+        $syndicat->update($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","logo","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe","city","country","postcode"])+$moreItems);
         $competanceExercee=$syndicat->competance_exercee->toArray();
         $searchedComp=array_column($competanceExercee,'id_competance_dechet');
         foreach($request->competance_exercee as $competance){

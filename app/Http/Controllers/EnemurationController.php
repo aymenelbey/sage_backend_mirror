@@ -50,7 +50,7 @@ class EnemurationController extends Controller
         );
         return response([
             "ok"=>true,
-            "data"=>['label'=>$enum->valueEnum,'value'=>$enum->id_enemuration]
+            "data"=>['label'=>$enum->value_enum,'value'=>$enum->id_enemuration]
         ],200);
     }
 

@@ -200,6 +200,10 @@ class EPICController extends Controller
             "nomEpic"=>["required","string"],
             'nom_court'=>["required"],
             "sinoe"=>['required'],
+            "city"=>["required"],
+            "country"=>['required'],
+            "postcode"=>['required'],
+            "adresse"=>['required'],
             "serin"=>["required","numeric","digits:9"],
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],
             'departement_siege'=>["required","exists:departements,id_departement"],
@@ -210,7 +214,7 @@ class EPICController extends Controller
         $client = Collectivite::create([
             "typeCollectivite"=>"EPIC"
         ]);
-        $epic = EPIC::create($request->only(["nomEpic","serin","nom_court","sinoe","adresse","lat","lang","siteInternet","telephoneStandard","nombreHabitant","logo","nature_juridique","departement_siege","region_siege"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
+        $epic = EPIC::create($request->only(["nomEpic","serin","nom_court","sinoe","adresse","lat","lang","siteInternet","telephoneStandard","nombreHabitant","logo","nature_juridique","departement_siege","region_siege","city","country","postcode"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
         foreach($request->competance_exercee as $competance){
             if($competance['code'] && $competance['competence_dechet']){
                 CompetanceDechet::create([
@@ -280,7 +284,7 @@ class EPICController extends Controller
                 'prev_value'=>$epic->nombreHabitant
             ]);
         }
-        $epic->update($request->only(["nomEpic","nom_court","sinoe","serin","adresse","lat","lang","siteInternet","telephoneStandard","logo","nature_juridique","departement_siege","region_siege"])+$moreItems);
+        $epic->update($request->only(["nomEpic","nom_court","sinoe","serin","adresse","lat","lang","siteInternet","telephoneStandard","logo","nature_juridique","departement_siege","region_siege","city","country","postcode"])+$moreItems);
         $competanceExercee=$epic->competance_exercee->toArray();
         $searchedComp=array_column($competanceExercee,'id_competance_dechet');
         foreach($request->competance_exercee as $competance){

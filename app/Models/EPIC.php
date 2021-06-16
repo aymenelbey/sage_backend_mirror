@@ -28,6 +28,9 @@ class EPIC extends Model
         "departement_siege",
         "region_siege",
         "date_enter",
+        "city",
+        "country",
+        "postcode",
         "id_collectivite"
     ];
 
