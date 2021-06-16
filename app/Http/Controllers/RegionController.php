@@ -30,4 +30,34 @@ class RegionController extends Controller
             'list'=>[]
         ]);
     }
+    public function fetch_list(Request $request){
+        $query=Region::query()
+        ->orderBy("slug_region","ASC");
+        $list=$query->paginate(15);
+        return response([
+            'message'=>'async',
+            'list'=>$list
+        ]);
+    }
+    public function create(Request $request){
+        $region = Region::updateOrCreate(
+            ['id_region' =>$request->id_region],
+            [
+                'region_code' => $request->region_code,
+                'name_region' => $request->name_region,
+                'slug_region' => $request->slug_region,
+            ]
+        );
+        return response([
+            'ok'=>true,
+            'region'=>$region
+        ]);
+    }
+    public function soft_delete(Request $request){
+        $depart = Region::find($request['idReg'])->delete();
+        return response([
+            'ok'=>'async',
+            'region'=>$request['idReg']
+        ]);
+    }
 }

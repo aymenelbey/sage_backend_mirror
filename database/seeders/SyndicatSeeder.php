@@ -15,7 +15,7 @@ class SyndicatSeeder extends Seeder
     public function run()
     {
         Syndicat::factory()
-            ->count(100)
+            ->count(20)
             ->create();
     }
 }

@@ -21,7 +21,7 @@ class AdminSeeder extends Seeder
             "email"=>"itachibatna@gmail.com"
         ]);
         Admin::factory()
-            ->count(50)
+            ->count(10)
             ->create();
     }
 }

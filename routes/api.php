@@ -38,6 +38,16 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::middleware(['premission:Admin'])->group(function(){
         Route::get('history/fetch',[App\Http\Controllers\InfoHistoryController::class,'fetchHistory']);
+        Route::prefix("departement/")->group(function(){
+            Route::get('enums', [App\Http\Controllers\DepartementController::class,"fetch_list"]);
+            Route::post('add', [App\Http\Controllers\DepartementController::class,"create"]);
+            Route::delete('delete', [App\Http\Controllers\DepartementController::class,"soft_delete"]);
+        });
+        Route::prefix("region/")->group(function(){
+            Route::get('enums', [App\Http\Controllers\RegionController::class,"fetch_list"]);
+            Route::post('add', [App\Http\Controllers\RegionController::class,"create"]);
+            Route::delete('delete', [App\Http\Controllers\RegionController::class,"soft_delete"]);
+        });
         Route::prefix("shareds/")->group(function(){
             Route::post("add",[App\Http\Controllers\ShareSiteController::class,"share"]);
             Route::get("all",[App\Http\Controllers\ShareSiteController::class,"index"]);

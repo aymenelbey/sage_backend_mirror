@@ -15,7 +15,7 @@ class SyndicatHasEpicSeeder extends Seeder
     public function run()
     {
         SyndicatHasEpic::factory()
-            ->count(100)
+            ->count(20)
             ->create();
     }
 }

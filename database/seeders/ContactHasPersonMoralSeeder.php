@@ -15,7 +15,7 @@ class ContactHasPersonMoralSeeder extends Seeder
     public function run()
     {
         ContactHasPersonMoral::factory()
-            ->count(100)
+            ->count(50)
             ->create();
     }
 }

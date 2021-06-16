@@ -30,4 +30,34 @@ class DepartementController extends Controller
             'list'=>[]
         ]);
     }
+    public function fetch_list(Request $request){
+        $query=Departement::query()
+        ->orderBy("slug_departement","ASC");
+        $list=$query->paginate(15);
+        return response([
+            'message'=>'async',
+            'list'=>$list
+        ]);
+    }
+    public function create(Request $request){
+        $depart = Departement::updateOrCreate(
+            ['id_departement' =>$request->id_departement],
+            [
+                'departement_code' => $request->departement_code,
+                'name_departement' => $request->name_departement,
+                'slug_departement' => $request->slug_departement,
+            ]
+        );
+        return response([
+            'ok'=>true,
+            'departement'=>$depart
+        ]);
+    }
+    public function soft_delete(Request $request){
+        $depart = Departement::find($request['idDep'])->delete();
+        return response([
+            'ok'=>'async',
+            'departement'=>$request['idDep']
+        ]);
+    }
 }
