@@ -47,7 +47,7 @@ class Syndicat extends Model
     }
     public function contacts(){
         return $this->belongsToMany(Contact::class, ContactHasPersonMoral::class,'idPersonMoral','id_contact','id_syndicat','id_contact')
-        ->wherePivot('idPersonMoral', 'Syndicat')
+        ->wherePivot('typePersonMoral', 'Syndicat')
         ->wherePivot('deleted_at', null);
     }
     public function sites(){
