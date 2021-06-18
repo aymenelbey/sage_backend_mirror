@@ -29,8 +29,19 @@ class Commune extends Model
         'id_collectivite',
     ];
     protected $dates = ['deleted_at'];
+    protected $appends = ['typePersonMoral','dataIndex','id_person'];
+    public function getTypePersonMoralAttribute(){
+        return "Commune";
+    }
+    public function getIdPersonAttribute(){
+        return $this->id_commune;
+    }
+    public function getDataIndexAttribute(){
+        return "nomCommune";
+    }
     public function contacts(){
         return $this->belongsToMany(Contact::class, ContactHasPersonMoral::class,'idPersonMoral','id_contact','id_commune','id_contact')
+        ->wherePivot('typePersonMoral', 'Commune')
         ->wherePivot('deleted_at', null);
     }
     public function epic(){
