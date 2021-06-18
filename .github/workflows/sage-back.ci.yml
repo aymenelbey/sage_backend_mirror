@@ -25,4 +25,3 @@ jobs:
         script: |
           cd /home/sage_app/sage_backend
           git pull origin master
-
