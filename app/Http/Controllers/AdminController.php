@@ -51,10 +51,11 @@ class AdminController extends Controller
         $this->validate($request,[
             "nom"=>["required"],
             "prenom"=>["required"],
-            "email"=>["required","email","unique:admins,email"]
+            "email_admin"=>["required","email","unique:admins,email"],
+            'username'=>['nullable','unique:users,username']
         ]);
-        $username=User::getUsername($request['nom'],$request['prenom']);
-        $password=Str::random(12);
+        $username=$request['username']?$request['username']:User::getUsername($request['nom'],$request['prenom']);
+        $password=$request['init_password']?$request['init_password']:Str::random(12);
         $user =  User::create([
             "username"=>$username,
             "typeuser"=>"Admin",
@@ -66,7 +67,7 @@ class AdminController extends Controller
             "nom"=>$request['nom'],
             "prenom"=>$request['prenom'],
             "phone"=>isset($request['phone'])?$request['phone']:null,
-            "email"=>$request['email']
+            "email"=>$request['email_admin']
         ]);
         return response([
             "ok"=>true,
