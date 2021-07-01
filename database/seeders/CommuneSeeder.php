@@ -15,7 +15,7 @@ class CommuneSeeder extends Seeder
     public function run()
     {
         Commune::factory()
-            ->count(20)
+            ->count(100)
             ->create();
     }
 }

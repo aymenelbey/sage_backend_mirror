@@ -201,7 +201,8 @@ class GestionnaireController extends Controller
             "username"=>["required"],
             "societe"=>["required","in:Sage_engineering,Sage_expert,Sage_industry"],
             "mobile"=>["required"],
-            "status"=>["required","boolean"]
+            "status"=>["required","boolean"],
+            "email"=>["email"]
         ],[
             "required"=> ":attribute est obligatoire",
             "email"=>":attribute doit être un email valide",

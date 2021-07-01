@@ -15,7 +15,7 @@ class EPICSeeder extends Seeder
     public function run()
     {
         EPIC::factory()
-            ->count(20)
+            ->count(50)
             ->create();
     }
 }

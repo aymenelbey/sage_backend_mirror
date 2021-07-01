@@ -30,7 +30,11 @@ class UserSitesController extends Controller{
         $user = JWTAuth::user();
         $userPrem=UserPremieum::where("id_user",$user->id)
         ->first();
-        $sites=ShareSite::join("sites","sites.id_site","=","share_sites.id_site")
+        $sites=ShareSite::join("sites",function($join){
+            $join->on("sites.id_site","=","share_sites.id_data_share")
+            ->orOn("sites.departement_siege","=","share_sites.id_data_share")
+            ->orOn("sites.region_siege","=","share_sites.id_data_share");
+        })
         ->where("share_sites.id_user_premieum",$userPrem->id_user_premieum)
         ->where("share_sites.is_blocked",false)
         ->where("share_sites.end",">=",Carbon::now()->format('Y-m-d'))

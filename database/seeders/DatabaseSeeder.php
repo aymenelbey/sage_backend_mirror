@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
             ContactSeeder::class,
             ContactHasPersonMoralSeeder::class,
             SiteSeeder::class,
-            //ShareSiteSeeder::class
+            ShareSiteSeeder::class
         ]);
     }
 }

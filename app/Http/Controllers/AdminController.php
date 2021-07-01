@@ -21,7 +21,7 @@ class AdminController extends Controller
         $nom=$request->get('nom');
         $prenom=$request->get('prenom');
         $function='where';
-        $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
+        $pageSize=$request->get('pageSize')?$request->get('pageSize'):20;
         $adminQuery = Admin::query();
         $adminQuery=$adminQuery->join("users","admins.id_user","=","users.id");
         if($nom){
