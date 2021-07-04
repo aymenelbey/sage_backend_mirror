@@ -17,9 +17,13 @@ class ContratController extends Controller
     public function index(Request $request){
         $query = Contrat::query();
         $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
-        $query=$query->with('contractant');
+        $query=$query->with('contractant.groupe');
         $contra = $query->orderBy("created_at","DESC")
-        ->paginate($pageSize);
+        ->paginate($pageSize)
+        ->toArray();
+        foreach($contra['data'] as &$contract){
+            $contract['contractant']['groupe']=$contract['contractant']['groupe']['value_enum'];
+        }
         return response([
             "ok"=>"server",
             "data"=>$contra
@@ -32,28 +36,13 @@ class ContratController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(Request $request){
-        $rules = [
+        $this->validate($request,[
             "dateDebut"=>["required"],
             "dateFin"=>["required"],
-            "autreActivite"=>["required"],
             "communes"=>['required',"array"],
             "site"=>["exists:sites,id_site"],
             "contractant"=>["exists:societe_exploitants,id_societe_exploitant"]
-        ];
-        $message = [
-            "dateDebut.required"=>"Veuillez saisisser la date du debut de contrat",
-            "dateFin.required"=>"Veuillez saisisser la date de la fin du contrat",
-            "autreActivite.required"=>"Veuillez saisisser les autre activitées",
-            "site.exists"=>"Site n'existe pas",
-            "contractant.exists"=>"Societe d'exploitation n'existe pas"
-        ];
-        $validator = Validator::make($request->all(),$rules,$message);
-        if($validator->fails()){
-            return response([
-                "ok"=>"server",
-                "errors"=>$validator->errors()
-            ],400);
-        }
+        ]);
         $contrat =  Contrat::create([
             "dateDebut"=>$request["dateDebut"],
             "dateFin"=>$request["dateFin"],
@@ -64,7 +53,8 @@ class ContratController extends Controller
         foreach($request['communes'] as $commune){
             $comHas =  CommunHasContrat::create([
                 "id_contrat"=>$contrat->id_contrat,
-                "id_commune"=>$commune,
+                "typePersonMoral"=>$commune['type'],
+                "idPersonMoral"=>$commune['id_person']
             ]);
         }
         return response([
@@ -85,16 +75,9 @@ class ContratController extends Controller
             "id_contrat"=>["required","exists:contrats"],
             "dateDebut"=>["required"],
             "dateFin"=>["required"],
-            "autreActivite"=>["required"],
             "communes"=>['required',"array"],
             "site"=>["exists:sites,id_site"],
             "contractant"=>["exists:societe_exploitants,id_societe_exploitant"]
-        ],[
-            "dateDebut.required"=>"Veuillez saisisser la date du debut de contrat",
-            "dateFin.required"=>"Veuillez saisisser la date de la fin du contrat",
-            "autreActivite.required"=>"Veuillez saisisser les autre activitées",
-            "site.exists"=>"Site n'existe pas",
-            "contractant.exists"=>"Societe d'exploitation n'existe pas"
         ]);
         $contrat = Contrat::find($request["id_contrat"]);
         $contrat->update([
@@ -105,20 +88,22 @@ class ContratController extends Controller
             "contractant"=>$request["contractant"]
         ]);
         $ignorekey=[];
+        $listCommune=array_column($request["communes"],'id_person');
         $prevCommunes=CommunHasContrat::where('id_contrat',$request['id_contrat'])->get();
         foreach($prevCommunes as $comune){
-            $keySearch=array_search($comune->id_commune,$request["communes"]);
-            if($keySearch>-1){
-                $ignorekey[]=$comune->id_commune;
+            $keySearch=array_search($comune->id_person,$listCommune);
+            if($keySearch>-1 && $listCommune['type']==$comune->typePersonMoral){
+                $ignorekey[]=$keySearch;
             }else{
                 $comune->delete();
             }
         } 
-        foreach($request["communes"] as $commune){
-            if(!in_array($commune,$ignorekey)){
+        foreach($request["communes"] as $key=>$commune){
+            if(!in_array($key,$ignorekey)){
                 $comnCont = CommunHasContrat::create([
                     "id_contrat"=>$contrat->id_contrat,
-                    "id_commune"=>$commune,
+                    "typePersonMoral"=>$commune['type'],
+                    "idPersonMoral"=>$commune['id_person']
                 ]);
             }
         }
@@ -167,10 +152,12 @@ class ContratController extends Controller
     public function edit(Request $request)
     {
         $idcontract=$request['idContract'];
-        $contract=Contrat::with("contractant")
+        $contract=Contrat::with("contractant.groupe")
         ->with("site")
         ->with("communes")
-        ->find($idcontract);
+        ->find($idcontract)
+        ->toArray();
+        $contract['contractant']['groupe']=$contract['contractant']['groupe']['value_enum'];
         return response([
             'ok'=>true,
             'data'=>$contract

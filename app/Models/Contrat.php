@@ -22,10 +22,10 @@ class Contrat extends Model
         return $this->hasOne(Site::class,"id_site","id_site")->withDefault();
     }
     public function contractant(){
-        return $this->hasOne(SocieteExploitant::class,"id_societe_exploitant","contractant")->withDefault();
+        return $this->hasOne(SocieteExploitant::class,"id_societe_exploitant","contractant")
+        ->withDefault();
     }
     public function communes(){
-        return $this->belongsToMany(Commune::class,CommunHasContrat::class,'id_contrat','id_commune')
-        ->wherePivot('deleted_at', null);
+        return $this->hasMany(CommunHasContrat::class,'id_contrat','id_contrat');
     }
 }

@@ -35,15 +35,18 @@ class EPIC extends Model
     ];
 
     protected $dates = ['deleted_at'];
-    protected $appends = ['typePersonMoral','dataIndex','id_person'];
+    protected $appends = ['typePersonMoral','dataIndex','id_person','name'];
     public function getTypePersonMoralAttribute(){
-        return "EPIC";
+        return "Epic";
     }
     public function getIdPersonAttribute(){
         return $this->id_epic;
     }
     public function getDataIndexAttribute(){
         return "nomEpic";
+    }
+    public function getNameAttribute(){
+        return "Nom EPIC";
     }
     public function contacts(){
         return $this->belongsToMany(Contact::class, ContactHasPersonMoral::class,'idPersonMoral','id_contact','id_epic','id_contact')
@@ -67,10 +70,15 @@ class EPIC extends Model
     }
     /* competances */
     public function competance_exercee(){
-        return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_epic')->where('owner_type','EPIC')->whereNull('delegue_competance');
+        return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_epic')
+        ->where('owner_type','EPIC')
+        ->whereNull('delegue_competance');
     }
     public function competance_delegue(){
-        return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_epic')->with('delegue_competance')->where('owner_type','EPIC')->whereNotNull('delegue_competance');
+        return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_epic')
+        ->with('delegue_competance')
+        ->where('owner_type','EPIC')
+        ->whereNotNull('delegue_competance');
     }
     public function competance_recu(){
         return $this->hasMany(CompetanceDechet::class,'delegue_competance', 'id_epic')->where('delegue_type','EPIC')->with('owner_competance');

@@ -17,6 +17,7 @@ class ShareSite extends Model
         'id_user_premieum',
         'id_data_share',
         'type_data_share',
+        'type_site_share',
         'id_admin',
         'is_blocked'
     ];

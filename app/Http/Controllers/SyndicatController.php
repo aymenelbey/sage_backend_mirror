@@ -191,9 +191,10 @@ class SyndicatController extends Controller
             "country"=>['required'],
             "postcode"=>['required'],
             "competance_exercee"=>["array"],
-            "competance_delegue"=>["array"]
+            "competance_delegue"=>["array"],
+            'telephoneStandard'=>['nullable','phone:FR']
         ],[],
-            ['serin'=>'siren']
+            ['serin'=>'Siret']
         );
         $client = Collectivite::create([
             "typeCollectivite"=>"Syndicat"
@@ -255,9 +256,10 @@ class SyndicatController extends Controller
             'region_siege'=>["required","exists:regions,id_region"],
             'adresse'=>['required'],
             "competance_exercee"=>["array"],
-            "competance_delegue"=>["array"]
+            "competance_delegue"=>["array"],
+            'telephoneStandard'=>['nullable','phone:FR']
         ],[],
-            ['serin'=>'siren']
+            ['serin'=>'Siret']
         );
         $syndicat=Syndicat::find($request['id_syndicat']);
         $moreItems=[];
@@ -274,7 +276,10 @@ class SyndicatController extends Controller
                 'prev_value'=>$syndicat->nombreHabitant
             ]);
         }
-        $syndicat->update($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","logo","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe","city","country","postcode"])+$moreItems);
+        $moreItems=[
+            'logo'=>isset($request['logo'])?$request['logo']:null
+        ];
+        $syndicat->update($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe","city","country","postcode"])+$moreItems);
         $competanceExercee=$syndicat->competance_exercee->toArray();
         $searchedComp=array_column($competanceExercee,'id_competance_dechet');
         foreach($request->competance_exercee as $competance){

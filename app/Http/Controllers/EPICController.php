@@ -209,7 +209,10 @@ class EPICController extends Controller
             'departement_siege'=>["required","exists:departements,id_departement"],
             'region_siege'=>["required","exists:regions,id_region"],
             "competance_exercee"=>["array"],
-            "competance_delegue"=>["array"]
+            "competance_delegue"=>["array"],
+            'telephoneStandard'=>['nullable','phone:FR']
+        ],[],[
+            'serin'=>'Siren'
         ]);
         $client = Collectivite::create([
             "typeCollectivite"=>"EPIC"
@@ -267,7 +270,10 @@ class EPICController extends Controller
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],
             'region_siege'=>["required","exists:regions,id_region"],
             "competance_exercee"=>["array"],
-            "competance_delegue"=>["array"]
+            "competance_delegue"=>["array"],
+            'telephoneStandard'=>['nullable','phone:FR']
+        ],[],[
+            'serin'=>'Siren'
         ]);
         $epic = EPIC::find($request["id_epic"]);
         $moreItems=[];
@@ -284,7 +290,10 @@ class EPICController extends Controller
                 'prev_value'=>$epic->nombreHabitant
             ]);
         }
-        $epic->update($request->only(["nomEpic","nom_court","sinoe","serin","adresse","lat","lang","siteInternet","telephoneStandard","logo","nature_juridique","departement_siege","region_siege","city","country","postcode"])+$moreItems);
+        $moreItems=[
+            'logo'=>isset($request['logo'])?$request['logo']:null
+        ];
+        $epic->update($request->only(["nomEpic","nom_court","sinoe","serin","adresse","lat","lang","siteInternet","telephoneStandard","nature_juridique","departement_siege","region_siege","city","country","postcode"])+$moreItems);
         $competanceExercee=$epic->competance_exercee->toArray();
         $searchedComp=array_column($competanceExercee,'id_competance_dechet');
         foreach($request->competance_exercee as $competance){

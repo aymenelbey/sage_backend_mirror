@@ -93,6 +93,7 @@ class GestionnaireController extends Controller
             "societe"=>["required","in:Sage_engineering,Sage_expert,Sage_industry"],
             "mobile"=>["required"],
             "status"=>["required","boolean"],
+            'telephone'=>['nullable','phone:FR'],
             "email"=>["email","unique:gestionnaires"]
         ]);
         $adminuser = JWTAuth::user();
@@ -201,12 +202,9 @@ class GestionnaireController extends Controller
             "username"=>["required"],
             "societe"=>["required","in:Sage_engineering,Sage_expert,Sage_industry"],
             "mobile"=>["required"],
+            'telephone'=>['nullable','phone:FR'],
             "status"=>["required","boolean"],
             "email"=>["email"]
-        ],[
-            "required"=> ":attribute est obligatoire",
-            "email"=>":attribute doit être un email valide",
-            "unique"=>"Veuillez choisir un :attribute unique"
         ]);
         $gestionaire = Gestionnaire::find($request["id_gestionnaire"]);
         $user=User::find($gestionaire->id_user);

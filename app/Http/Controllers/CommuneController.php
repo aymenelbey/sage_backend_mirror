@@ -124,6 +124,9 @@ class CommuneController extends Controller
             'departement_siege'=>["required","exists:enemurations,id_enemuration"],
             'region_siege'=>["required","exists:enemurations,id_enemuration"],
             "id_epic"=>["required","exists:epics,id_epic"]
+        ],[],[
+            'serin'=>'Siren',
+            'id_epic'=>"EPCI de rattachement"
         ]);
         $client = Collectivite::create([
             "typeCollectivite"=>"Commune"
@@ -153,6 +156,8 @@ class CommuneController extends Controller
             'region_siege'=>["required","exists:enemurations,id_enemuration"],
             "serin"=>["required","numeric","digits:9"],
             "insee"=>["required","numeric","digits:5"]
+        ],[],[
+            'serin'=>'Siren'
         ]);
         $commune =Commune::find($request["id_commune"]);
         $moreItems=[];
@@ -169,7 +174,10 @@ class CommuneController extends Controller
                 'prev_value'=>$commune->nombreHabitant
             ]);
         }
-        $commune->update($request->only(["nomCommune","adresse","logo","serin","insee","departement_siege","region_siege","lat","lang","city","country","postcode","id_epic"])+$moreItems);
+        $moreItems=[
+            'logo'=>isset($request['logo'])?$request['logo']:null
+        ];
+        $commune->update($request->only(["nomCommune","adresse","serin","insee","departement_siege","region_siege","lat","lang","city","country","postcode","id_epic"])+$moreItems);
         return response([
             "ok"=>true,
             "data"=>"Commune modifiée avec succée"

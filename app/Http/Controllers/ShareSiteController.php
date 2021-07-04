@@ -37,6 +37,7 @@ class ShareSiteController extends Controller
             "userPrem"=>'required|integer|exists:user_premieums,id_user_premieum'
         ]);
         $colons='';
+        $typeSites='';
         if($request['typeShare']==='Site'){
             foreach($request['sharedColumn'] as $key=>$value){
                 if(in_array($key,self::VALID_COLOMNS) && $value){
@@ -54,15 +55,19 @@ class ShareSiteController extends Controller
             $colons=substr($colons, 0, -1);
             $colons.='&';
             foreach($request['multColumns'] as $key=>$value){
-                $colons.=$key.'$';
-                foreach($value as $key2=>$value2){
-                    if(in_array($key2,self::VALID_COLOMNS) && $value2){
-                        $colons.=$key2.'|';
+                if($value){
+                    $typeSites.=$key.'|';
+                    $colons.=$key.'$';
+                    foreach($value as $key2=>$value2){
+                        if(in_array($key2,self::VALID_COLOMNS) && $value2){
+                            $colons.=$key2.'|';
+                        }
                     }
+                    $colons=substr($colons, 0, -1);
+                    $colons.='&';
                 }
-                $colons=substr($colons, 0, -1);
-                $colons.='&';
             }
+            $typeSites=substr($typeSites, 0, -1);
             $colons=substr($colons, 0, -1);
         }
         $user = JWTAuth::user();
@@ -74,6 +79,7 @@ class ShareSiteController extends Controller
             "id_user_premieum"=>$request['userPrem'],
             "id_data_share"=>$request['dataShare'],
             "type_data_share"=>$request['typeShare'],
+            "type_site_share"=>$typeSites,
             "id_admin"=>$admin->id_admin
         ]);
         return response([
@@ -160,6 +166,7 @@ class ShareSiteController extends Controller
         $share->end=Carbon::createFromFormat('d/m/Y', $request->end)->format('Y-m-d');
         if(isset($request["columns"]) && is_array($request["columns"])){
             $columns='';
+            $typeSites='';
             if($share->type_data_share==="Site"){
                 foreach($request['columns'] as $key=>$value){
                     if(in_array($key,self::VALID_COLOMNS) && $value){
@@ -169,15 +176,20 @@ class ShareSiteController extends Controller
                 $columns=substr($columns, 0, -1);
             }else{
                 foreach($request['columns'] as $key=>$value){
-                    $columns.=$key.'$';
-                    foreach($value as $key2=>$value2){
-                        if(in_array($key2,self::VALID_COLOMNS) && $value2){
-                            $columns.=$key2.'|';
+                    if($value){
+                        $typeSites.=$key.'|';
+                        $columns.=$key.'$';
+                        foreach($value as $key2=>$value2){
+                            if(in_array($key2,self::VALID_COLOMNS) && $value2){
+                                $columns.=$key2.'|';
+                            }
                         }
+                        $columns=substr($columns, 0, -1);
+                        $columns.='&';
                     }
-                    $columns=substr($columns, 0, -1);
-                    $columns.='&';
+                    
                 }
+                $typeSites=substr($typeSites, 0, -1);
                 $columns=substr($columns, 0, -1);
             }
             

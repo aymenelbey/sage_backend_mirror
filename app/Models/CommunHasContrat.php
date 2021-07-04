@@ -12,7 +12,23 @@ class CommunHasContrat extends Model
     protected $primaryKey = "id_commun_has_contrat";
     protected $fillable = [
         "id_contrat",
-        "id_commune"
+        "idPersonMoral",
+        "typePersonMoral"
     ];
     protected $dates = ['deleted_at'];
+    protected $with = ['person'];
+    public function person()
+    {
+        return $this->morphTo(__FUNCTION__, 'typePersonMoral', 'idPersonMoral');
+    }
+    public function toArray(){
+        return [
+            'id_person'=>$this->person->id_person,
+            'typePersonMoral'=>$this->person->typePersonMoral,
+            'name'=>$this->person->name,
+            'dataIndex'=>$this->person->dataIndex,
+            'adresse'=>$this->person->adresse,
+            $this->person->dataIndex=>$this->person[$this->person->dataIndex]
+        ];
+    }
 }

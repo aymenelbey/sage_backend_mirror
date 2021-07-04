@@ -24,4 +24,6 @@ class DataTechnISDND extends Model
     {
         return $this->morphOne(DataTechn::class, 'dataTech');
     }
+    public function withEnums(){
+    }
 }

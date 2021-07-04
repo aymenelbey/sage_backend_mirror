@@ -137,7 +137,8 @@ class UserPremieumController extends Controller
             "client"=>['required'],
             "prenom"=>["required"],
             "email"=>["email","unique:user_premieums,email_user_prem"],
-            "nbSession"=>["required","numeric"]
+            "nbSession"=>["required","numeric"],
+            'phone'=>['nullable','phone:FR']
         ];
         $validator = Validator::make($request->all(),$rules);
         if($validator->fails()){
@@ -221,12 +222,8 @@ class UserPremieumController extends Controller
             "nom"=>["required"],
             "prenom"=>["required"],
             "email"=>["email"],
-            "nbAccess"=>["required","numeric"]
-        ],[
-            "numeric" => ":attribute doit être un nombre",
-            "required"=> ":attribute est obligatoire",
-            "email"=>":attribute doit être un email valide",
-            "id_user.exists"=>"L'utilisateur doit être exists"
+            "nbAccess"=>["required","numeric"],
+            'phone'=>['nullable','phone:FR']
         ]);
         $userPrem=UserPremieum::find($request['id_user']);
         $user=User::find($userPrem->id_user);

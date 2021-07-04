@@ -13,6 +13,7 @@ class Enemuration extends Model
         "key_enum",
         "value_enum"
     ];
+    
     public function __toString()
     {
         return $this->value_enum;

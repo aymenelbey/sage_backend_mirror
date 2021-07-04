@@ -15,7 +15,7 @@ class ShareSiteSeeder extends Seeder
     public function run()
     {
         ShareSite::factory()
-            ->count(10000)
+            ->count(100)
             ->create();
     }
 }

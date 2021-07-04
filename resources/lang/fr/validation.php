@@ -23,6 +23,7 @@ return [
     'attached'             => ':attribute est déjà attaché(e).',
     'before'               => 'Le champ :attribute doit être une date antérieure au :date.',
     'before_or_equal'      => 'Le champ :attribute doit être une date antérieure ou égale au :date.',
+    'phone' => 'Le champ :attribute doit être un numéro valide .',
     'between'              => [
         'array'   => 'Le tableau :attribute doit contenir entre :min et :max éléments.',
         'file'    => 'La taille du fichier de :attribute doit être comprise entre :min et :max kilo-octets.',

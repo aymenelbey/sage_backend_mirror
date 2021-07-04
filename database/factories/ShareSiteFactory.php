@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\ShareSite;
+use App\Models\Departement;
+use App\Models\Region;
 use App\Models\Site;
 use App\Models\Admin;
 use App\Models\UserPremieum;
@@ -31,6 +33,14 @@ class ShareSiteFactory extends Factory
     public function definition()
     {
         $site=$this->faker->randomElement(Site::all());
+        $depart=$this->faker->randomElement(Departement::all());
+        $region=$this->faker->randomElement(Region::all());
+        $entry=[
+            'Site'=>$site->id_site,
+            'Departement'=>$depart->id_departement,
+            'Region'=>$region->id_region
+        ];
+        $type=$this->faker->randomElement(['Site','Departement','Region']);
         $listCheck=constant("self::DATA_TECH_".$site->categorieSite);
         $nbCln=$this->faker->numberBetween(4, count($listCheck));
         $basicWord=$this->faker->randomElements(self::BASE_SITE,$this->faker->numberBetween(4, 11));
@@ -45,7 +55,8 @@ class ShareSiteFactory extends Factory
             'end'=>$this->faker->dateTimeBetween('-5 days', '+20 days')->format('Y-m-d'),
             'columns'=>$clmnShare,
             'id_user_premieum'=>$this->faker->randomElement(UserPremieum::all()->pluck('id_user_premieum')),
-            'id_site'=>$site->id_site,
+            'id_data_share'=>$entry[$type],
+            'type_data_share'=>$type,
             'id_admin'=>$this->faker->randomElement(Admin::all()->pluck('id_admin')),
             'is_blocked'=>$this->faker->boolean(70)
         ];

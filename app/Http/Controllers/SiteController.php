@@ -98,21 +98,15 @@ class SiteController extends Controller
         $this->validate($request,[
             "id_site"=>['exists:sites,id_site']
         ]);
-        $site = Site::with(['client'=>function($query){
-            $query->with('client');
-        },'exploitant'=>function($query){
-            $query->with('client');
-        },
-        'dataTech'=>function($query){
-            $query->with('dataTech');
-        },"gestionnaire","contracts"=>function($query){
-            $query->with('contractant');
-        }])
+        $site = Site::with(['client.client','exploitant.client','dataTech.dataTech',"gestionnaire","contracts.contractant","departement_siege",'region_siege'])
         ->find($request['id_site']);
+        $site->dataTech->dataTech->withEnums();
         $siteReturn=$site->toArray();
         $siteReturn['photos']=$site->photos->map(function($photo){
             return $photo->__toString();
         });
+        $siteReturn['departement_siege']=!empty($siteReturn['departement_siege']['name_departement'])?$siteReturn['departement_siege']['name_departement']:'';
+        $siteReturn['region_siege']=!empty($siteReturn['region_siege']['name_region'])?$siteReturn['region_siege']['name_region']:'';
         return response([
             "ok"=>true,
             "data"=>$siteReturn

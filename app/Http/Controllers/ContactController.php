@@ -105,6 +105,7 @@ class ContactController extends Controller
             "nom"=>["required"],
             "prenom"=>["required"],
             "address"=>["required"],
+            'telephone'=>['nullable','phone:FR'],
             "persons_moral"=>["required","array"],
         ]);
         $contact = Contact::create($request->only(['status','genre','nom','prenom','telephone','mobile','email','informations','address']));
@@ -146,6 +147,7 @@ class ContactController extends Controller
             "nom"=>["required"],
             "prenom"=>["required"],
             "address"=>["required"],
+            'telephone'=>['nullable','phone:FR'],
             "persons_moral"=>["required","array"]
         ]);
         $cont=Contact::find($request["id_contact"])->update($request->only(["status","genre","nom","prenom","telephone","mobile","email","informations","address"]));

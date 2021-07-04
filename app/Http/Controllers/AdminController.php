@@ -52,7 +52,8 @@ class AdminController extends Controller
             "nom"=>["required"],
             "prenom"=>["required"],
             "email_admin"=>["required","email","unique:admins,email"],
-            'username'=>['nullable','unique:users,username']
+            'username'=>['nullable','unique:users,username'],
+            'phone'=>['nullable','phone:FR']
         ]);
         $username=$request['username']?$request['username']:User::getUsername($request['nom'],$request['prenom']);
         $password=$request['init_password']?$request['init_password']:Str::random(12);

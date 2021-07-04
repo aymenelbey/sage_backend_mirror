@@ -24,4 +24,8 @@ class DataTechnTRI extends Model
     {
         return $this->morphOne(DataTechn::class, 'dataTech');
     }
+    public function withEnums(){
+        $extension=$this->hasOne(Enemuration::class,'id_enemuration', 'extension')->first();
+        $this->extension=$extension?$extension->__toString():'';
+    }
 }

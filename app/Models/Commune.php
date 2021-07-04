@@ -29,7 +29,7 @@ class Commune extends Model
         'id_collectivite',
     ];
     protected $dates = ['deleted_at'];
-    protected $appends = ['typePersonMoral','dataIndex','id_person'];
+    protected $appends = ['typePersonMoral','dataIndex','id_person','name'];
     public function getTypePersonMoralAttribute(){
         return "Commune";
     }
@@ -38,6 +38,9 @@ class Commune extends Model
     }
     public function getDataIndexAttribute(){
         return "nomCommune";
+    }
+    public function getNameAttribute(){
+        return "Nom Commune";
     }
     public function contacts(){
         return $this->belongsToMany(Contact::class, ContactHasPersonMoral::class,'idPersonMoral','id_contact','id_commune','id_contact')

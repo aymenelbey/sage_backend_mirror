@@ -35,7 +35,7 @@ class Syndicat extends Model
         "id_collectivite"
     ];
     protected $dates = ['deleted_at'];
-    protected $appends = ['typePersonMoral','dataIndex','id_person'];
+    protected $appends = ['typePersonMoral','dataIndex','id_person','name'];
     public function getTypePersonMoralAttribute(){
         return "Syndicat";
     }
@@ -44,6 +44,9 @@ class Syndicat extends Model
     }
     public function getDataIndexAttribute(){
         return "nomCourt";
+    }
+    public function getNameAttribute(){
+        return "Nom Court";
     }
     public function contacts(){
         return $this->belongsToMany(Contact::class, ContactHasPersonMoral::class,'idPersonMoral','id_contact','id_syndicat','id_contact')

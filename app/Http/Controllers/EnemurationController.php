@@ -16,6 +16,7 @@ class EnemurationController extends Controller
     public function index()
     {
        $enums=Enemuration::orderBy('created_at', 'desc')
+        ->orderBy('updated_at','DESC')
        ->get(['id_enemuration AS value', 'value_enum AS label','key_enum'])
        ->groupBy('key_enum');
        return response([
@@ -107,22 +108,20 @@ class EnemurationController extends Controller
      */
     public function destroy(Request $request)
     {
-        $validator = Validator::make($request->all(),[
-            "enumuration"=>["required","exists:enemurations,id_enemuration"]
-        ],[
-            "required"=>"L'enumuration est obligatoire",
-            "exists"=>"L'enemuration n'exists pas"
+        $this->validate($request,[
+             "enumuration"=>["required","exists:enemurations,id_enemuration"]
         ]);
-        if($validator->fails()){
+        try{
+            $enum = Enemuration::destroy($request['enumuration']);
             return response([
-                "ok"=>false,
-                "errors"=>$validator->errors()
-            ],400);
-        }
-        $enum = Enemuration::destroy($request['enumuration']);
-        return response([
-            "ok"=>true,
-            "data"=>$request['enumuration']
-        ],200);
+                "ok"=>true,
+                "data"=>$request['enumuration']
+            ],200);
+        }catch(Exeption $e){
+            return response([
+                "errors"=>true,
+                "message"=>"item already in use"
+            ],402);
+        }    
     }
 }
