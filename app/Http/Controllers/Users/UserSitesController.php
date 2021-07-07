@@ -30,22 +30,31 @@ class UserSitesController extends Controller{
         $user = JWTAuth::user();
         $userPrem=UserPremieum::where("id_user",$user->id)
         ->first();
+        $dataCompare=Carbon::now()->format('Y-m-d');
         $sites=ShareSite::join("sites",function($join){
-            $join->on("sites.id_site","=","share_sites.id_data_share")
-            ->orOn("sites.departement_siege","=","share_sites.id_data_share")
-            ->orOn("sites.region_siege","=","share_sites.id_data_share");
+            $join->on(function($query){
+                $query->on("sites.id_site","=","share_sites.id_data_share")
+                ->where('share_sites.type_data_share',"=",'Site');
+            })
+            ->orOn(function($query){
+                $query->on("sites.departement_siege","=","share_sites.id_data_share")
+                ->where('share_sites.type_data_share',"=",'Departement');
+            })
+            ->orOn(function($query){
+                $query->on("sites.region_siege","=","share_sites.id_data_share")
+                ->where('share_sites.type_data_share',"=",'Region');
+            });
         })
         ->where("share_sites.id_user_premieum",$userPrem->id_user_premieum)
         ->where("share_sites.is_blocked",false)
-        ->where("share_sites.end",">=",Carbon::now()->format('Y-m-d'))
-        ->where("share_sites.start","<=",Carbon::now()->format('Y-m-d'))
-        ->get(["sites.adresse","sites.langititude AS lang","sites.latitude AS lat","share_sites.id_share_site AS id_access","sites.categorieSite AS iconType"]);
+        ->where("share_sites.end",">=",$dataCompare);
+        $sites=$sites->distinct('sites.id_site')
+        ->get(["sites.id_site","sites.adresse","sites.langititude AS lang","sites.latitude AS lat","share_sites.id_share_site AS id_access","sites.categorieSite AS iconType"]);
         return response([
             'ok'=>true,
             'data'=>$sites
         ],200);
     }
-
     public function show_detail(Request $request){
         $user = JWTAuth::user();
         $userPrem=UserPremieum::where("id_user",$user->id)
