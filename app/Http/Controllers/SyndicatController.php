@@ -112,6 +112,9 @@ class SyndicatController extends Controller
             ->find($idSyndicat);
             $syndicat->withEnums();
             $syndicat=$syndicat->toArray();
+            $tmpArray=array_merge($syndicat['competance_exercee'],$syndicat['competance_recu']);
+            unset($syndicat['competance_recu']);unset($syndicat['competance_exercee']);
+            $syndicat['competance_exercee']=$tmpArray;
             if(!empty($syndicat["logo"][0])){
                 $syndicat["logo"]=$syndicat["logo"][0]["url"];
             }

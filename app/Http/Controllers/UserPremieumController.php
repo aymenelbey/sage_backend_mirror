@@ -344,8 +344,8 @@ class UserPremieumController extends Controller
         $shareds=$queryBuilder->orderBy("id_share_site","DESC")
         ->paginate(12);
         foreach($shareds as &$share){
-            $share->start=Carbon::parse($share->start)->format('d/m/y');
-            $share->end=Carbon::parse($share->end)->format('d/m/y');
+            $share->start=Carbon::parse($share->start)->format('d/m/Y');
+            $share->end=Carbon::parse($share->end)->format('d/m/Y');
         }
         return response([
             "ok"=>true,

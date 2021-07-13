@@ -28,58 +28,22 @@ class ShareSiteController extends Controller
      */
     public function share(Request $request){
         $this->validate($request, [
-            'sharedColumn' => 'required|array',
             'dataShare' => 'required|integer',
-            'multColumns'=>'required|array',
+            'columns'=>'required|array',
             'typeShare'=>['required','in:Site,Departement,Region'],
             'dateDebut' => 'required',
             'dateFin' => 'required',
             "userPrem"=>'required|integer|exists:user_premieums,id_user_premieum'
         ]);
-        $colons='';
-        $typeSites='';
-        if($request['typeShare']==='Site'){
-            foreach($request['sharedColumn'] as $key=>$value){
-                if(in_array($key,self::VALID_COLOMNS) && $value){
-                    $colons.=$key.'|';
-                }
-            }
-            $colons=substr($colons, 0, -1);
-        }else{
-            $colons.='generalInfo$';
-            foreach($request['sharedColumn'] as $key=>$value){
-                if(in_array($key,self::VALID_COLOMNS) && $value){
-                    $colons.=$key.'|';
-                }
-            }
-            $colons=substr($colons, 0, -1);
-            $colons.='&';
-            foreach($request['multColumns'] as $key=>$value){
-                if($value){
-                    $typeSites.=$key.'|';
-                    $colons.=$key.'$';
-                    foreach($value as $key2=>$value2){
-                        if(in_array($key2,self::VALID_COLOMNS) && $value2){
-                            $colons.=$key2.'|';
-                        }
-                    }
-                    $colons=substr($colons, 0, -1);
-                    $colons.='&';
-                }
-            }
-            $typeSites=substr($typeSites, 0, -1);
-            $colons=substr($colons, 0, -1);
-        }
         $user = JWTAuth::user();
         $admin = Admin::where("id_user","=",$user->id)->first();
         $siteToShare=ShareSite::create([
             "start"=>Carbon::createFromFormat('d/m/Y', $request->dateDebut)->format('Y-m-d'),
             "end"=>Carbon::createFromFormat('d/m/Y', $request->dateFin)->format('Y-m-d'),
-            "columns"=>$colons,
+            "columns"=>$request['columns'],
             "id_user_premieum"=>$request['userPrem'],
             "id_data_share"=>$request['dataShare'],
             "type_data_share"=>$request['typeShare'],
-            "type_site_share"=>$typeSites,
             "id_admin"=>$admin->id_admin
         ]);
         return response([
@@ -111,8 +75,8 @@ class ShareSiteController extends Controller
                     $share->region;
                     break;
             }
-            $share->start=Carbon::parse($share->start)->format('d/m/y');
-            $share->end=Carbon::parse($share->end)->format('d/m/y');
+            $share->start=Carbon::parse($share->start)->format('d/m/Y');
+            $share->end=Carbon::parse($share->end)->format('d/m/Y');
             return response([
                 "ok"=>true,
                 "data"=>$share
@@ -161,56 +125,30 @@ class ShareSiteController extends Controller
             "start.required"=>['La nouvelle date début de partage et obligatoire'],
             "end.required"=>['La nouvelle date fin de partage et obligatoire']
         ]);
+        
         $share=ShareSite::find($request['share']);
+        $columns=$share->columns;
         $share->start=Carbon::createFromFormat('d/m/Y', $request->start)->format('Y-m-d');
         $share->end=Carbon::createFromFormat('d/m/Y', $request->end)->format('Y-m-d');
         if(isset($request["columns"]) && is_array($request["columns"])){
-            $columns='';
-            $typeSites='';
-            if($share->type_data_share==="Site"){
-                foreach($request['columns'] as $key=>$value){
-                    if(in_array($key,self::VALID_COLOMNS) && $value){
-                        $columns.=$key.'|';
-                    }
-                }
-                $columns=substr($columns, 0, -1);
-            }else{
-                foreach($request['columns'] as $key=>$value){
-                    if($value){
-                        $typeSites.=$key.'|';
-                        $columns.=$key.'$';
-                        foreach($value as $key2=>$value2){
-                            if(in_array($key2,self::VALID_COLOMNS) && $value2){
-                                $columns.=$key2.'|';
-                            }
-                        }
-                        $columns=substr($columns, 0, -1);
-                        $columns.='&';
-                    }
-                    
-                }
-                $typeSites=substr($typeSites, 0, -1);
-                $columns=substr($columns, 0, -1);
-            }
-            
-            $share->columns=$columns;
+            $share->columns=$request["columns"];
+            $columns=$request["columns"];
         }
         $share->save();
+        $share->columns=$columns;
         switch($share->type_data_share){
             case "Site":
                 $share->site;
                 break;
             case "Departement":
                 $share->departement;
-                $share->transform_columns();
                 break;
             case "Region":
                 $share->region;
-                $share->transform_columns();
                 break;
         }
-        $share->start=Carbon::parse($share->start)->format('d/m/y');
-        $share->end=Carbon::parse($share->end)->format('d/m/y');
+        $share->start=Carbon::parse($share->start)->format('d/m/Y');
+        $share->end=Carbon::parse($share->end)->format('d/m/Y');
         return response([
             'ok'=>true,
             "data"=>$share

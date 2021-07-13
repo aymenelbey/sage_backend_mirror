@@ -17,6 +17,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Validator;
+use DB;
 
 class UserSitesController extends Controller{
 
@@ -38,55 +39,98 @@ class UserSitesController extends Controller{
             })
             ->orOn(function($query){
                 $query->on("sites.departement_siege","=","share_sites.id_data_share")
+                ->whereExists(function ($query) {
+                    $query->select("type_shared_sites.id_type_shared_site")
+                        ->from('type_shared_sites')
+                        ->whereRaw('type_shared_sites.id_share_site = share_sites.id_share_site')
+                        ->whereRaw('type_shared_sites.site_categorie = "sites"."categorieSite"');
+                })
                 ->where('share_sites.type_data_share',"=",'Departement');
             })
             ->orOn(function($query){
                 $query->on("sites.region_siege","=","share_sites.id_data_share")
+                ->whereExists(function ($query) {
+                    $query->select("type_shared_sites.id_type_shared_site")
+                        ->from('type_shared_sites')
+                        ->whereRaw('type_shared_sites.id_share_site = share_sites.id_share_site')
+                        ->whereRaw('type_shared_sites.site_categorie = "sites"."categorieSite"');
+                })
                 ->where('share_sites.type_data_share',"=",'Region');
+                
             });
         })
         ->where("share_sites.id_user_premieum",$userPrem->id_user_premieum)
         ->where("share_sites.is_blocked",false)
+        ->where("share_sites.start","<=",$dataCompare)
         ->where("share_sites.end",">=",$dataCompare);
+        $sql=$sites->toSql();
         $sites=$sites->distinct('sites.id_site')
         ->get(["sites.id_site","sites.adresse","sites.langititude AS lang","sites.latitude AS lat","share_sites.id_share_site AS id_access","sites.categorieSite AS iconType"]);
         return response([
             'ok'=>true,
-            'data'=>$sites
+            'data'=>$sites,
+            "sql"=>$sql
         ],200);
     }
     public function show_detail(Request $request){
         $user = JWTAuth::user();
         $userPrem=UserPremieum::where("id_user",$user->id)
         ->first();
+        $idShare=$request["idShare"];
+        $idSite=$request["idSite"];
         $detail=ShareSite::where("id_user_premieum",$userPrem->id_user_premieum)
         ->where("end",">=",Carbon::now()->format('Y-m-d'))
         ->where("start","<=",Carbon::now()->format('Y-m-d'))
-        ->where("id_share_site",$request["idShare"])
+        ->where("id_share_site",$idShare)
         ->first();
         if($detail){
-            $columns=array_filter(explode("|",$detail->columns));
-            $clmnSite=array_intersect($columns,self::BASE_SITE);
-            $clmnSite[]="categorieSite";
-            $clmnSite[]="id_site";
-            $site=Site::where("id_site",$detail->id_site)
-            ->first($clmnSite);
-            $dataTech=DataTechn::where("id_site",$detail->id_site)
-            ->first();
-            $clmnSite=array_intersect($columns,constant("self::DATA_TECH_".$site->categorieSite));
-            $techClassName='App\Models\DataTechn'.$site->categorieSite;
-            $techData=$techClassName::find($dataTech->id_data_tech,$clmnSite);
-            $photos=array_column($site->photos->toArray(),"url");
-            $site=$site->toArray();
-            unset($site["photos"]);unset($site["id_site"]);
-            return response([
-                'ok'=>true,
-                'data'=>[
-                    "infoBase"=>$site,
-                    "infoTech"=>$techData,
-                    "photos"=>$photos
-                ]
-            ],200);
+            $clmnSite=[]; 
+            $clmnTech=[];
+            if($detail->type_data_share=="Site"){
+                $clmnSite=array_intersect(array_keys($detail->columns),self::BASE_SITE);
+                if(!in_array("categorieSite",$clmnSite)){
+                    $clmnSite[]="categorieSite";    
+                }
+                $clmnSite[]="id_site";
+                $site=Site::where("id_site",$detail->id_data_share)
+                ->first($clmnSite);
+                
+            }else{
+                $clmnSite=array_intersect(array_keys($detail->columns['generalInfo']),self::BASE_SITE);
+                if(!in_array("categorieSite",$clmnSite)){
+                    $clmnSite[]="categorieSite";    
+                }
+                $clmnSite[]="id_site";
+                $site=Site::where("id_site",$idSite);
+                if($detail->type_data_share=="Departement"){
+                    $site=$site->where("departement_siege",$detail->id_data_share);
+                }else{
+                    $site=$site->where("region_siege",$detail->id_data_share);
+                }
+                $site=$site->first($clmnSite);
+            }
+            if($site){
+                if($detail->type_data_share=="Site"){
+                    $clmnTech=array_intersect(array_keys($detail->columns),constant("self::DATA_TECH_".$site->categorieSite));
+                }else{
+                    $clmnTech=array_intersect(array_keys($detail->columns[$site->categorieSite]),constant("self::DATA_TECH_".$site->categorieSite));
+                }
+                $dataTech=DataTechn::where("id_site",$site->id_site)
+                ->first();
+                $techClassName='App\Models\DataTechn'.$site->categorieSite;
+                $techData=$techClassName::find($dataTech->id_data_tech,$clmnTech);
+                $photos=array_column($site->photos->toArray(),"url");
+                $site=$site->toArray();
+                unset($site["photos"]);unset($site["id_site"]);
+                return response([
+                    'ok'=>true,
+                    'data'=>[
+                        "infoBase"=>$site,
+                        "infoTech"=>$techData,
+                        "photos"=>$photos
+                    ]
+                ],200);
+            }
         }
         return response([
             'ok'=>"server",

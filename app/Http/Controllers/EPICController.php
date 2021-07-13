@@ -403,6 +403,9 @@ class EPICController extends Controller
             ->find($idEpic);
             $epic->withEnums();
             $epic=$epic->toArray();
+            $tmpArray=array_merge($epic['competance_exercee'],$epic['competance_recu']);
+            unset($epic['competance_recu']);unset($epic['competance_exercee']);
+            $epic['competance_exercee']=$tmpArray;
             if(!empty($epic["logo"][0])){
                 $epic["logo"]=$epic["logo"][0]["url"];
             }

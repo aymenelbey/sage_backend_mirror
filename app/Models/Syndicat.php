@@ -76,13 +76,20 @@ class Syndicat extends Model
     }
     /* competances */
     public function competance_exercee(){
-        return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_syndicat')->where('owner_type','Syndicat')->whereNull('delegue_competance');
+        return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_syndicat')
+        ->where('owner_type','Syndicat')
+        ->whereNull('delegue_competance');
     }
     public function competance_delegue(){
-        return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_syndicat')->with('delegue_competance')->where('owner_type','Syndicat')->whereNotNull('delegue_competance');
+        return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_syndicat')
+        ->with('delegue_competance')
+        ->where('owner_type','Syndicat')
+        ->whereNotNull('delegue_competance');
     }
     public function competance_recu(){
-        return $this->hasMany(CompetanceDechet::class,'delegue_competance', 'id_syndicat')->where('delegue_type','Syndicat')->with('owner_competance');
+        return $this->hasMany(CompetanceDechet::class,'delegue_competance', 'id_syndicat')
+        ->where('delegue_type','Syndicat');
+        //->with('owner_competance');
     }
     /* end competances */
     public function withEnums(){
