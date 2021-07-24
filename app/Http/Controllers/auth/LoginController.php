@@ -5,6 +5,8 @@ use JWTAuth;
 use App\Models\User;
 use App\Models\Admin;
 use App\Models\Gestionnaire;
+use App\Models\UserPremieum;
+use App\Models\UserSimple;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -86,7 +88,15 @@ class LoginController extends Controller{
             case "Gestionnaire":
                 $gest=Gestionnaire::where("id_user",$user['id'])->first(['nom','prenom','mobile','email'])->toArray();
                 $user+=$gest;     
-                break; 
+                break;
+            case "UserPremieume": 
+                $userPrem=UserPremieum::where("id_user",$user['id'])->first(['email_user_prem AS email','nom','prenom','phone','NbUserCreated AS usedAccess','nbAccess as totalAccess'])->toArray();
+                $user+=$userPrem;
+                break;
+            case "UserSimple": 
+                $userSimp=UserSimple::where("id_user",$user['id'])->first(['email_user_sim AS email','nom','prenom','phone'])->toArray();
+                $user+=$userSimp;
+                break;
         }
         return response([
             "ok"=>true,

@@ -162,6 +162,13 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::middleware(['premission:UserPremieume'])->group(function(){
         Route::prefix("user/")->group(function(){
+            Route::get("sessions/fetch",[App\Http\Controllers\Users\SessionsUserController::class,"index"]);
+            Route::post("sessions/create",[App\Http\Controllers\Users\SessionsUserController::class,"create"]);
+            Route::patch("sessions/update",[App\Http\Controllers\Users\SessionsUserController::class,"update"]);
+        });
+    });
+    Route::middleware(['premission:UserSimple'])->group(function(){
+        Route::prefix("user/")->group(function(){
             Route::get("sites/list",[App\Http\Controllers\Users\UserSitesController::class,"show_sites"]);
             Route::get("share/detail/{idShare}/{idSite}",[App\Http\Controllers\Users\UserSitesController::class,"show_detail"]);
         });

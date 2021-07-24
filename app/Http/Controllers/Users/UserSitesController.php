@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Users;
 use JWTAuth;
 use App\Models\User;
 use App\Models\UserPremieum;
+use App\Models\UserSimple;
 use App\Models\ShareSite;
 use App\Models\Site;
 use App\Models\DataTechn;
@@ -29,8 +30,18 @@ class UserSitesController extends Controller{
 
     public function show_sites(Request $request){
         $user = JWTAuth::user();
-        $userPrem=UserPremieum::where("id_user",$user->id)
-        ->first();
+        if($user->typeuser=="UserPremieume"){
+            $userPrem=UserPremieum::where("id_user",$user->id)
+            ->first();
+            $idUserPrem=$userPrem->id_user_premieum;
+        }else{
+            $userSimp=UserSimple::where("id_user",$user->id)
+            ->first();
+            $userPrem=UserPremieum::where("id_user",$userSimp->created_by)
+            ->first();
+            $idUserPrem=$userPrem->id_user_premieum;
+        }
+        $idUserPrem=$userPrem->id_user_premieum;
         $dataCompare=Carbon::now()->format('Y-m-d');
         $sites=ShareSite::join("sites",function($join){
             $join->on(function($query){
@@ -59,26 +70,34 @@ class UserSitesController extends Controller{
                 
             });
         })
-        ->where("share_sites.id_user_premieum",$userPrem->id_user_premieum)
+        ->where("share_sites.id_user_premieum",$idUserPrem)
         ->where("share_sites.is_blocked",false)
         ->where("share_sites.start","<=",$dataCompare)
         ->where("share_sites.end",">=",$dataCompare);
-        $sql=$sites->toSql();
         $sites=$sites->distinct('sites.id_site')
         ->get(["sites.id_site","sites.adresse","sites.langititude AS lang","sites.latitude AS lat","share_sites.id_share_site AS id_access","sites.categorieSite AS iconType"]);
         return response([
             'ok'=>true,
-            'data'=>$sites,
-            "sql"=>$sql
+            'data'=>$sites
         ],200);
     }
     public function show_detail(Request $request){
         $user = JWTAuth::user();
-        $userPrem=UserPremieum::where("id_user",$user->id)
-        ->first();
+        if($user->typeuser=="UserPremieume"){
+            $userPrem=UserPremieum::where("id_user",$user->id)
+            ->first();
+            $idUserPrem=$userPrem->id_user_premieum;
+        }else{
+            $userSimp=UserSimple::where("id_user",$user->id)
+            ->first();
+            $userPrem=UserPremieum::where("id_user",$userSimp->created_by)
+            ->first();
+            $idUserPrem=$userPrem->id_user_premieum;
+        }
+        $idUserPrem=$userPrem->id_user_premieum;
         $idShare=$request["idShare"];
         $idSite=$request["idSite"];
-        $detail=ShareSite::where("id_user_premieum",$userPrem->id_user_premieum)
+        $detail=ShareSite::where("id_user_premieum",$idUserPrem)
         ->where("end",">=",Carbon::now()->format('Y-m-d'))
         ->where("start","<=",Carbon::now()->format('Y-m-d'))
         ->where("id_share_site",$idShare)

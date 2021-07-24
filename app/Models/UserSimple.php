@@ -14,6 +14,7 @@ class UserSimple extends Model
         "nom",
         "prenom",
         "id_user",
+        "phone",
         "created_by"
     ];
 }
