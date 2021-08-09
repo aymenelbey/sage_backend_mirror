@@ -23,6 +23,7 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'init_password',
         "typeuser",
+        "picture"
     ];
 
     /**
@@ -44,6 +45,10 @@ class User extends Authenticatable implements JWTSubject
         'username_verified_at' => 'datetime',
     ];
     protected $dates = ['deleted_at'];
+    public function userType()
+    {
+        return $this->morphTo(__FUNCTION__, 'typeuser', 'id','id_user');
+    }
     public function getJWTIdentifier(){
         return $this->getKey();
     }
@@ -64,5 +69,13 @@ class User extends Authenticatable implements JWTSubject
             $username =$firstName."_".$lastName.$i;
         }
         return $username;
+    }
+     protected static function booted()
+    {
+        static::retrieved(function ($model) {
+            if($model->picture){
+                $model->picture=asset($model->picture);
+            }
+        });
     }
 }

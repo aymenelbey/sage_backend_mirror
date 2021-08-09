@@ -25,6 +25,13 @@ class SessionsUserController extends Controller
         ],200);
     }
     public function update(Request $request){
+        $this->validate($request,[
+            "nom"=>["required"],
+            "prenom"=>["required"],
+            "email"=>["required","email"],
+            'username'=>['required'],
+            'phone'=>['required','phone:FR']
+        ]);
         $userAuth = JWTAuth::user();
         $userPrem=UserPremieum::where("id_user",$userAuth->id)
         ->first();
@@ -63,7 +70,6 @@ class SessionsUserController extends Controller
             'ok'=>false,
             'message'=>'You have not more access'
         ],402);
-        
     }
 
     public function create(Request $request){

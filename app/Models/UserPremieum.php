@@ -21,5 +21,8 @@ class UserPremieum extends Model
         "created_by",
         'id_user'
     ];
-    protected $dates = ['deleted_at'];       
+    protected $dates = ['deleted_at']; 
+    public function user(){
+        return $this->belongsTo(User::class,"id_user");
+    }
 }

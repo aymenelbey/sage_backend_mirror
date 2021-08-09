@@ -17,9 +17,47 @@ class UserSimpleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $search=$request->get('search');
+        $typeJoin=$request->get('typeFilter');
+        $nom=$request->get('nom');$nom=$nom?$nom:$search;
+        $prenom=$request->get('prenom');$prenom=$prenom?$prenom:$search;
+        $email=$request->get('email');$email=$email?$email:$search;
+        $phone=$request->get('phone');$phone=$phone?$phone:$search;
+        $sort=$request->get('sort');
+        $sorter=$request->get('sorter');
+        $function='where';
+        $pageSize=$request->get('pageSize')?$request->get('pageSize'):20;
+        $Query = UserSimple::query();
+        $Query=$Query->join('users','users.id','=','user_simples.id_user');
+        if($nom){
+            $Query=$Query->{$function}("user_simples.nom","ILIKE","%{$nom}%");
+            $function=$typeJoin=="inter"?"where":"orWhere";
+        }
+        if($prenom){
+            $Query=$Query->{$function}("user_simples.prenom","ILIKE","%{$prenom}%");
+            $function=$typeJoin=="inter"?"where":"orWhere";
+        }
+        if($email){
+            $Query=$Query->{$function}("user_simples.email_user_sim","ILIKE","%{$email}%");
+            $function=$typeJoin=="inter"?"where":"orWhere";
+        }
+        if($phone){
+            $Query=$Query->{$function}("user_simples.phone","ILIKE","%{$phone}%");
+            $function=$typeJoin=="inter"?"where":"orWhere";
+        }
+        $Query=$Query->where('users.typeuser','=','UserSimple');
+        if(in_array($sort,['ASC','DESC']) && in_array($sorter,['nom','prenom','phone'])){
+            $Query=$Query->orderBy("user_simples.".$sorter,$sort);
+        }else{
+            $Query=$Query->orderBy("user_simples.updated_at","DESC");
+        }
+        $users=$Query->paginate($pageSize,['users.username','users.init_password','user_simples.email_user_sim AS email','user_simples.nom','user_simples.prenom','user_simples.id_user_simple as id_user','user_simples.phone']);
+        return response([
+            "ok"=>true,
+            "data"=> $users
+        ],200);
     }
 
     /**
@@ -110,9 +148,42 @@ class UserSimpleController extends Controller
      * @param  \App\Models\UserSimple  $userSimple
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, UserSimple $userSimple)
+    public function update(Request $request)
     {
-        //
+        $userSimp=UserSimple::where('id_user_simple',$request->id_user)
+            ->first();
+        if($userSimp){
+            $userAsso=User::find($userSimp->id_user);
+            if(isset($request['nom'])){
+                $userSimp->nom=$request['nom'];
+            }
+            if(isset($request['prenom'])){
+                $userSimp->prenom=$request['prenom'];
+            }
+            if(isset($request['phone'])){
+                $userSimp->phone=$request['phone'];
+            }
+            if(isset($request['email']) && !UserSimple::where('email_user_sim','=', $request['email'] )->exists()){
+                $userSimp->email_user_sim=$request['email'];
+            }
+            if(isset($request['username']) && !User::where('username','=', $request['username'] )->exists()){
+                $userAsso->username=$request['username'];
+            }
+            if(!empty($request['init_password']) && $userAsso->init_password){
+                $userAsso->init_password=$request['init_password'];
+                $userAsso->password=Hash::make($request['init_password']);
+            }
+            $userSimp->save();
+            $userAsso->save();
+            return response([
+                "ok"=>true,
+                "data"=>"user updated"
+            ],200);
+        }
+        return response([
+            'ok'=>false,
+            'message'=>'You have not more access'
+        ],402);
     }
 
     /**

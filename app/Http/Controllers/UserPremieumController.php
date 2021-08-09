@@ -111,9 +111,9 @@ class UserPremieumController extends Controller
         ],400);
     }
     private function getUserById($iduser){
-        $prem = UserPremieum::where("id_user_premieum","=",$iduser)
-        ->join("users","user_premieums.id_user","=","users.id")
-        ->first(['users.username','users.init_password','user_premieums.email_user_prem AS email','user_premieums.isPaid','user_premieums.nom','user_premieums.prenom','user_premieums.lastPaiment','user_premieums.phone','user_premieums.NbUserCreated','user_premieums.nbAccess','user_premieums.id_user_premieum AS id_user'])
+        $prem = User::join("user_premieums","user_premieums.id_user","=","users.id")
+        ->where("user_premieums.id_user_premieum","=",$iduser)
+        ->first(['users.username','users.init_password','user_premieums.email_user_prem AS email','user_premieums.isPaid','user_premieums.nom','user_premieums.prenom','user_premieums.lastPaiment','user_premieums.phone','user_premieums.NbUserCreated','user_premieums.nbAccess','user_premieums.id_user_premieum AS id_user','users.picture'])
         ->toArray();
         if($prem){
             $client=UserPremieumHasClient::with('client')
@@ -361,12 +361,47 @@ class UserPremieumController extends Controller
      */
     public function show_sessions(Request $request)
     {
-        $idUser=$request['idUserPrem'];
-        $users=UserSimple::where("created_by",$idUser)
-        ->get();
+        $userPrem=UserPremieum::find($request['idUserPrem']);
+        if($userPrem){
+            $users=UserSimple::join('users','users.id','=','user_simples.id_user')
+                ->where('user_simples.created_by',$userPrem->id_user)
+                ->orderBy('user_simples.created_at','ASC')
+                ->get(['users.username','users.init_password','user_simples.email_user_sim AS email','user_simples.nom','user_simples.prenom','user_simples.id_user_simple as id_user','user_simples.phone']);
+            return response([
+                "ok"=>true,
+                "data"=>$users
+            ],200);
+        }
+        return response([
+            "ok"=>false,
+            "message"=>"user not found"
+        ],404);
+    }
+
+    /**
+     * delete a user session from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function delete_session(Request $request)
+    {
+        $toDelete=$request['session'];
+        if(!is_array($toDelete)) $toDelete=[$toDelete];
+        foreach($toDelete as $itemId){
+            $user=UserSimple::find($itemId);
+            if($user){
+                $userPrem=UserPremieum::where('id_user',$user->created_by)->first();
+                $userPrem->NbUserCreated-=1;
+                $user->delete();
+                $user->user->delete();
+                $userPrem->save();
+            }
+        }
         return response([
             "ok"=>true,
-            "data"=>$users
+            "data"=>"user deleted"
         ],200);
     }
+    
 }

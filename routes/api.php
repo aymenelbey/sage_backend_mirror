@@ -20,6 +20,8 @@ Route::post('/users/send-email', [App\Http\Controllers\auth\ForgotPasswordContro
 Route::post('/login', [App\Http\Controllers\auth\LoginController::class,"login"]);
 Route::post('/create/admin', [App\Http\Controllers\auth\LoginController::class,"createAdmin"]);
 Route::middleware('auth:api')->group(function () {
+    Route::post("user/update/picture",[App\Http\Controllers\UserController::class,"updatePicture"]);
+    Route::patch("user/update",[App\Http\Controllers\UserController::class,"updateUser"]);
     Route::get('departement/list', [App\Http\Controllers\DepartementController::class,"index"]);
     Route::get('region/list', [App\Http\Controllers\RegionController::class,"index"]);
     Route::get('info/me', [App\Http\Controllers\auth\LoginController::class,"user"]);
@@ -65,12 +67,6 @@ Route::middleware('auth:api')->group(function () {
             Route::post("create",[App\Http\Controllers\SiteController::class,"create"]);
             Route::patch("update",[App\Http\Controllers\SiteController::class,"update"]);
             Route::get("edit/{id_site}",[App\Http\Controllers\SiteController::class,"edit"]);
-            //Route::post("delete",[App\Http\Controllers\auth\SiteController::class,"deleteAdmin"]);
-            //Route::get("gestionnaire/{id}",[App\Http\Controllers\SiteController::class,"withGestionnaire"]);
-            //Route::get("rattache/{id}",[App\Http\Controllers\SiteController::class,"rattacheA"]);
-            //Route::get("exploit/{id}",[App\Http\Controllers\SiteController::class,"exploitBy"]);
-            //Route::post("add/exploitant",[App\Http\Controllers\SiteController::class,"addSiteToExploitant"]);
-             //Route::post("rattache/client",[App\Http\Controllers\SiteController::class,"addSitesToClient"]);
         });
         Route::prefix("gestionnaire/")->group(function(){
             Route::post("create",[App\Http\Controllers\GestionnaireController::class,"create"]);
@@ -81,10 +77,11 @@ Route::middleware('auth:api')->group(function () {
             Route::delete("delete",[App\Http\Controllers\GestionnaireController::class,"destroy"]);
             Route::get("sites/{idgestionnaire}",[App\Http\Controllers\GestionnaireController::class,"show_sites"]);
             Route::delete("sites/remove",[App\Http\Controllers\GestionnaireController::class,"destroy_sites"]);
-            //Route::get("sites/{id}",[App\Http\Controllers\GestionnaireController::class,"listSites"]);
         });
         Route::prefix("usersimple/")->group(function(){
             Route::post("create",[App\Http\Controllers\UserSimpleController::class,"create"]);
+            Route::patch("update",[App\Http\Controllers\UserSimpleController::class,"update"]);
+            Route::get("fetch",[App\Http\Controllers\UserSimpleController::class,"index"]);
         });
         Route::prefix("premieums/")->group(function(){
             Route::post("create",[App\Http\Controllers\UserPremieumController::class,"create"]);
@@ -94,6 +91,7 @@ Route::middleware('auth:api')->group(function () {
             Route::delete("delete",[App\Http\Controllers\UserPremieumController::class,"destroy"]);
             Route::get("sites/{idUserPrem}",[App\Http\Controllers\UserPremieumController::class,"show_sites"]);
             Route::get("sessions/{idUserPrem}",[App\Http\Controllers\UserPremieumController::class,"show_sessions"]);
+            Route::delete("sessions/delete",[App\Http\Controllers\UserPremieumController::class,"delete_session"]);
         });
         Route::prefix("societe/")->group(function(){
             Route::post("create",[App\Http\Controllers\SocieteExploitantController::class,"create"]);
@@ -102,8 +100,6 @@ Route::middleware('auth:api')->group(function () {
             Route::get("show/{idcompany}",[App\Http\Controllers\SocieteExploitantController::class,"show"]);
             Route::delete("delete",[App\Http\Controllers\SocieteExploitantController::class,"destroy"]);
             Route::patch("updateSoc",[App\Http\Controllers\SocieteExploitantController::class,"update"]);
-             //Route::post("site",[App\Http\Controllers\SocieteExploitantController::class,"add"]);
-            //Route::get("site/exploit/{idSociete}",[App\Http\Controllers\SocieteExploitantController::class,"siteExploitBySociete"]);
         });
         Route::prefix("clients/")->group(function(){
             Route::get("list",[App\Http\Controllers\CollectiviteController::class,"index"]);
@@ -114,7 +110,6 @@ Route::middleware('auth:api')->group(function () {
                 Route::get("edit/{idcommune}",[App\Http\Controllers\CommuneController::class,"edit"]);
                 Route::delete("delete",[App\Http\Controllers\CommuneController::class,"destroy"]);
                 Route::patch("update",[App\Http\Controllers\CommuneController::class,"update"]);
-                //Route::patch("epic/add",[App\Http\Controllers\CommuneController::class,"updateEpic"]);
             });
             Route::prefix("epics/")->group(function(){
                 Route::post("create",[App\Http\Controllers\EPICController::class,"create"]);
@@ -123,10 +118,6 @@ Route::middleware('auth:api')->group(function () {
                 Route::get("edit/{idepic}",[App\Http\Controllers\EPICController::class,"edit"]);
                 Route::delete("delete",[App\Http\Controllers\EPICController::class,"destroy"]);
                 Route::patch("update",[App\Http\Controllers\EPICController::class,"update"]);
-                 //Route::get("with/commune/{id}",[App\Http\Controllers\EPICController::class,"showWithCommune"]);
-                //Route::get("with/syndicat/{id}",[App\Http\Controllers\EPICController::class,"showWithSyndicat"]);
-                //Route::patch("add/communes",[App\Http\Controllers\EPICController::class,"updateCommune"]);
-                //Route::patch("add/syndicats",[App\Http\Controllers\EPICController::class,"updateSyndicat"]);
             });
             Route::prefix("syndicats/")->group(function(){
                 Route::post("create",[App\Http\Controllers\SyndicatController::class,"create"]);
@@ -135,7 +126,6 @@ Route::middleware('auth:api')->group(function () {
                 Route::get("edit/{idSyndicat}",[App\Http\Controllers\SyndicatController::class,"edit"]);
                 Route::delete("delete",[App\Http\Controllers\SyndicatController::class,"destroy"]);
                 Route::patch("update",[App\Http\Controllers\SyndicatController::class,"update"]);
-                //Route::patch("add/epic",[App\Http\Controllers\SyndicatController::class,"updateEpic"]);
             });
             Route::post("add/site",[App\Http\Controllers\CollectiviteController::class,"add"]);
             Route::get("all",[App\Http\Controllers\CollectiviteController::class,"index"]);
@@ -184,7 +174,6 @@ Route::middleware('auth:api')->group(function () {
             });
             Route::delete("delete",[App\Http\Controllers\SiteController::class,"destroy"])->middleware(['gestionnairePerm:delete']);
             Route::patch("update",[App\Http\Controllers\SiteController::class,"update"])->middleware(['gestionnairePerm:update']);
-            //Route::post("create",[App\Http\Controllers\SiteController::class,"create"]);
         });
         Route::prefix("managers/map/")->group(function(){
             Route::get("{lat}/{lang}",[App\Http\Controllers\MapSitesController::class,"getSites_manager"]);
