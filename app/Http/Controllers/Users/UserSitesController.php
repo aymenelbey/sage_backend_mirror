@@ -30,6 +30,10 @@ class UserSitesController extends Controller{
 
     public function show_sites(Request $request){
         $user = JWTAuth::user();
+        $lat=$request['lat'];$lang=$request['lang'];
+        $search=$request->search;
+        $categorie=$request->categorie;
+        $modeGest=$request->modeGest;
         if($user->typeuser=="UserPremieume"){
             $userPrem=UserPremieum::where("id_user",$user->id)
             ->first();
@@ -41,6 +45,7 @@ class UserSitesController extends Controller{
             ->first();
             $idUserPrem=$userPrem->id_user_premieum;
         }
+        $compareFunc='where';
         $idUserPrem=$userPrem->id_user_premieum;
         $dataCompare=Carbon::now()->format('Y-m-d');
         $sites=ShareSite::join("sites",function($join){
@@ -74,6 +79,51 @@ class UserSitesController extends Controller{
         ->where("share_sites.is_blocked",false)
         ->where("share_sites.start","<=",$dataCompare)
         ->where("share_sites.end",">=",$dataCompare);
+        if($search){
+            $fields=$request['fields'];
+            if(is_array($fields)){
+                foreach($fields as $field){
+                    $field=json_decode($field)->index;
+                    if(in_array($field,self::BASE_SITE)){
+                        $sites=$sites->{$compareFunc}("sites.".$field,'ilike',"%$search%");
+                        $compareFunc="orWhere";
+                    }
+                }
+            }
+        }
+        if(in_array($categorie,["UVE","TRI","TMB","ISDND"])){
+            $sites=$sites->where("sites.categorieSite",$categorie);
+        }
+        if(in_array($modeGest,["Gestion privée","Prestation de service","Regie","DSP"])){
+            $sites=$sites->{$compareFunc}("sites.modeGestion",$modeGest);
+            $compareFunc="orWhere";
+        }
+        $regions=$request['regions'];
+        if(is_array($regions)){
+            $arrayList=[];
+            foreach($regions as $region){
+                $arrayList []=(int)json_decode($region)->index;
+            }
+            $sites=$sites->{$compareFunc."In"}("sites.region_siege",$arrayList);
+            $compareFunc="orWhere";
+        }
+        $departments=$request['departments'];
+        if(is_array($departments)){
+            $arrayList=[];
+            foreach($departments as $department){
+                $arrayList []=(int)json_decode($department)->index;
+            }
+            $sites=$sites->{$compareFunc."In"}("sites.departement_siege",$arrayList);
+            $compareFunc="orWhere";
+        }
+        /*if($lat){
+            $lat=explode(',',$lat);
+            $sites=$sites->whereBetween("sites.latitude",$lat);
+        }
+        if($lang){
+            $lang=explode(',',$lang);
+            $sites=$sites->whereBetween("sites.langititude",$lang);
+        }*/
         $sites=$sites->distinct('sites.id_site')
         ->get(["sites.id_site","sites.adresse","sites.langititude AS lang","sites.latitude AS lat","share_sites.id_share_site AS id_access","sites.categorieSite AS iconType"]);
         return response([

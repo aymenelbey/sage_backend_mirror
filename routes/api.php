@@ -24,6 +24,7 @@ Route::middleware('auth:api')->group(function () {
     Route::patch("user/update",[App\Http\Controllers\UserController::class,"updateUser"]);
     Route::get('departement/list', [App\Http\Controllers\DepartementController::class,"index"]);
     Route::get('region/list', [App\Http\Controllers\RegionController::class,"index"]);
+    Route::get('localization/all', [App\Http\Controllers\CommonActionsController::class,"localization"]);
     Route::get('info/me', [App\Http\Controllers\auth\LoginController::class,"user"]);
     Route::patch('password/update', [App\Http\Controllers\UserController::class,"updatePassword"]);
     Route::middleware(['premission:SupAdmin'])->group(function(){
@@ -159,7 +160,7 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::middleware(['premission:UserSimple'])->group(function(){
         Route::prefix("user/")->group(function(){
-            Route::get("sites/list",[App\Http\Controllers\Users\UserSitesController::class,"show_sites"]);
+            Route::get("sites/list/{lat}/{lang}",[App\Http\Controllers\Users\UserSitesController::class,"show_sites"]);
             Route::get("share/detail/{idShare}/{idSite}",[App\Http\Controllers\Users\UserSitesController::class,"show_detail"]);
         });
     });
