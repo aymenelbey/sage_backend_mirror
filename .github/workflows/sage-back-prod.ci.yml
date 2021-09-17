@@ -25,5 +25,3 @@ jobs:
         script: |
           cd /home/sage_prod/sage_backend
           git pull origin prod
-          cd ..
-          docker-compose restart
