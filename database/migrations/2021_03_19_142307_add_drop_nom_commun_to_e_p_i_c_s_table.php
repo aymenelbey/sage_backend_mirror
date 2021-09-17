@@ -15,7 +15,7 @@ class AddDropNomCommunToEPICSTable extends Migration
     {
         Schema::table('epics', function (Blueprint $table) {
             $table->dropColumn('nomCommun');
-            $table->string("nomEpic",200);
+            $table->string("nomEpic",200)->nullable();
         });
     }
 

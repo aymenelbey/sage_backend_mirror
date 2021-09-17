@@ -16,5 +16,6 @@ use Intervention\Image\Facades\Image;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get("imports/download/{filename}",[App\Http\Controllers\ImportData::class,"download_excel"]);
 Route::get('/password/reset/{token}', [App\Http\Controllers\auth\ResetPasswordController::class,"index"])->name('password.reset');
 Route::post('/password/reset', [App\Http\Controllers\auth\ResetPasswordController::class,"reset_password"])->name('password.update');

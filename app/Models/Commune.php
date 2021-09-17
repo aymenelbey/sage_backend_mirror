@@ -57,8 +57,8 @@ class Commune extends Model
         return $this->hasOne(Region::class,'id_region', 'region_siege');
     }
     public function withEnums(){
-        $dep=$this->hasOne(Enemuration::class,'id_enemuration', 'departement_siege')->first();
-        $reg=$this->hasOne(Enemuration::class, 'id_enemuration', 'region_siege')->first();
+        $dep=$this->departement_siege()->first();
+        $reg=$this->region_siege()->first();
         $this->departement_siege=$dep?$dep->__toString():'';
         $this->region_siege=$reg?$reg->__toString():'';
     }

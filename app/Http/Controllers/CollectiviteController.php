@@ -9,6 +9,7 @@ use App\Models\ClientExp;
 use Illuminate\Http\Request;
 use Validator;
 
+
 class CollectiviteController extends Controller
 {
     /**
@@ -149,4 +150,5 @@ class CollectiviteController extends Controller
     {
         //
     }
+    
 }

@@ -15,7 +15,7 @@ class CreateSharedsTable extends Migration
     {
         Schema::create('shareds', function (Blueprint $table) {
             $table->bigIncrements("id_shared");
-            $table->integer("duree");
+            $table->string("duree");
             $table->foreignId('id_user_premieum')->references('id_user_premieum')->on('user_premieums');
             $table->foreignId('id_admin')->references('id_admin')->on('admins');
             $table->foreignId('id_site')->references('id_site')->on('sites');

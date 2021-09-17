@@ -15,14 +15,14 @@ class CreateDataTechnTRISTable extends Migration
     {
         Schema::create('data_techn_tris', function (Blueprint $table) {
             $table->bigIncrements('id_data_tri');
-            $table->integer("capaciteHoraire")->unsigned()->nullable();
-            $table->integer("capaciteNominale")->unsigned()->nullable();
-            $table->integer("capaciteReglementaire")->unsigned()->nullable();
+            $table->string("capaciteHoraire")->unsigned()->nullable();
+            $table->string("capaciteNominale")->unsigned()->nullable();
+            $table->string("capaciteReglementaire")->unsigned()->nullable();
             $table->date("dateExtension")->nullable();
             $table->date("miseEnService")->nullable();
             $table->string("dernierConstructeur",400)->nullable();
             /******* */
-            $table->foreignId('extension')->references('id_enemuration')->on('enemurations');
+            $table->foreignId('extension')->nullable()->references('id_enemuration')->on('enemurations');
             /*********** */
             $table->softDeletes();
             $table->timestamps();

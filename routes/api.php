@@ -20,6 +20,8 @@ Route::post('/users/send-email', [App\Http\Controllers\auth\ForgotPasswordContro
 Route::post('/login', [App\Http\Controllers\auth\LoginController::class,"login"]);
 Route::post('/create/admin', [App\Http\Controllers\auth\LoginController::class,"createAdmin"]);
 Route::middleware('auth:api')->group(function () {
+    Route::get("notifications",[App\Http\Controllers\UserController::class,"notifications"]);
+    Route::patch("notifications/read/{id}",[App\Http\Controllers\UserController::class,"read_notification"]);
     Route::post("user/update/picture",[App\Http\Controllers\UserController::class,"updatePicture"]);
     Route::patch("user/update",[App\Http\Controllers\UserController::class,"updateUser"]);
     Route::get('departement/list', [App\Http\Controllers\DepartementController::class,"index"]);
@@ -41,6 +43,7 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::middleware(['premission:Admin'])->group(function(){
         Route::get('history/fetch',[App\Http\Controllers\InfoHistoryController::class,'fetchHistory']);
+        Route::post("data/import",[App\Http\Controllers\ImportData::class,"import"]);
         Route::prefix("departement/")->group(function(){
             Route::get('enums', [App\Http\Controllers\DepartementController::class,"fetch_list"]);
             Route::post('add', [App\Http\Controllers\DepartementController::class,"create"]);

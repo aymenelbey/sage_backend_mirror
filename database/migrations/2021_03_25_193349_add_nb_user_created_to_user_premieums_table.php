@@ -14,7 +14,7 @@ class AddNbUserCreatedToUserPremieumsTable extends Migration
     public function up()
     {
         Schema::table('user_premieums', function (Blueprint $table) {
-            $table->integer("NbUserCreated")->default(0)->nullable();
+            $table->string("NbUserCreated")->default(0)->nullable();
         });
     }
 

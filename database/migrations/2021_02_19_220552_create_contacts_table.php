@@ -15,10 +15,10 @@ class CreateContactsTable extends Migration
     {
         Schema::create('contacts', function (Blueprint $table) {
             $table->bigIncrements("id_contact");
-            $table->boolean("status");
-            $table->enum("genre",["MME","MR"]);
-            $table->string("nom",100);
-            $table->string("prenom",100);
+            $table->boolean("status")->nullable();
+            $table->enum("genre",["MME","MR"])->nullable();
+            $table->string("nom",100)->nullable();
+            $table->string("prenom",100)->nullable();
             $table->string("telephone1",200)->nullable();
             $table->string("telephone2",200)->nullable();
             $table->string("mobile1",200)->nullable();

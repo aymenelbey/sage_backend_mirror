@@ -15,31 +15,31 @@ class CreateDataTechnUVESTable extends Migration
     {
         Schema::create('data_techn_uves', function (Blueprint $table) {
             $table->bigIncrements("id_data_uve");
-            $table->integer('nombreFours')->unsigned()->nullable();
+            $table->string('nombreFours')->unsigned()->nullable();
             $table->double("capacite")->nullable();
-            $table->integer("nombreChaudiere")->unsigned()->nullable();
-            $table->integer("debitEau")->unsigned()->nullable();
+            $table->string("nombreChaudiere")->unsigned()->nullable();
+            $table->string("debitEau")->unsigned()->nullable();
             $table->date("miseEnService")->nullable();
             $table->string("typeFoursChaudiere",200)->nullable();
-            $table->integer("capaciteMaxAnu")->unsigned()->nullable();
-            $table->integer("videFour")->unsigned()->nullable();
+            $table->string("capaciteMaxAnu")->unsigned()->nullable();
+            $table->string("videFour")->unsigned()->nullable();
             $table->boolean("reseauChaleur")->default(false);
             $table->text("rsCommentaire")->nullable();
-            $table->integer("tonnageReglementaireAp")->unsigned()->nullable();
+            $table->string("tonnageReglementaireAp")->unsigned()->nullable();
             $table->string("performenceEnergetique",200)->nullable();
             $table->string("cycleVapeur",200)->nullable();
             $table->string("terboalternateur",200)->nullable();
-            $table->integer("venteProduction")->unsigned()->nullable();
+            $table->string("venteProduction")->unsigned()->nullable();
             /*enumuration */
-            $table->foreignId('typeDechetRecus')->references('id_enemuration')->on('enemurations');
-            $table->foreignId('traitementFumee')->references('id_enemuration')->on('enemurations');
-            $table->foreignId('installationComplementair')->references('id_enemuration')->on('enemurations');
-            $table->foreignId('voiTraiFemuee')->references('id_enemuration')->on('enemurations');
-            $table->foreignId('traitementNOX')->references('id_enemuration')->on('enemurations');
-            $table->foreignId('equipeProcessTF')->references('id_enemuration')->on('enemurations');
-            $table->foreignId('reactif')->references('id_enemuration')->on('enemurations');
-            $table->foreignId('typeTerboalternateur')->references('id_enemuration')->on('enemurations');
-            $table->foreignId('constructeurInstallation')->references('id_enemuration')->on('enemurations');
+            $table->foreignId('typeDechetRecus')->nullable()->references('id_enemuration')->on('enemurations');
+            $table->foreignId('traitementFumee')->nullable()->references('id_enemuration')->on('enemurations');
+            $table->foreignId('installationComplementair')->nullable()->references('id_enemuration')->on('enemurations');
+            $table->foreignId('voiTraiFemuee')->nullable()->references('id_enemuration')->on('enemurations');
+            $table->foreignId('traitementNOX')->nullable()->references('id_enemuration')->on('enemurations');
+            $table->foreignId('equipeProcessTF')->nullable()->references('id_enemuration')->on('enemurations');
+            $table->foreignId('reactif')->nullable()->references('id_enemuration')->on('enemurations');
+            $table->foreignId('typeTerboalternateur')->nullable()->references('id_enemuration')->on('enemurations');
+            $table->foreignId('constructeurInstallation')->nullable()->references('id_enemuration')->on('enemurations');
             /********** */
             $table->softDeletes();
             $table->timestamps();

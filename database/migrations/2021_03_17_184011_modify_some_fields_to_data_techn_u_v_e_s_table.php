@@ -20,7 +20,7 @@ class ModifySomeFieldsToDataTechnUVESTable extends Migration
             $table->string("debitEau")->nullable()->change();
             $table->string("capaciteMaxAnu")->nullable()->change();
             $table->string("videFour")->nullable()->change();
-            $table->integer("tonnageReglementaireAp")->nullable()->change();
+            $table->string("tonnageReglementaireAp")->nullable()->change();
             $table->string("venteProduction")->nullable()->change();
             
         });

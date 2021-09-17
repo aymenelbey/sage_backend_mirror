@@ -35,6 +35,9 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'remember_token',
     ];
+    protected $appends = [
+        'user_channel',
+    ];
 
     /**
      * The attributes that should be cast to native types.
@@ -49,15 +52,24 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->morphTo(__FUNCTION__, 'typeuser', 'id','id_user');
     }
+
+    public function getUserChannelAttribute()
+    {
+        return sha1($this->id);
+    }
+
     public function getJWTIdentifier(){
         return $this->getKey();
     }
+
     public function getJWTCustomClaims(){
         return [];
     }
+
     public function evaluGrids(){
         return $this->hasMany(EvaluationGrid::class);
     }
+
     static function getUsername($firstName,$lastName)
     {
         $username = $firstName."_".$lastName;
@@ -66,11 +78,12 @@ class User extends Authenticatable implements JWTSubject
         while(User::whereUsername($username)->exists())
         {
             $i++;
-            $username =$firstName."_".$lastName.$i;
+            $username =$firstName."_".$lastName.'.'.$i;
         }
         return $username;
     }
-     protected static function booted()
+    
+    protected static function booted()
     {
         static::retrieved(function ($model) {
             if($model->picture){

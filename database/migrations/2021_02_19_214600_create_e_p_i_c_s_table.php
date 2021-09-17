@@ -15,21 +15,21 @@ class CreateEPICSTable extends Migration
     {
         Schema::create('epics', function (Blueprint $table) {
             $table->bigIncrements("id_epic");
-            $table->string("nomCommun",200);
-            $table->string("serin",100);
+            $table->string("nomCommun",200)->nullable();
+            $table->string("serin",100)->nullable();
             $table->string("adresse",200)->nullable();
             $table->string("lat")->nullable();
             $table->string("lang")->nullable();
             $table->string("siteInternet",200)->nullable();
             $table->string("telephoneStandard")->nullable();
-            $table->integer("nombreHabitant")->nullable();
+            $table->string("nombreHabitant")->nullable();
             $table->timestamp("date_enter")->nullable();
             $table->string("logo")->nullable();
             $table->string("nom_court")->nullable();
             $table->string("sinoe")->nullable();
-            $table->foreignId('nature_juridique')->references('id_enemuration')->on('enemurations');
-            $table->foreignId('departement_siege')->references('id_departement')->on('departements');
-            $table->foreignId('region_siege')->references('id_region')->on('regions');
+            $table->foreignId('nature_juridique')->nullable()->references('id_enemuration')->on('enemurations');
+            $table->foreignId('departement_siege')->nullable()->references('id_departement')->on('departements');
+            $table->foreignId('region_siege')->nullable()->references('id_region')->on('regions');
             $table->foreignId('id_collectivite')->references('id_collectivite')->on('collectivites');
             $table->softDeletes();
             $table->timestamps();

@@ -15,9 +15,9 @@ class CreateSitesTable extends Migration
     {
         Schema::create('sites', function (Blueprint $table) {
             $table->bigIncrements("id_site");
-            $table->string("denomination");
+            $table->string("denomination")->nullable();
             $table->enum("categorieSite",["UVE","TRI","TMB","ISDND"]);
-            $table->string("adresse");
+            $table->string("adresse")->nullable();
             $table->string("latitude")->nullable();
             $table->string("langititude")->nullable();
             $table->string("siteIntrnet")->nullable();
@@ -27,7 +27,7 @@ class CreateSitesTable extends Migration
             $table->foreignId('region_siege')->nullable()->references('id_region')->on('regions');
             $table->foreignId('departement_siege')->nullable()->references('id_departement')->on('departements');
             $table->enum("modeGestion",["Gestion privée", "Prestation de service", "Regie", "DSP"]);
-            $table->string("perdiocitRelance");
+            $table->string("perdiocitRelance")->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

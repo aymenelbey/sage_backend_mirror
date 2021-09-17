@@ -62,12 +62,6 @@ class EPIC extends Model
     public function logo(){
         return $this->hasMany(ImageSage::class,"uid","logo");
     }
-    public function nature_juridique(){
-        return $this->hasOne(Enemuration::class,'id_enemuration', 'nature_juridique');
-    }
-    public function departement_siege(){
-        return $this->hasOne(Departement::class,'id_departement', 'departement_siege');
-    }
     /* competances */
     public function competance_exercee(){
         return $this->hasMany(CompetanceDechet::class,'owner_competance', 'id_epic')
@@ -89,10 +83,16 @@ class EPIC extends Model
     public function region_siege(){
         return $this->hasOne(Region::class,'id_region', 'region_siege');
     }
+    public function nature_juridique(){
+        return $this->hasOne(Enemuration::class,'id_enemuration', 'nature_juridique');
+    }
+    public function departement_siege(){
+        return $this->hasOne(Departement::class,'id_departement', 'departement_siege');
+    }
     public function withEnums(){
-        $dep=$this->hasOne(Departement::class,'id_departement', 'departement_siege')->first();
-        $reg=$this->hasOne(Region::class,'id_region', 'region_siege')->first();
-        $nat=$this->hasOne(Enemuration::class, 'id_enemuration', 'nature_juridique')->first();
+        $dep=$this->departement_siege()->first();
+        $reg=$this->region_siege()->first();
+        $nat=$this->nature_juridique()->first();
         $this->departement_siege=$dep?$dep->__toString():'';
         $this->region_siege=$reg?$reg->__toString():'';
         $this->nature_juridique=$nat?$nat->__toString():'';

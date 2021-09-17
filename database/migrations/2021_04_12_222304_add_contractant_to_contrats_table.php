@@ -14,7 +14,7 @@ class AddContractantToContratsTable extends Migration
     public function up()
     {
         Schema::table('contrats', function (Blueprint $table) {
-            $table->foreignId('contractant')->references('id_societe_exploitant')->on('societe_exploitants');
+            $table->foreignId('contractant')->nullable()->references('id_societe_exploitant')->on('societe_exploitants');
         });
     }
 

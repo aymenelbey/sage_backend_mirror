@@ -20,7 +20,7 @@ class CreateUserPremieumsTable extends Migration
             $table->string("email_user_prem")->unique()->nullable();
             $table->boolean("isPaid");
             $table->datetime("lastPaiment");
-            $table->integer("nbAccess");
+            $table->string("nbAccess");
             $table->foreignId('id_user')->references('id')->on('users');
             $table->softDeletes();
             $table->timestamps();

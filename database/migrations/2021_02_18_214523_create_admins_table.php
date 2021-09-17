@@ -3,6 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Models\User;
+use App\Models\Admin;
 
 class CreateAdminsTable extends Migration
 {
@@ -22,6 +24,17 @@ class CreateAdminsTable extends Migration
             $table->softDeletes();
             $table->timestamps();
         });
+        $user = User::create([
+            "username"=>"sage_admin",
+            "typeuser"=>"SupAdmin",
+            "password"=>Hash::make("123456789")
+        ]);
+        $admin = Admin::create([
+            "id_user"=>$user->id,
+            "nom"=>"Admin",
+            "prenom"=>"Sage",
+            "email"=>"z.khedri@sobiapi.com"
+        ]);
     }
 
     /**

@@ -14,7 +14,7 @@ class AddColumnNameToDbSharedsTable extends Migration
     public function up()
     {
         Schema::table('db_shareds', function (Blueprint $table) {
-            $table->string("columnName",400);
+            $table->string("columnName",400)->nullable();
         });
     }
 

@@ -14,8 +14,8 @@ class UpdateDatedebutInContratsTable extends Migration
     public function up()
     {
         Schema::table('contrats', function (Blueprint $table) {
-            $table->string("dateDebut")->change();
-            $table->string("dateFin")->change();
+            $table->string("dateDebut")->nullable()->change();
+            $table->string("dateFin")->nullable()->change();
         });
     }
 

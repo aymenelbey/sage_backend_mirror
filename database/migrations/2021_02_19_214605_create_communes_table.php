@@ -15,15 +15,15 @@ class CreateCommunesTable extends Migration
     {
         Schema::create('communes', function (Blueprint $table) {
             $table->bigIncrements("id_commune");
-            $table->string("nomCommune",200);
+            $table->string("nomCommune",200)->nullable();
             $table->string("adresse")->nullable();
             $table->string("lat")->nullable();
             $table->string("lang")->nullable();
             $table->string("logo")->nullable();
-            $table->integer("nombreHabitant");
+            $table->string("nombreHabitant")->nullable();
             $table->timestamp("date_enter")->nullable();
-            $table->integer("insee")->nullable();
-            $table->integer("serin")->nullable();
+            $table->string("insee")->nullable();
+            $table->string("serin")->nullable();
             $table->foreignId('region_siege')->nullable()->references('id_region')->on('regions');
             $table->foreignId('departement_siege')->nullable()->references('id_departement')->on('departements');
             $table->foreignId('id_epic')->references('id_epic')->on('epics')->nullable();

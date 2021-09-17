@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Notifications\DatabaseNotification;
+//markAsRead,markAsUnread
 use JWTAuth;
 
 class UserController extends Controller
@@ -106,6 +108,29 @@ class UserController extends Controller
         return response([
             'ok'=>true,
             'picture'=>asset($path)
+        ],200);
+    }
+
+    public function notifications(Request $request){
+        $user = auth()->user();
+        $unreadNotif=$user->unreadNotifications;
+        return response([
+            'ok'=>true,
+            'count'=>count($unreadNotif),
+            'notifications'=>$unreadNotif 
+        ],200);
+    }
+    public function read_notification(Request $request){
+        $user = auth()->user();
+        $notification=DatabaseNotification::find($request->id);
+        $notification->markAsRead();
+        $unreadNotif=$user->unreadNotifications;
+        return response([
+            'ok'=>true,
+            'async'=>true,
+            'notification'=>$notification,
+            'count'=>count($unreadNotif),
+            'notifications'=>$unreadNotif 
         ],200);
     }
 }

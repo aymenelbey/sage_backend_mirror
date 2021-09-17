@@ -15,10 +15,10 @@ class CreateContratsTable extends Migration
     {
         Schema::create('contrats', function (Blueprint $table) {
             $table->bigIncrements("id_contrat");
-            $table->datetime("dateDebut");
-            $table->datetime("dateFin");
-            $table->string("autreActivite",60);
-            $table->foreignId('id_site')->references('id_site')->on('sites');
+            $table->datetime("dateDebut")->nullable();
+            $table->datetime("dateFin")->nullable();
+            $table->string("autreActivite",60)->nullable();
+            $table->foreignId('id_site')->nullable()->references('id_site')->on('sites');
             $table->softDeletes();
             $table->timestamps();
         });
