@@ -18,3 +18,4 @@ Procfile
 .editorconfig
 .idea
 .styleci.yml
+Dockerfile
