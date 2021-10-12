@@ -177,6 +177,8 @@ return [
 
         Maatwebsite\Excel\ExcelServiceProvider::class,
 
+        Geocoder\Laravel\Providers\GeocoderService::class
+
     ],
 
     /*
@@ -230,6 +232,8 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+
+        'Geocoder'=> Geocoder\Laravel\Facades\Geocoder::class
 
     ],
 

@@ -25,3 +25,4 @@ jobs:
         script: |
           cd /home/sage_prod/sage_backend
           git pull origin prod
+          docker-compose up -d --force-recreate --no-deps --build  sage_back

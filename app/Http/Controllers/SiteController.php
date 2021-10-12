@@ -101,6 +101,7 @@ class SiteController extends Controller
         $site = Site::with(['client.client','exploitant.client','dataTech.dataTech',"gestionnaire","contracts.contractant","departement_siege",'region_siege'])
         ->find($request['id_site']);
         $site->dataTech->dataTech->withEnums();
+        $site->exploitant->client->withEnums();
         $siteReturn=$site->toArray();
         $siteReturn['photos']=$site->photos->map(function($photo){
             return $photo->__toString();

@@ -27,4 +27,7 @@ class Gestionnaire extends Model
         return $this->belongsToMany(Site::class,GestionnaireHasSite::class,"id_gestionnaire","id_site")
         ->wherePivot('deleted_at', null);
     }
+    public function user(){
+        return $this->belongsTo(User::class,"id_user");
+    }
 }

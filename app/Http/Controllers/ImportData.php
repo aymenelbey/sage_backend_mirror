@@ -14,13 +14,15 @@ class ImportData extends Controller
         'Communes'=>'\App\Jobs\ImportCommunes',
         'Companies'=>'\App\Jobs\ImportCompanies',
         'Compositions'=>'\App\Jobs\ImportCompositionSyndicat',
-        'Gestionaires'=>'\App\Jobs\ImportGestionaires'
+        'Gestionaires'=>'\App\Jobs\ImportGestionaires',
+        'SitesTMB'=>'\App\Jobs\ImportSitesTMB',
+        'SitesISDND'=>'\App\Jobs\ImportSitesISDND'
     ];
     public function import(Request $request)
     {
         $this->validate($request,[
             'file'=>['required','file','mimes:xlsx'],
-            'typeData'=>['required','in:Syndicats,Regions,Departments,Epics,Communes,Companies,Compositions,Gestionaires']
+            'typeData'=>['required','in:Syndicats,Regions,Departments,Epics,Communes,Companies,Compositions,Gestionaires,SitesTMB,SitesISDND']
         ]);
         $user=auth()->user();
         $path=$request->file('file')->store("imports/$request->typeData/$user->id");
