@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ShareSite;
 use App\Models\Admin;
+use App\Models\UserPremieum;
 use JWTAuth;
 use Carbon\Carbon;
 
@@ -28,24 +29,31 @@ class ShareSiteController extends Controller
      */
     public function share(Request $request){
         $this->validate($request, [
-            'dataShare' => 'required|integer',
-            'columns'=>'required|array',
-            'typeShare'=>['required','in:Site,Departement,Region'],
+            'dataShare' => ['required','array'],
             'dateDebut' => 'required',
             'dateFin' => 'required',
-            "userPrem"=>'required|integer|exists:user_premieums,id_user_premieum'
+            "userPrem"=>['required','array'],
         ]);
         $user = JWTAuth::user();
         $admin = Admin::where("id_user","=",$user->id)->first();
-        $siteToShare=ShareSite::create([
-            "start"=>Carbon::createFromFormat('d/m/Y', $request->dateDebut)->format('Y-m-d'),
-            "end"=>Carbon::createFromFormat('d/m/Y', $request->dateFin)->format('Y-m-d'),
-            "columns"=>$request['columns'],
-            "id_user_premieum"=>$request['userPrem'],
-            "id_data_share"=>$request['dataShare'],
-            "type_data_share"=>$request['typeShare'],
-            "id_admin"=>$admin->id_admin
-        ]);
+        foreach($request->userPrem as $user){
+            $userPrem=UserPremieum::find($user);
+            if($userPrem){
+                foreach($request->dataShare as $dataShare){
+                    if(in_array($dataShare['typeShare'],['Site','Departement','Region'])){
+                        $siteToShare=ShareSite::create([
+                            "start"=>Carbon::createFromFormat('d/m/Y', $request->dateDebut)->format('Y-m-d'),
+                            "end"=>Carbon::createFromFormat('d/m/Y', $request->dateFin)->format('Y-m-d'),
+                            "columns"=>$dataShare['columns'],
+                            "id_user_premieum"=>$user,
+                            "id_data_share"=>$dataShare['dataShare'],
+                            "type_data_share"=>$dataShare['typeShare'],
+                            "id_admin"=>$admin->id_admin
+                        ]);
+                    }
+                }
+            }
+        }
         return response([
             'ok'=>true,
             "data"=>$siteToShare

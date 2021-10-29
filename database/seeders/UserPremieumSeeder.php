@@ -15,7 +15,7 @@ class UserPremieumSeeder extends Seeder
     public function run()
     {
         UserPremieum::factory()
-            ->count(100)
+            ->count(50)
             ->create();
     }
 }

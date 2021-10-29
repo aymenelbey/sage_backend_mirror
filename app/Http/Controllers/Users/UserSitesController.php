@@ -125,7 +125,7 @@ class UserSitesController extends Controller{
             $sites=$sites->whereBetween("sites.langititude",$lang);
         }*/
         $sites=$sites->distinct('sites.id_site')
-        ->get(["sites.id_site","sites.adresse","sites.langititude AS lang","sites.latitude AS lat","share_sites.id_share_site AS id_access","sites.categorieSite AS iconType"]);
+        ->get(["sites.id_site","sites.adresse","sites.denomination","sites.langititude AS lang","sites.latitude AS lat","share_sites.id_share_site AS id_access","sites.categorieSite AS iconType"]);
         return response([
             'ok'=>true,
             'data'=>$sites
