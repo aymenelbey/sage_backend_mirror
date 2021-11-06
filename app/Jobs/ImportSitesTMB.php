@@ -108,6 +108,7 @@ class ImportSitesTMB implements ShouldQueue
                         $result=$result->first();
                         $coordinates=$result->getCoordinates();
                         $site=Site::create([
+                            'denomination'=>$item['denomination'],
                             "categorieSite"=>$this->siteCategorie,
                             "adresse"=>$adress,
                             "latitude"=>$coordinates->getLatitude(),
