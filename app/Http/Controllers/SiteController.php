@@ -44,6 +44,7 @@ class SiteController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function all(Request $request){
+        $all=$request->get('all');
         $search=$request->get('search');
         $typeJoin=$request->get('typeFilter');
         $categorieSite=$request->get('categorieSite');
@@ -81,7 +82,12 @@ class SiteController extends Controller
         }else{
            $siteQuery=$siteQuery->orderBy("updated_at","DESC");
         }
-        $sites=$siteQuery->paginate($pageSize);
+        if($all){
+            $sites=$siteQuery->get();
+        }else{
+            $sites=$siteQuery->paginate($pageSize);
+        }
+        
         return response([
             "ok"=>true,
             "data"=> $sites
