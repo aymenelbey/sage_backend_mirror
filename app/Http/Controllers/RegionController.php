@@ -9,6 +9,7 @@ class RegionController extends Controller
 {
     public function index(Request $request){
         $search=$request->get("search");
+        $all=$request->get("all");
         $with_count=$request->get('hasCount');
         if($search){
             $query=Region::query();
@@ -16,6 +17,17 @@ class RegionController extends Controller
             ->orWhere("slug_region","ILIKE","%{$search}%")
             ->skip(0)->take(10)
             ->select("id_region AS value","name_region AS label");
+            if($with_count){
+                $query=$query->withCount('sites');
+            }
+            $list=$query->get();
+            return response([
+                'message'=>'async',
+                'list'=>$list
+            ]);
+        } if($all){
+            $query=Region::query();
+            $query=$query->select("id_region AS value","name_region AS label");
             if($with_count){
                 $query=$query->withCount('sites');
             }
