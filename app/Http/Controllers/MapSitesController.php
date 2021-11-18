@@ -24,26 +24,20 @@ class MapSitesController extends Controller
             $sitemapQuery=$sitemapQuery->{$function}("modeGestion","=",$mode);
         }
         if($reg){
-            $sitemapQuery=$sitemapQuery->whereHas('region_siege', function ($query)use($reg) {
-                $query->where('name_region', 'ilike', "%$reg%")
-                ->orWhere('slug_region', 'ilike', "%$reg%");
-            });
+            $sitemapQuery=$sitemapQuery->where('region_siege', $reg);
         }
         if($dep){
-            $sitemapQuery=$sitemapQuery->whereHas('departement_siege', function ($query)use($dep) {
-                $query->where('name_departement', 'ilike', "%$dep%")
-                ->orWhere('slug_departement', 'ilike', "%$dep%");
-            });
+            $sitemapQuery=$sitemapQuery->where('departement_siege', $dep);
         }
         if($lat){
             $lat=explode(',',$lat);
             $sitemapQuery=$sitemapQuery->whereBetween("latitude",$lat);
         }
-        if($lang){
+        /*if($lang){
             $lang=explode(',',$lang);
             $sitemapQuery=$sitemapQuery->whereBetween("langititude",$lang);
-        }
-        $sitemapQuery=$sitemapQuery->skip(0)->take(50);
+        }*/
+        //$sitemapQuery=$sitemapQuery->skip(0)->take(50);
         $sites=$sitemapQuery->get(['latitude AS lat','langititude AS lang','id_site','adresse','categorieSite AS iconType']);
         return response([
             'ok'=>true,

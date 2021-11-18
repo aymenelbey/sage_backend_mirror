@@ -10,19 +10,19 @@ use Carbon\Carbon;
 class ShareSite extends Model
 {
     use HasFactory,SoftDeletes;
-    CONST VALID_COLOMNS=["denomination","categorieSite","adresse","siteIntrnet","telephoneStandrad","anneeCreation","photoSite","modeGestion","perdiocitRelance","capaciteRestante","capaciteReglementaire","projetExtension","dateExtension","dateOuverture","dateFermeture","dateFermeturePrev","quantiteRefus","CSRProduit","envoiPreparation","tonnageAnnuel","capaciteNominal","dernierConstruct","typeInstallation","typeDechetAccepter","technologie","valorisationEnergitique","autreActivite", "capaciteHoraire","capaciteNominale","dernierConstructeur","extension",'nombreFours',"capacite","nombreChaudiere","debitEau","miseEnService","typeFoursChaudiere","capaciteMaxAnu","videFour","reseauChaleur","rsCommentaire","tonnageReglementaireAp","performenceEnergetique","cycleVapeur","terboalternateur","venteProduction","typeDechetRecus","traitementFumee","installationComplementair","voiTraiFemuee","traitementNOX","equipeProcessTF","reactif","typeTerboalternateur","constructeurInstallation"];
+    CONST VALID_COLOMNS=["denomination","categorieSite","adresse","siteIntrnet","telephoneStandrad","anneeCreation","photoSite","modeGestion","perdiocitRelance","capaciteRestante","capaciteReglementaire","projetExtension","dateExtension","dateOuverture","dateFermeture","dateFermeturePrev","quantiteRefus","CSRProduit","envoiPreparation","tonnageAnnuel","capaciteNominal","dernierConstruct","typeInstallation","typeDechetAccepter","technologie","valorisationEnergitique","autreActivite", "capaciteHoraire","capaciteNominale","dernierConstructeur","extension","nombreFours","capacite","nombreChaudiere","debitEau","miseEnService","typeFoursChaudiere","capaciteMaxAnu","videFour","reseauChaleur","rsCommentaire","tonnageReglementaireAp","performenceEnergetique","cycleVapeur","terboalternateur","venteProduction","typeDechetRecus","traitementFumee","installationComplementair","voiTraiFemuee","traitementNOX","equipeProcessTF","reactif","typeTerboalternateur","constructeurInstallation","denomination","modeGestion","categorieSite","adresse","siteIntrnet","telephoneStandrad","anneeCreation","perdiocitRelance","client_nomEpic","client_nom_court","client_serin","client_siteInternet","client_telephoneStandard","client_nature_juridique","client_nomCourt","client_denominationLegale","client_sinoe","client_amobe","client_nomCommune","client_insee","client_adresse","client_city","client_country","client_postcode","client_region_siege","client_departement_siege","client_nombreHabitant","company_groupe","company_denomination","company_serin","company_sinoe","company_nature_juridique","company_codeape","company_siteInternet","company_telephoneStandard","company_effectifs","company_adresse","company_city","company_country","company_postcode"];
     protected $primaryKey = "id_share_site";
     protected $fillable = [
-        'start',
-        'end',
-        'columns',
-        'id_user_premieum',
-        'id_data_share',
-        'type_data_share',
-        'id_admin',
-        'is_blocked'
+        "start",
+        "end",
+        "columns",
+        "id_user_premieum",
+        "id_data_share",
+        "type_data_share",
+        "id_admin",
+        "is_blocked"
     ];
-    protected $dates = ['deleted_at'];
+    protected $dates = ["deleted_at"];
     public function site(){
         return $this->hasOne(Site::class,"id_site","id_data_share");
     }
@@ -39,10 +39,10 @@ class ShareSite extends Model
             if($model->type_data_share==="Departement" || $model->type_data_share==="Region"){
                 $clmns=explode("&",$model->columns);
                 foreach($clmns as $clm){
-                    $tmp=explode('$',$clm);
+                    $tmp=explode("$",$clm);
                     if(count($tmp)==2){
                         $finalRes[$tmp[0]]=[];
-                        $toRetreive=explode('|',$tmp[1]);
+                        $toRetreive=explode("|",$tmp[1]);
                         foreach($toRetreive as $retr){
                             $finalRes[$tmp[0]][$retr]=true; 
                         }
@@ -57,11 +57,11 @@ class ShareSite extends Model
             $model->columns=$finalRes;
         });
          static::saving(function ($model) {
-            $columns='';
+            $columns="";
             if($model->type_data_share==="Site"){
                 foreach($model->columns as $key=>$value){
                     if(in_array($key,self::VALID_COLOMNS) && $value){
-                        $columns.=$key.'|';
+                        $columns.=$key."|";
                     }
                 }
                 $columns=substr($columns, 0, -1);
@@ -69,14 +69,14 @@ class ShareSite extends Model
                 foreach($model->columns as $key=>$value){
                     if($value){
                         $typeSites []=$key;
-                        $columns.=$key.'$';
+                        $columns.=$key."$";
                         foreach($value as $key2=>$value2){
                             if(in_array($key2,self::VALID_COLOMNS) && $value2){
-                                $columns.=$key2.'|';
+                                $columns.=$key2."|";
                             }
                         }
                         $columns=substr($columns, 0, -1);
-                        $columns.='&';
+                        $columns.="&";
                     }   
                 }
                 $columns=substr($columns, 0, -1);
@@ -89,7 +89,7 @@ class ShareSite extends Model
                 TypeSharedSite::where("id_share_site",$model->id_share_site)->delete();
                 $clmns=explode("&",$model->columns);
                 foreach($clmns as $clm){
-                    $tmp=explode('$',$clm);
+                    $tmp=explode("$",$clm);
                     if(count($tmp)==2 && $tmp[0]!="generalInfo"){
                         $typeSites []=[
                             "site_categorie"=>$tmp[0],
