@@ -11,7 +11,6 @@ class Constants
         'MPS'=>'Prestation de service',
         'Régie'=>'Regie',
         'MGP'=>'MGP',
-        'UMPS'=>'MPS',
         'Marché de prestation de service'=>'Prestation de service'
     ];
 }

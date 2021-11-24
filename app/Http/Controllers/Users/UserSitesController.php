@@ -96,7 +96,7 @@ class UserSitesController extends Controller{
         if(in_array($categorie,["UVE","TRI","TMB","ISDND"])){
             $sites=$sites->where("sites.categorieSite",$categorie);
         }
-        if(in_array($modeGest,["Gestion privée","Prestation de service","Regie","DSP", "MGP", "MPS"])){
+        if(in_array($modeGest,["Gestion privée","Prestation de service","Regie","DSP"])){
             $sites=$sites->{$compareFunc}("sites.modeGestion",$modeGest);
             $compareFunc="orWhere";
         }
