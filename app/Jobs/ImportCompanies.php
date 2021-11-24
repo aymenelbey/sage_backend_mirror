@@ -106,7 +106,8 @@ class ImportCompanies implements ShouldQueue
                 ->where('value_enum',$item['groupe'])
                 ->first();
                 SocieteExploitant::create([
-                    "groupe"=>$groupe ? $groupe->id_enemuration:null,
+                    /*"groupe"=>$groupe ? $groupe->id_enemuration:null,*/
+                    "groupe"=>$item['groupe'],
                     "denomination"=>$item['denomination_legale'],
                     "serin"=>$item['siret'],
                     "codeape"=>$item['code_ape'],
@@ -114,7 +115,8 @@ class ImportCompanies implements ShouldQueue
                     "telephoneStandrad"=>$item['telephone'],
                     "effectifs"=>$item['effectif'],
                     "date_enter"=>date(($item['anne_effcetif']?$item['anne_effcetif']:'2021').'-01-01'),
-                    'nature_juridique'=>$nature?$nature->id_enemuration:null,
+                    /*'nature_juridique'=>$nature?$nature->id_enemuration:null,*/
+                    'nature_juridique'=>$item['categorie_juridqiue_lib'],
                     "city"=>$item['libellecommuneetablissement'],
                     "sinoe"=>$item['sinoe'],
                     "postcode"=>$item['code_postal'],
