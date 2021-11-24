@@ -107,7 +107,7 @@ class ImportCompanies implements ShouldQueue
                 ->first();
                 SocieteExploitant::create([
                     "groupe"=>$groupe ? $groupe->id_enemuration:null,
-                    "denomination"=>$item['denomination'],
+                    "denomination"=>$item['denomination_legale'],
                     "serin"=>$item['siret'],
                     "codeape"=>$item['code_ape'],
                     "adresse"=>$adresse,
