@@ -10,6 +10,7 @@ class Constants
         'DSP'=>'DSP',
         'MPS'=>'Prestation de service',
         'Régie'=>'Regie',
+        'MGP'=>'MGP',
         'Marché de prestation de service'=>'Prestation de service'
     ];
 }

@@ -20,7 +20,7 @@ class MapSitesController extends Controller
         if($catg && in_array($catg,['UVE',"TMB",'TRI','ISDND'])){
             $sitemapQuery=$sitemapQuery->{$function}("categorieSite","=",$catg);
         }
-        if($mode && in_array($mode,['Gestion privée',"Prestation de service",'Regie','DSP'])){
+        if($mode && in_array($mode,['Gestion privée',"Prestation de service",'Regie','DSP', "MGP", "MPS"])){
             $sitemapQuery=$sitemapQuery->{$function}("modeGestion","=",$mode);
         }
         if($reg){
@@ -60,7 +60,7 @@ class MapSitesController extends Controller
         if($catg && in_array($catg,['UVE',"TMB",'TRI','ISDND'])){
             $sitemapQuery=$sitemapQuery->{$function}("categorieSite","=",$catg);
         }
-        if($mode && in_array($mode,['Gestion privée',"Prestation de service",'Regie','DSP'])){
+        if($mode && in_array($mode,['Gestion privée',"Prestation de service",'Regie','DSP', "MGP", "MPS"])){
             $sitemapQuery=$sitemapQuery->{$function}("modeGestion","=",$mode);
         }
         if($reg){
