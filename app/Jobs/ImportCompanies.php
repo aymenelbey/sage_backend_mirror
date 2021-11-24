@@ -55,7 +55,7 @@ class ImportCompanies implements ShouldQueue
                 }
             }
         }
-        $code_apes=array_unique(array_column($dataImport,'lib_code_ape'));
+        $code_apes=array_unique(array_column($dataImport,'code_ape'));
         foreach($code_apes as $code_ape){
             if($code_ape){
                 if(!Enemuration::where('key_enum','codeape')->where('value_enum',$code_ape)->first()){
@@ -79,6 +79,22 @@ class ImportCompanies implements ShouldQueue
         }
         $ignoredData=[];
         foreach($dataImport as $item){
+            $adresse="";
+            if($item['complementadresseetablissement']){
+                $adresse.=$item['complementadresseetablissement']." ";
+            }
+            if($item['numerovoieetablissement']){
+                $adresse.=$item['numerovoieetablissement']." ";
+            }
+            if($item['indicerepetitionetablissement']){
+                $adresse.=$item['indicerepetitionetablissement']." ";
+            }
+            if($item['typevoieetablissement']){
+                $adresse.=$item['typevoieetablissement']." ";
+            }
+            if($item['libellevoieetablissement']){
+                $adresse.=$item['libellevoieetablissement']." ";
+            }
             if($item['denomination']){
                 $nature=Enemuration::where('key_enum','nature_juridique')
                 ->where('value_enum',$item['categorie_juridqiue_lib'])
@@ -93,8 +109,8 @@ class ImportCompanies implements ShouldQueue
                     "groupe"=>$groupe ? $groupe->id_enemuration:null,
                     "denomination"=>$item['denomination'],
                     "serin"=>$item['siret'],
-                    "codeape"=>$codeape?$codeape->id_enemuration:null,
-                    "adresse"=>$item['adresse'],
+                    "codeape"=>$item['code_ape'],
+                    "adresse"=>$adresse,
                     "telephoneStandrad"=>$item['telephone'],
                     "effectifs"=>$item['effectif'],
                     "date_enter"=>date(($item['anne_effcetif']?$item['anne_effcetif']:now()->format('Y')).'-01-01'),
