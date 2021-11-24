@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Collectivite;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -44,7 +45,7 @@ class ImportCompanies implements ShouldQueue
     public function handle()
     {
         $dataImport = Excel::toArray(new CollectionsImport, storage_path('app/'.$this->filepath))[0];
-        $natures=array_unique(array_column($dataImport,'categorie_juridqiue_lib'));
+        $natures=array_unique(array_column($dataImport,'nature_juridique'));
         foreach($natures as $nature){
             if($nature){
                 if(!Enemuration::where('key_enum','nature_juridique')->where('value_enum',$nature)->first()){
@@ -55,66 +56,58 @@ class ImportCompanies implements ShouldQueue
                 }
             }
         }
-        $code_apes=array_unique(array_column($dataImport,'lib_code_ape'));
-        foreach($code_apes as $code_ape){
-            if($code_ape){
-                if(!Enemuration::where('key_enum','codeape')->where('value_enum',$code_ape)->first()){
-                    Enemuration::create([
-                        'key_enum'=>'codeape',
-                        'value_enum'=>$code_ape
-                    ]);
-                }
-            }
-        }
-        $groupes=array_unique(array_column($dataImport,'groupe'));
-        foreach($groupes as $groupe){
-            if($groupe){
-                if(!Enemuration::where('key_enum','groupeList')->where('value_enum',$groupe)->first()){
-                    Enemuration::create([
-                        'key_enum'=>'groupeList',
-                        'value_enum'=>$groupe
-                    ]);
-                }
-            }
-        }
         $ignoredData=[];
         foreach($dataImport as $item){
-            if($item['denomination']){
+            if(isset($item['siret'])){
                 $nature=Enemuration::where('key_enum','nature_juridique')
-                    ->where('value_enum',$item['categorie_juridqiue_lib'])
+                    ->where('value_enum',$item['nature_juridique'])
                     ->first();
-                $codeape=Enemuration::where('key_enum','codeape')
-                    ->where('value_enum',$item['lib_code_ape'])
-                    ->first();
-                $groupe=Enemuration::where('key_enum','groupeList')
-                    ->where('value_enum',$item['groupe'])
-                    ->first();
-                SocieteExploitant::create([
-                    "groupe"=>$groupe ? $groupe->id_enemuration:null,
-                    "denomination"=>$item['denomination'],
-                    "serin"=>$item['siret'],
-                    "codeape"=>$codeape?$codeape->id_enemuration:null,
-                    "adresse"=>$item['adresse'],
-                    "telephoneStandrad"=>$item['telephone'],
-                    "effectifs"=>$item['effectif'],
-                    "date_enter"=>date(($item['anne_effcetif']?$item['anne_effcetif']:now()->format('Y')).'-01-01'),
-                    'nature_juridique'=>$nature?$nature->id_enemuration:null,
-                    "city"=>$item['ville'],
-                    "country"=>"France",
-                    "sinoe"=>$item['sinoe'],
-                    "postcode"=>$item['code_postal'],
-                ]);
+                if($nature){
+                    $adresse="";
+                    if($item['complementadresseetablissement']){
+                        $adresse.=$item['complementadresseetablissement']." ";
+                    }
+                    if($item['numerovoieetablissement']){
+                        $adresse.=$item['numerovoieetablissement']." ";
+                    }
+                    if($item['indicerepetitionetablissement']){
+                        $adresse.=$item['indicerepetitionetablissement']." ";
+                    }
+                    if($item['typevoieetablissement']){
+                        $adresse.=$item['typevoieetablissement']." ";
+                    }
+                    if($item['libellevoieetablissement']){
+                        $adresse.=$item['libellevoieetablissement']." ";
+                    }
+                    SocieteExploitant::create([
+                        "denomination"=>$item['denomination'],
+                        "groupe"=>$item['groupe'],
+                        "serin"=>$item['siret'],
+                        "codeape"=>$item['code_ape'],
+                        "adresse"=>$adresse,
+                        "city"=>$item['libellecommuneetablissement'],
+                        "effectifs"=>$item['effectif'],
+                        "telephoneStandard"=>$item['telephone'],
+                        "date_enter"=>date(($item['anneeeffectifsunitelegale']?$item['anneeeffectifsunitelegale']:now()->format('Y')).'-01-01'),
+                        'nature_juridique'=>$nature->id_enemuration,
+                        "sinoe"=>$item['sinoe'],
+                        "country"=>"France",
+                        "postcode"=>$item['codepostaletablissement'],
+                    ]);
+                }else{
+                    $ignoredData []=$item;
+                }
             }else{
                 $ignoredData []=$item;
             }
         }
-        $filename="exports/Companies/".md5("companies_exports".time());
+        $filename="exports/Exploitants/".md5("exploitants_exports".time());
         $fileResult=Excel::store(new CollectionsExport($ignoredData), $filename.".xlsx");
         $this->user->notify(new DataImportsNotif([
-            'title'=>'La list des Sociétés importé avec succès',
+            'title'=>'La liste des sociétés privées a été importée avec succès.',
             'description'=>'subDescData',
             'logo'=>'/media/svg/icons/Costum/ImportSuccess.svg',
-            'action'=>env('APP_HOTS_URL')."imports/download/".str_replace('/','_',$filename),
+            'action'=>env('APP_HOTS_URL')."imports/download/".str_replace('/','_',$filename)
         ]));
         broadcast(new UserNotification([
             'async'=>true
