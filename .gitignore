@@ -19,4 +19,3 @@ Procfile
 .idea
 .styleci.yml
 Dockerfile
-websockets.conf

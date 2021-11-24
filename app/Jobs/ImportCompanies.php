@@ -55,7 +55,7 @@ class ImportCompanies implements ShouldQueue
                 }
             }
         }
-        $code_apes=array_unique(array_column($dataImport,'code_ape'));
+        $code_apes=array_unique(array_column($dataImport,'lib_code_ape'));
         foreach($code_apes as $code_ape){
             if($code_ape){
                 if(!Enemuration::where('key_enum','codeape')->where('value_enum',$code_ape)->first()){
@@ -79,48 +79,30 @@ class ImportCompanies implements ShouldQueue
         }
         $ignoredData=[];
         foreach($dataImport as $item){
-            $adresse="";
-            if($item['complementadresseetablissement']){
-                $adresse.=$item['complementadresseetablissement']." ";
-            }
-            if($item['numerovoieetablissement']){
-                $adresse.=$item['numerovoieetablissement']." ";
-            }
-            if($item['indicerepetitionetablissement']){
-                $adresse.=$item['indicerepetitionetablissement']." ";
-            }
-            if($item['typevoieetablissement']){
-                $adresse.=$item['typevoieetablissement']." ";
-            }
-            if($item['libellevoieetablissement']){
-                $adresse.=$item['libellevoieetablissement']." ";
-            }
             if($item['denomination']){
                 $nature=Enemuration::where('key_enum','nature_juridique')
-                ->where('value_enum',$item['categorie_juridqiue_lib'])
-                ->first();
+                    ->where('value_enum',$item['categorie_juridqiue_lib'])
+                    ->first();
                 $codeape=Enemuration::where('key_enum','codeape')
-                ->where('value_enum',$item['lib_code_ape'])
-                ->first();
+                    ->where('value_enum',$item['lib_code_ape'])
+                    ->first();
                 $groupe=Enemuration::where('key_enum','groupeList')
-                ->where('value_enum',$item['groupe'])
-                ->first();
+                    ->where('value_enum',$item['groupe'])
+                    ->first();
                 SocieteExploitant::create([
-                    /*"groupe"=>$groupe ? $groupe->id_enemuration:null,*/
-                    "groupe"=>$item['groupe'],
-                    "denomination"=>$item['denomination_legale'],
+                    "groupe"=>$groupe ? $groupe->id_enemuration:null,
+                    "denomination"=>$item['denomination'],
                     "serin"=>$item['siret'],
-                    "codeape"=>$item['code_ape'],
-                    "adresse"=>$adresse,
+                    "codeape"=>$codeape?$codeape->id_enemuration:null,
+                    "adresse"=>$item['adresse'],
                     "telephoneStandrad"=>$item['telephone'],
                     "effectifs"=>$item['effectif'],
-                    "date_enter"=>date(($item['anne_effcetif']?$item['anne_effcetif']:'2021').'-01-01'),
-                    /*'nature_juridique'=>$nature?$nature->id_enemuration:null,*/
-                    'nature_juridique'=>$item['categorie_juridqiue_lib'],
-                    "city"=>$item['libellecommuneetablissement'],
+                    "date_enter"=>date(($item['anne_effcetif']?$item['anne_effcetif']:now()->format('Y')).'-01-01'),
+                    'nature_juridique'=>$nature?$nature->id_enemuration:null,
+                    "city"=>$item['ville'],
                     "sinoe"=>$item['sinoe'],
                     "postcode"=>$item['code_postal'],
-                ]); 
+                ]);
             }else{
                 $ignoredData []=$item;
             }
