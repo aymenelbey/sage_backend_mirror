@@ -19,6 +19,7 @@ use App\Events\UserNotification;
 use App\Notifications\DataImportsNotif;
 use Throwable;
 use Excel;
+use function MongoDB\BSON\toJSON;
 
 class ImportCompanies implements ShouldQueue
 {
@@ -116,7 +117,7 @@ class ImportCompanies implements ShouldQueue
     public function failed(Throwable $exception)
     {
         $this->user->notify(new DataImportsNotif([
-            'title'=>"Erreur lors de l'importation des Sociétés",
+            'title'=>"Erreur lors de l'importation des Sociétés ".(string)$exception,
             'description'=>'subDescData',
             'logo'=>'/media/svg/icons/Costum/WarningReqeust.svg',
             'action'=>'/client/communities/communes',
