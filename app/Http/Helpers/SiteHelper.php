@@ -7,7 +7,7 @@ class SiteHelper
     protected static $RULES_CREATE=[
         "categorieSite"=>["required",'in:UVE,TRI,TMB,ISDND'],
         "sinoe"=>["required"],
-        "modeGestion"=>["required"],
+        "modeGestion"=>["required",'in:Gestion privée,Prestation de service,Regie,DSP,MPS,MGP'],
         "denomination"=>["required"],
         "adresse"=>['required'],
         "latitude"=>["required"],
