@@ -81,14 +81,14 @@ class ImportCompanies implements ShouldQueue
         foreach($dataImport as $item){
             if($item['denomination']){
                 $nature=Enemuration::where('key_enum','nature_juridique')
-                ->where('value_enum',$item['categorie_juridqiue_lib'])
-                ->first();
+                    ->where('value_enum',$item['categorie_juridqiue_lib'])
+                    ->first();
                 $codeape=Enemuration::where('key_enum','codeape')
-                ->where('value_enum',$item['lib_code_ape'])
-                ->first();
+                    ->where('value_enum',$item['lib_code_ape'])
+                    ->first();
                 $groupe=Enemuration::where('key_enum','groupeList')
-                ->where('value_enum',$item['groupe'])
-                ->first();
+                    ->where('value_enum',$item['groupe'])
+                    ->first();
                 SocieteExploitant::create([
                     "groupe"=>$groupe ? $groupe->id_enemuration:null,
                     "denomination"=>$item['denomination'],
@@ -102,7 +102,7 @@ class ImportCompanies implements ShouldQueue
                     "city"=>$item['ville'],
                     "sinoe"=>$item['sinoe'],
                     "postcode"=>$item['code_postal'],
-                ]); 
+                ]);
             }else{
                 $ignoredData []=$item;
             }

@@ -81,19 +81,19 @@ class ImportCommunes implements ShouldQueue
                             if($data){
                                 $adresse="";
                                 if($data['complementAdresseEtablissement']){
-                                    $adresse.=$data['complementAdresseEtablissement']." - ";
+                                    $adresse.=$data['complementAdresseEtablissement']." ";
                                 }
                                 if($data['numeroVoieEtablissement']){
-                                    $adresse.=$data['numeroVoieEtablissement']." - ";
+                                    $adresse.=$data['numeroVoieEtablissement']." ";
                                 }
                                 if($data['indiceRepetitionEtablissement']){
-                                    $adresse.=$data['indiceRepetitionEtablissement']." - ";
+                                    $adresse.=$data['indiceRepetitionEtablissement']." ";
                                 }
                                 if($data['typeVoieEtablissement']){
-                                    $adresse.=$data['typeVoieEtablissement']." - ";
+                                    $adresse.=$data['typeVoieEtablissement']." ";
                                 }
                                 if($data['libelleVoieEtablissement']){
-                                    $adresse.=$data['libelleVoieEtablissement']." - ";
+                                    $adresse.=$data['libelleVoieEtablissement']." ";
                                 }
                                 $address=[
                                     "adresse"=>$adresse,

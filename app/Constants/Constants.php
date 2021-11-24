@@ -8,8 +8,9 @@ class Constants
         'Gestion privée'=>'Gestion privée',
         'Délégation de service public'=>'DSP',
         'DSP'=>'DSP',
-        'MPS'=>'Prestation de service',
+        'MPS'=>'MPS',
         'Régie'=>'Regie',
+        'MGP'=>'MGP',
         'Marché de prestation de service'=>'Prestation de service'
     ];
 }
