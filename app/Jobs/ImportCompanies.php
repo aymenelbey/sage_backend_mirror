@@ -115,7 +115,7 @@ class ImportCompanies implements ShouldQueue
                     "effectifs"=>$item['effectif'],
                     "date_enter"=>date(($item['anne_effcetif']?$item['anne_effcetif']:now()->format('Y')).'-01-01'),
                     'nature_juridique'=>$nature?$nature->id_enemuration:null,
-                    "city"=>$item['ville'],
+                    "city"=>$item['libellecommuneetablissement'],
                     "sinoe"=>$item['sinoe'],
                     "postcode"=>$item['code_postal'],
                 ]); 
