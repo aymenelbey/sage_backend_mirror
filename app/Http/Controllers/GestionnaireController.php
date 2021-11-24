@@ -350,7 +350,7 @@ class GestionnaireController extends Controller
             $siteQuery=$siteQuery->{$function}("categorieSite","=","{$categorieSite}");
             $function=$typeJoin=="inter"?"where":"orWhere";
         }
-        if(in_array($modeGestion,["Gestion privée","Prestation de service","Regie","DSP"])){
+        if(in_array($modeGestion,["Gestion privée","Prestation de service","Regie","DSP", "MPS", "MGP"])){
             $siteQuery=$siteQuery->{$function}("modeGestion","=","{$modeGestion}");
             $function=$typeJoin=="inter"?"where":"orWhere";
         }
