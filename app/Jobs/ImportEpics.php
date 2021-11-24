@@ -75,19 +75,19 @@ class ImportEpics implements ShouldQueue
                 if($nature && $depart && $region){
                     $adresse="";
                     if($item['complementadresseetablissement']){
-                        $adresse.=$item['complementadresseetablissement']." - ";
+                        $adresse.=$item['complementadresseetablissement']." ";
                     }
                     if($item['numerovoieetablissement']){
-                        $adresse.=$item['numerovoieetablissement']." - ";
+                        $adresse.=$item['numerovoieetablissement']." ";
                     }
                     if($item['indicerepetitionetablissement']){
-                        $adresse.=$item['indicerepetitionetablissement']." - ";
+                        $adresse.=$item['indicerepetitionetablissement']." ";
                     }
                     if($item['typevoieetablissement']){
-                        $adresse.=$item['typevoieetablissement']." - ";
+                        $adresse.=$item['typevoieetablissement']." ";
                     }
                     if($item['libellevoieetablissement']){
-                        $adresse.=$item['libellevoieetablissement']." - ";
+                        $adresse.=$item['libellevoieetablissement']." ";
                     }
                     $client = Collectivite::create([
                         "typeCollectivite"=>"EPIC"
