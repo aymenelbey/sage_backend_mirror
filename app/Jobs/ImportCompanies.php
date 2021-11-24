@@ -88,9 +88,9 @@ class ImportCompanies implements ShouldQueue
                         "adresse"=>$adresse,
                         "city"=>$item['libellecommuneetablissement'],
                         "effectifs"=>$item['effectif'],
-                        "telephoneStandard"=>$item['telephone'],
+                        "telephoneStandrad"=>$item['telephone'],
                         "date_enter"=>date(($item['anneeeffectifsunitelegale']?$item['anneeeffectifsunitelegale']:now()->format('Y')).'-01-01'),
-                        'nature_juridique'=>$nature->id_enemuration,
+                        'nature_juridique'=>$nature,
                         "sinoe"=>$item['sinoe'],
                         "country"=>"France",
                         "postcode"=>$item['codepostaletablissement'],
@@ -117,7 +117,7 @@ class ImportCompanies implements ShouldQueue
     public function failed(Throwable $exception)
     {
         $this->user->notify(new DataImportsNotif([
-            'title'=>"Erreur lors de l'importation des Sociétés ".(string)$exception,
+            'title'=>"Erreur lors de l'importation des Sociétés ",
             'description'=>'subDescData',
             'logo'=>'/media/svg/icons/Costum/WarningReqeust.svg',
             'action'=>'/client/communities/communes',
