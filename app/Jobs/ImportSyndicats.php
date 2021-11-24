@@ -77,25 +77,26 @@ class ImportSyndicats implements ShouldQueue
                     ]);
                     $adresse="";
                     if($item['complementadresseetablissement']){
-                        $adresse.=$item['complementadresseetablissement']." - ";
+                        $adresse.=$item['complementadresseetablissement']." ";
                     }
                     if($item['numerovoieetablissement']){
-                        $adresse.=$item['numerovoieetablissement']." - ";
+                        $adresse.=$item['numerovoieetablissement']." ";
                     }
                     if($item['indicerepetitionetablissement']){
-                        $adresse.=$item['indicerepetitionetablissement']." - ";
+                        $adresse.=$item['indicerepetitionetablissement']." ";
                     }
                     if($item['typevoieetablissement']){
-                        $adresse.=$item['typevoieetablissement']." - ";
+                        $adresse.=$item['typevoieetablissement']." ";
                     }
                     if($item['libellevoieetablissement']){
-                        $adresse.=$item['libellevoieetablissement']." - ";
+                        $adresse.=$item['libellevoieetablissement']." ";
                     }
                     Syndicat::create([
                         "nomCourt"=>$item['nom_court'],
                         "denominationLegale"=>$item['denomination_legale'],
                         "serin"=>$item['siret'],
                         "adresse"=>$adresse,
+                        "city"=>$item['libellecommuneetablissement'],
                         "siteInternet"=>$item['site_web'],
                         "telephoneStandard"=>$item['telephone'],
                         "nombreHabitant"=>$item['trancheeffectifsunitelegale'],
