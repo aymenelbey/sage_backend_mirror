@@ -11,7 +11,8 @@ class Enemuration extends Model
     protected $primaryKey = "id_enemuration";
     protected $fillable = [
         "key_enum",
-        "value_enum"
+        "value_enum",
+        "code"
     ];
     
     public function __toString()
