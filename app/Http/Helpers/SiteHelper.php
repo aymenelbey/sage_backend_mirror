@@ -2,6 +2,7 @@
 
 namespace App\Http\Helpers;
 use Validator;
+use Carbon\Carbon;
 class SiteHelper
 {
     protected static $RULES_CREATE=[
@@ -60,5 +61,8 @@ class SiteHelper
     public static function extractSiteData($siteinfo){
         $infoUse=$siteinfo->only(["denomination","categorieSite","adresse","latitude","langititude","siteIntrnet","telephoneStandrad","anneeCreation","photoSite","modeGestion","perdiocitRelance","sinoe","departement_siege","region_siege"])->toArray();
         return $infoUse;
+    }
+    public static function formatDateIfNotNull($date){
+        return isset($date) && !empty($date) ? Carbon::createFromFormat('d/m/Y', $date)->format('Y-m-d') : NULL;
     }
 }

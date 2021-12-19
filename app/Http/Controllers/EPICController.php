@@ -8,6 +8,8 @@ use App\Models\SyndicatHasEpic;
 use App\Models\CompetanceDechet;
 use App\Models\InfoClientHistory;
 use Illuminate\Http\Request;
+use App\Http\Helpers\SiteHelper;
+
 use Validator;
 use Carbon\Carbon;
 
@@ -222,8 +224,8 @@ class EPICController extends Controller
             if($competance['code'] && $competance['competence_dechet']){
                 CompetanceDechet::create([
                     'code'=>$competance['code'],
-                    'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
-                    'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                    'start_date'=> SiteHelper::formatDateIfNotNull($competance['start_date']),
+                    'end_date'=> SiteHelper::formatDateIfNotNull($competance['end_date']),
                     'comment'=>$competance['comment'],
                     'owner_competance'=>$epic->id_epic,
                     'owner_type'=>"EPIC",
@@ -235,8 +237,8 @@ class EPICController extends Controller
             if($competance['code'] && $competance['competence_dechet'] && $competance['delegue_competance']){
                 CompetanceDechet::create([
                     'code'=>$competance['code'],
-                    'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
-                    'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                    'start_date'=> SiteHelper::formatDateIfNotNull($competance['start_date']),
+                    'end_date'=> SiteHelper::formatDateIfNotNull($competance['end_date']),
                     'comment'=>$competance['comment'],
                     'owner_competance'=>$epic->id_epic,
                     'owner_type'=>"EPIC",
@@ -303,8 +305,8 @@ class EPICController extends Controller
                     if($competance['code'] && $competance['competence_dechet']){
                         CompetanceDechet::where('id_competance_dechet',$competance['id_competance_dechet'])->update([
                             'code'=>$competance['code'],
-                            'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
-                            'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                            'start_date'=> SiteHelper::formatDateIfNotNull($competance['start_date']),
+                            'end_date'=> SiteHelper::formatDateIfNotNull($competance['end_date']),
                             'comment'=>$competance['comment'],
                             'competence_dechet'=>$competance['competence_dechet']
                         ]);
@@ -314,8 +316,8 @@ class EPICController extends Controller
                 if($competance['code'] && $competance['competence_dechet']){
                     CompetanceDechet::create([
                         'code'=>$competance['code'],
-                        'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
-                        'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                        'start_date'=> SiteHelper::formatDateIfNotNull($competance['start_date']),
+                        'end_date'=> SiteHelper::formatDateIfNotNull($competance['end_date']),
                         'comment'=>$competance['comment'],
                         'owner_competance'=>$epic->id_epic,
                         'owner_type'=>"EPIC",
@@ -341,8 +343,8 @@ class EPICController extends Controller
                     if($competance['code'] && $competance['competence_dechet'] && $competance['delegue_competance']){
                         CompetanceDechet::where('id_competance_dechet',$competance['id_competance_dechet'])->update([
                             'code'=>$competance['code'],
-                            'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
-                            'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                            'start_date'=> SiteHelper::formatDateIfNotNull($competance['start_date']),
+                            'end_date'=> SiteHelper::formatDateIfNotNull($competance['end_date']),
                             'comment'=>$competance['comment'],
                             'competence_dechet'=>$competance['competence_dechet'],
                             'delegue_competance'=>$competance['delegue_competance']['id_person'],
@@ -354,8 +356,8 @@ class EPICController extends Controller
                 if($competance['code'] && $competance['competence_dechet'] && $competance['delegue_competance']){
                     CompetanceDechet::create([
                         'code'=>$competance['code'],
-                        'start_date'=>Carbon::createFromFormat('d/m/Y', $competance['start_date'])->format('Y-m-d'),
-                        'end_date'=>Carbon::createFromFormat('d/m/Y', $competance['end_date'])->format('Y-m-d'),
+                        'start_date'=> SiteHelper::formatDateIfNotNull($competance['start_date']),
+                        'end_date'=> SiteHelper::formatDateIfNotNull($competance['end_date']),
                         'comment'=>$competance['comment'],
                         'owner_competance'=>$epic->id_epic,
                         'owner_type'=>"EPIC",

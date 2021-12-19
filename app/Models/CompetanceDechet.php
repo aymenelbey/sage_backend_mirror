@@ -36,8 +36,8 @@ class CompetanceDechet extends Model
     protected static function booted()
     {
         static::retrieved(function ($model) {
-            $model->start_date=Carbon::parse($model->start_date)->format('d/m/y');
-            $model->end_date=Carbon::parse($model->end_date)->format('d/m/y');
+            $model->start_date=$model->start_date ? Carbon::parse($model->start_date)->format('d/m/y') : NULL;
+            $model->end_date= $model->end_date ? Carbon::parse($model->end_date)->format('d/m/y') : NULL;
         });
     }
 }

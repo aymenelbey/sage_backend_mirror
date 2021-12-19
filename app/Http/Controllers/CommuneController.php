@@ -6,6 +6,8 @@ use App\Models\Commune;
 use App\Models\Collectivite;
 use App\Models\InfoClientHistory;
 use Illuminate\Http\Request;
+
+use App\Http\Helpers\SiteHelper;
 use Validator;
 use Carbon\Carbon;
 
