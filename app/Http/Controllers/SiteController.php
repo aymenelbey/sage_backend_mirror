@@ -65,7 +65,7 @@ class SiteController extends Controller
             $siteQuery=$siteQuery->{$function}("categorieSite","=","{$categorieSite}");
             $function=$typeJoin=="inter"?"where":"orWhere";
         }
-        if(in_array($modeGestion,["Gestion privée","Prestation de service","Regie","DSP", "MPS", "MGP"])){
+        if(!empty($modeGestion)){
             $siteQuery=$siteQuery->{$function}("modeGestion","=","{$modeGestion}");
             $function=$typeJoin=="inter"?"where":"orWhere";
         }
