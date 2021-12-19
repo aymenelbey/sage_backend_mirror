@@ -17,7 +17,7 @@ class EnemurationController extends Controller
     {
        $enums=Enemuration::orderBy('created_at', 'desc')
         ->orderBy('updated_at','DESC')
-       ->get(['id_enemuration AS value', 'value_enum AS label','key_enum'])
+       ->get(['id_enemuration AS value', 'value_enum AS label','key_enum', 'code'])
        ->groupBy('key_enum');
        return response([
         "ok"=> true,
