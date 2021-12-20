@@ -16,7 +16,7 @@ class ChangeModgestionInSitesTable extends Migration
         Schema::table('sites', function (Blueprint $table) {
             DB::transaction(function () {
                 DB::statement('ALTER TABLE sites DROP CONSTRAINT IF EXISTS "sites_modeGestion_check";');
-                DB::statement('ALTER TABLE sites ADD CONSTRAINT "sites_modeGestion_check" CHECK (modeGestion::TEXT = ANY (ARRAY[\'Gestion privée\'::CHARACTER VARYING, \'Prestation de service\'::CHARACTER VARYING, \'Regie\'::CHARACTER VARYING,\'DSP\'::CHARACTER VARYING, \'MPS\'::CHARACTER VARYING,\'MGP\'::CHARACTER VARYING]::TEXT[]))');
+                DB::statement('ALTER TABLE sites ADD CONSTRAINT "sites_modeGestion_check" CHECK ("sites"."modeGestion"::TEXT = ANY (ARRAY[\'Gestion privée\'::CHARACTER VARYING, \'Prestation de service\'::CHARACTER VARYING, \'Regie\'::CHARACTER VARYING,\'DSP\'::CHARACTER VARYING, \'MPS\'::CHARACTER VARYING,\'MGP\'::CHARACTER VARYING]::TEXT[]))');
             });
         });
     }
