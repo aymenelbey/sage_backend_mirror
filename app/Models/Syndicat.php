@@ -88,6 +88,7 @@ class Syndicat extends Model
     }
     public function competance_recu(){
         return $this->hasMany(CompetanceDechet::class,'delegue_competance', 'id_syndicat')
+        ->with('owner_competance')
         ->where('delegue_type','Syndicat');
         //->with('owner_competance');
     }
