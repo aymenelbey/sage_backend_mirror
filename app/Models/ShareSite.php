@@ -56,33 +56,34 @@ class ShareSite extends Model
             }
             $model->columns=$finalRes;
         });
-         static::saving(function ($model) {
-            $columns="";
-            if($model->type_data_share==="Site"){
-                foreach($model->columns as $key=>$value){
-                    if(in_array($key,self::VALID_COLOMNS) && $value){
-                        $columns.=$key."|";
-                    }
-                }
-                $columns=substr($columns, 0, -1);
-            }else{
-                foreach($model->columns as $key=>$value){
-                    if($value){
-                        $typeSites []=$key;
-                        $columns.=$key."$";
-                        foreach($value as $key2=>$value2){
-                            if(in_array($key2,self::VALID_COLOMNS) && $value2){
-                                $columns.=$key2."|";
-                            }
-                        }
-                        $columns=substr($columns, 0, -1);
-                        $columns.="&";
-                    }   
-                }
-                $columns=substr($columns, 0, -1);
-            }
-            $model->columns=$columns;
-        });
+        //  static::saving(function ($model) {
+        //     $columns="";
+        //     if($model->type_data_share==="Site"){
+        //         foreach(explode("|", $model->columns) as $key=>$value){
+        //             if(in_array($key,self::VALID_COLOMNS) && $value){
+        //                 $columns.=$key."|";
+        //             }
+        //         }
+        //         $columns=substr($columns, 0, -1);
+        //     }else{
+        //         foreach(explode("|", $model->columns) as $key=>$value){
+        //             if($value){
+        //                 $typeSites []=$key;
+        //                 $columns.=$key."$";
+        //                 echo "VALUE ".$value;
+        //                 foreach($value as $key2=>$value2){
+        //                     if(in_array($key2,self::VALID_COLOMNS) && $value2){
+        //                         $columns.=$key2."|";
+        //                     }
+        //                 }
+        //                 $columns=substr($columns, 0, -1);
+        //                 $columns.="&";
+        //             }   
+        //         }
+        //         $columns=substr($columns, 0, -1);
+        //     }
+        //     $model->columns=$columns;
+        // });
         static::saved(function ($model) {
             $typeSites=[];
             if($model->type_data_share!="Site"){
