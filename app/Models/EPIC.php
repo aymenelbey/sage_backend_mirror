@@ -76,8 +76,8 @@ class EPIC extends Model
     }
     public function competance_recu(){
         return $this->hasMany(CompetanceDechet::class,'delegue_competance', 'id_epic')
+        ->with('owner_competance')
         ->where('delegue_type','Epic');
-        //->with('owner_competance');
     }
     /* end competances */
     public function region_siege(){
