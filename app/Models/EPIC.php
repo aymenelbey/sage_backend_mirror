@@ -89,6 +89,9 @@ class EPIC extends Model
     public function departement_siege(){
         return $this->hasOne(Departement::class,'id_departement', 'departement_siege');
     }
+    public function sites(){
+        return $this->hasManyThrough(Site::class,ClientHasSite::class,'id_collectivite','id_site','id_collectivite','id_site');
+    }
     public function withEnums(){
         $dep=$this->departement_siege()->first();
         $reg=$this->region_siege()->first();

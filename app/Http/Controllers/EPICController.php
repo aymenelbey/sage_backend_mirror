@@ -401,7 +401,7 @@ class EPICController extends Controller
     {
         if(!empty($request['idepic'])){
             $idEpic=$request['idepic'];
-            $epic=EPIC::with(['communes','syndicat','contacts','logo','competance_exercee','competance_delegue','competance_recu'])
+            $epic=EPIC::with(['communes','syndicat','contacts','logo','competance_exercee','competance_delegue','competance_recu', 'sites'])
             ->find($idEpic);
             $epic->withEnums();
             $epic=$epic->toArray();
