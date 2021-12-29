@@ -21,7 +21,7 @@ class AtacheEpicToSyndicatData extends Migration
             $row = array_map(function($col){
                 return trim(rtrim($col));
             }, explode(",", $row));
-            $sql .= 'UPDATE epics SET epics.id_syndicat = (SELECT id_syndicat from syndicats where syndicats.sinoe = '.$row[2].') where epics.sinoe = '.$row[0].';';
+            $sql .= 'UPDATE epics SET id_syndicat = (SELECT id_syndicat from syndicats where sinoe = \''.$row[2].'\') where sinoe = \''.$row[0].'\';';
         }
         DB::raw($sql);
     }
