@@ -59,6 +59,9 @@ class Syndicat extends Model
     public function logo(){
         return $this->hasMany(ImageSage::class,"uid","logo");
     }
+    public function epics(){
+        return $this->hasMany(EPIC::class,"id_syndicat","id_syndicat");
+    }
     public function ged_rapport(){
         return $this->hasMany(ImageSage::class,"uid","ged_rapport");
     }

@@ -109,7 +109,7 @@ class SyndicatController extends Controller
     public function show(Request $request){
         if(!empty($request['idSyndicat'])){
             $idSyndicat=$request['idSyndicat'];
-            $syndicat=Syndicat::with(['contacts.persons_moral', 'competance_exercee','competance_delegue','competance_recu','sites','logo','ged_rapport'])->find($idSyndicat);
+            $syndicat=Syndicat::with(['contacts.persons_moral', 'competance_exercee','competance_delegue','competance_recu','sites','logo','ged_rapport', 'epics'])->find($idSyndicat);
             $syndicat->withEnums();
             $syndicat=$syndicat->toArray();
             $tmpArray=array_merge($syndicat['competance_exercee'],$syndicat['competance_recu']);

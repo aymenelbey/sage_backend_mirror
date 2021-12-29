@@ -31,7 +31,8 @@ class EPIC extends Model
         "city",
         "country",
         "postcode",
-        "id_collectivite"
+        "id_collectivite",
+        "id_syndicat"
     ];
 
     protected $dates = ['deleted_at'];
