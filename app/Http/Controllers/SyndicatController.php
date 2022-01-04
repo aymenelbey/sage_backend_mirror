@@ -111,6 +111,9 @@ class SyndicatController extends Controller
             $idSyndicat=$request['idSyndicat'];
             $syndicat=Syndicat::with(['contacts.persons_moral', 'competance_exercee','competance_delegue','competance_recu','sites','logo','ged_rapport', 'epics'])->find($idSyndicat);
             $syndicat->withEnums();
+            $syndicat->epics->map(function($epic){
+                $epic->withEnums();
+            });
             $syndicat=$syndicat->toArray();
             $tmpArray=array_merge($syndicat['competance_exercee'],$syndicat['competance_recu']);
             unset($syndicat['competance_recu']);unset($syndicat['competance_exercee']);
