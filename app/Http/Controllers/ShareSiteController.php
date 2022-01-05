@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Helpers\SiteHelper;
 use Illuminate\Http\Request;
 use App\Models\ShareSite;
 use App\Models\Admin;
@@ -44,7 +45,7 @@ class ShareSiteController extends Controller
                         $siteToShare=ShareSite::create([
                             "start"=>Carbon::createFromFormat('d/m/Y', $request->dateDebut)->format('Y-m-d'),
                             "end"=>Carbon::createFromFormat('d/m/Y', $request->dateFin)->format('Y-m-d'),
-                            "columns"=>$dataShare['columns'],
+                            "columns"=> SiteHelper::prepareCols($dataShare['typeShare'], $dataShare['columns'], true),
                             "id_user_premieum"=>$user,
                             "id_data_share"=>$dataShare['dataShare'],
                             "type_data_share"=>$dataShare['typeShare'],
@@ -123,7 +124,7 @@ class ShareSiteController extends Controller
         ]);
     }
     public function extend_site(Request $request){
-        
+
         $this->validate($request,[
             "share"=>['required','exists:share_sites,id_share_site'],
             "start"=>["required"],
@@ -133,17 +134,16 @@ class ShareSiteController extends Controller
             "start.required"=>['La nouvelle date début de partage et obligatoire'],
             "end.required"=>['La nouvelle date fin de partage et obligatoire']
         ]);
-        
         $share=ShareSite::find($request['share']);
         $columns=$share->columns;
         $share->start=Carbon::createFromFormat('d/m/Y', $request->start)->format('Y-m-d');
         $share->end=Carbon::createFromFormat('d/m/Y', $request->end)->format('Y-m-d');
         if(isset($request["columns"]) && is_array($request["columns"])){
-            $share->columns=$request["columns"];
-            $columns=$request["columns"];
+            $share->columns= SiteHelper::prepareCols($share->type_data_share, $request['columns'], true);
         }
         $share->save();
-        $share->columns=$columns;
+        $share->columns = SiteHelper::explodeCols($share->type_data_share, $share->columns);
+
         switch($share->type_data_share){
             case "Site":
                 $share->site;

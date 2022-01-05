@@ -65,4 +65,48 @@ class SiteHelper
     public static function formatDateIfNotNull($date){
         return isset($date) && !empty($date) ? Carbon::createFromFormat('d/m/Y', $date)->format('Y-m-d') : NULL;
     }
+    public static function prepareCols($type, $cols, $imploded = false){
+        $result = [];
+        if($type == 'Site'){
+            foreach($cols as $key => $value){
+                if(is_array($value)){
+                    $result = array_merge($result, array_keys(array_filter($value, function($v, $k){
+                        return $v;
+                    }, ARRAY_FILTER_USE_BOTH))); 
+                }else if($value){
+                    $result[] = $key;
+                }
+            }
+            if($imploded) return implode("|", $result);
+        }else{
+            foreach($cols as $col => $values){
+                $result[] = implode("$", array_merge([$col], array_keys(array_filter($values, function($v, $k){
+                    return $v;
+                }, ARRAY_FILTER_USE_BOTH))));
+            }
+            if($imploded) return implode("&", $result);
+        }
+        
+        return $result;
+    }
+    public static function explodeCols($type, $cols){
+        $columns = [];
+        if($type == "Site"){
+            foreach(explode("|", $cols) as $col){
+                $columns[$col] = true;
+            }    
+        }else{
+            $clmns= explode("&",$cols);
+            foreach($clmns as $clm){
+                $tmp = explode("$", $clm);
+                if(count($tmp) >= 2){
+                    $columns[$tmp[0]]=[];
+                    foreach(array_slice($tmp, 1) as $retr){
+                        $columns[$tmp[0]][$retr]=true; 
+                    }
+                }
+            } 
+        }
+        return $columns;
+    }
 }
