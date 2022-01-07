@@ -92,7 +92,7 @@ class ShareSite extends Model
                 $clmns=explode("&",$model->columns);
                 foreach($clmns as $clm){
                     $tmp=explode("$",$clm);
-                    if(count($tmp)==2 && $tmp[0]!="generalInfo"){
+                    if(count($tmp) >=2 && $tmp[0]!="generalInfo"){
                         $typeSites []=[
                             "site_categorie"=>$tmp[0],
                             "id_share_site"=>$model->id_share_site,
