@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Http\Helpers\SiteHelper;
 
 use Validator;
+use App\Rules\Siren;
 use Carbon\Carbon;
 
 class EPICController extends Controller
@@ -206,7 +207,7 @@ class EPICController extends Controller
             "country"=>['required'],
             "postcode"=>['required'],
             "adresse"=>['required'],
-            "serin"=>["required","numeric","digits:9"],
+            "serin"=> ["required","numeric", new Siren],
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],
             'departement_siege'=>["required","exists:departements,id_departement"],
             'region_siege'=>["required","exists:regions,id_region"],
@@ -267,7 +268,7 @@ class EPICController extends Controller
             "id_epic"=>["required","exists:epics"],
             "nomEpic"=>["required","string"],
             "sinoe"=>['required'],
-            "serin"=>["required","numeric","digits:9"],
+            "serin"=> ["required","numeric", new Siren],
             'nom_court'=>["required"],
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],
             'region_siege'=>["required","exists:regions,id_region"],

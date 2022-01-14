@@ -10,6 +10,7 @@ use App\Models\CompetanceDechet;
 use App\Models\InfoClientHistory;
 use Illuminate\Http\Request;
 use Validator;
+use App\Rules\Siren;
 use Carbon\Carbon;
 
 class SyndicatController extends Controller
@@ -183,7 +184,7 @@ class SyndicatController extends Controller
     public function create(Request $request){
         $this->validate($request,[
             "nomCourt"=>["required","string"],
-            "serin"=>["required","numeric","digits:14"],
+            "serin"=> ["required","numeric", new Siren],
             "sinoe"=>["required"],
             "email"=>["nullable","email"],
             "logo"=>["nullable","uuid","exists:image_sages,uid"],
@@ -251,7 +252,7 @@ class SyndicatController extends Controller
         $this->validate($request,[
             "id_syndicat"=>["required","exists:syndicats"],
             "nomCourt"=>["required","string"],
-            "serin"=>["required","numeric","digits:14"],
+            "serin"=> ["required","numeric", new Siren],
             "sinoe"=>["required"],
             "email"=>["nullable","email"],
             "logo"=>["nullable","uuid","exists:image_sages,uid"],

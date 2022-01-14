@@ -6,9 +6,9 @@ use App\Models\Commune;
 use App\Models\Collectivite;
 use App\Models\InfoClientHistory;
 use Illuminate\Http\Request;
-
 use App\Http\Helpers\SiteHelper;
 use Validator;
+use App\Rules\Siren;
 use Carbon\Carbon;
 
 class CommuneController extends Controller
@@ -120,7 +120,7 @@ class CommuneController extends Controller
             "city"=>["required"],
             "country"=>['required'],
             "postcode"=>['required'],
-            "serin"=>["required","numeric","digits:9"],
+            "serin"=> ["required","numeric", new Siren],
             "insee"=>["required","numeric","digits:5"],
             "nombreHabitant"=>["required","numeric"],
             'departement_siege'=>["required","exists:enemurations,id_enemuration"],
@@ -156,7 +156,7 @@ class CommuneController extends Controller
             "id_epic"=>["required","exists:epics,id_epic"],
             'departement_siege'=>["required","exists:enemurations,id_enemuration"],
             'region_siege'=>["required","exists:enemurations,id_enemuration"],
-            "serin"=>["required","numeric","digits:9"],
+            "serin"=> ["required","numeric", new Siren],
             "insee"=>["required","numeric","digits:5"]
         ],[],[
             'serin'=>'Siren'
