@@ -21,9 +21,15 @@ class ContratController extends Controller
         $contra = $query->orderBy("created_at","DESC")
         ->paginate($pageSize)
         ->toArray();
+        
         foreach($contra['data'] as &$contract){
-            $contract['contractant']['groupe']=$contract['contractant']['groupe']['value_enum'];
+            if(isset($contract['contractant']) && isset($contract['contractant']['groupe'])){
+                $contract['contractant']['groupe'] = $contract['contractant']['groupe']['value_enum'];
+            }else{
+                $contract['contractant'] = [ 'groupe' => []];
+            }
         }
+
         return response([
             "ok"=>"server",
             "data"=>$contra
