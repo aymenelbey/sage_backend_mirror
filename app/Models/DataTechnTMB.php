@@ -24,20 +24,32 @@ class DataTechnTMB extends Model
         "valorisationEnergitique",
         "autreActivite"
     ];
+    
+    protected $casts = [
+        'technologie' => 'array',
+        'valorisationEnergitique' => 'array',
+        'autreActivite' => 'array',
+        'typeDechetAccepter' => 'array',
+    ];
+
     public function dataTech()
     {
         return $this->morphOne(DataTechn::class, 'dataTech');
     }
     public function withEnums(){
         $typeInstal=$this->hasOne(Enemuration::class,'id_enemuration', 'typeInstallation')->first();
-        $dechetaccept=$this->hasOne(Enemuration::class, 'id_enemuration', 'typeDechetAccepter')->first();
-        $technologie=$this->hasOne(Enemuration::class,'id_enemuration', 'technologie')->first();
-        $valorisation=$this->hasOne(Enemuration::class,'id_enemuration', 'valorisationEnergitique')->first();
-        $autreActi=$this->hasOne(Enemuration::class, 'id_enemuration', 'autreActivite')->first();
+        
+        $technologie = Enemuration::whereIn('id_enemuration', $this->technologie)->get();
+        $valorisation = Enemuration::whereIn('id_enemuration', $this->valorisationEnergitique)->get();
+        $autreActi= Enemuration::whereIn('id_enemuration', $this->autreActivite)->get();
+        $dechetaccept= Enemuration::whereIn('id_enemuration', $this->typeDechetAccepter)->get();
+
         $this->typeInstallation=$typeInstal?$typeInstal->__toString():'';
-        $this->typeDechetAccepter=$dechetaccept?$dechetaccept->__toString():'';
-        $this->technologie=$technologie?$technologie->__toString():'';
-        $this->valorisationEnergitique=$valorisation?$valorisation->__toString():'';
-        $this->autreActivite=$autreActi?$autreActi->__toString():'';
+        
+        $this->typeDechetAccepter= $dechetaccept ;
+        $this->technologie= $technologie ;
+        $this->valorisationEnergitique = $valorisation;
+        $this->autreActivite= $autreActi ;
     }
+    
 }

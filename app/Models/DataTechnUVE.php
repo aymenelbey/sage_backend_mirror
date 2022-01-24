@@ -37,28 +37,43 @@ class DataTechnUVE extends Model
         "typeTerboalternateur",
         "constructeurInstallation"
     ];
+
+        
+    protected $casts = [
+        'typeDechetRecus' => 'array',
+        'typeFoursChaudiere' => 'array',
+        'traitementFumee' => 'array',
+        'equipeProcessTF' => 'array',
+        'reactif' => 'array',
+        'traitementNOX' => 'array',
+        'installationComplementair' => 'array',
+    ];
+
+
     public function dataTech()
     {
         return $this->morphOne(DataTechn::class, 'dataTech');
     }
     public function withEnums(){
-        $typeDech=$this->hasOne(Enemuration::class,'id_enemuration', 'typeDechetRecus')->first();
-        $trait=$this->hasOne(Enemuration::class, 'id_enemuration', 'traitementFumee')->first();
-        $install=$this->hasOne(Enemuration::class,'id_enemuration', 'installationComplementair')->first();
+        
+        // $typeDech=$this->hasOne(Enemuration::class,'id_enemuration', 'typeDechetRecus')->first();
+        // $trait=$this->hasOne(Enemuration::class, 'id_enemuration', 'traitementFumee')->first();
+        // $install=$this->hasOne(Enemuration::class,'id_enemuration', 'installationComplementair')->first();
         $voiTra=$this->hasOne(Enemuration::class,'id_enemuration', 'voiTraiFemuee')->first();
-        $traiNox=$this->hasOne(Enemuration::class, 'id_enemuration', 'traitementNOX')->first();
-        $equipe=$this->hasOne(Enemuration::class,'id_enemuration', 'equipeProcessTF')->first();
-        $react=$this->hasOne(Enemuration::class,'id_enemuration', 'reactif')->first();
+        // $traiNox=$this->hasOne(Enemuration::class, 'id_enemuration', 'traitementNOX')->first();
+        // $equipe=$this->hasOne(Enemuration::class,'id_enemuration', 'equipeProcessTF')->first();
+        // $react=$this->hasOne(Enemuration::class,'id_enemuration', 'reactif')->first();
         $terboa=$this->hasOne(Enemuration::class, 'id_enemuration', 'typeTerboalternateur')->first();
         $constru=$this->hasOne(Enemuration::class,'id_enemuration', 'constructeurInstallation')->first();
-        $this->typeDechetRecus=$typeDech?$typeDech->__toString():'';
-        $this->traitementFumee=$trait?$trait->__toString():'';
-        $this->installationComplementair=$install?$install->__toString():'';
+        $this->typeDechetRecus = Enemuration::whereIn('id_enemuration', $this->typeDechetRecus)->get();
+        $this->traitementFumee= Enemuration::whereIn('id_enemuration', $this->traitementFumee)->get();
+        $this->installationComplementair= Enemuration::whereIn('id_enemuration', $this->installationComplementair)->get();
         $this->voiTraiFemuee=$voiTra?$voiTra->__toString():'';
-        $this->traitementNOX=$traiNox?$traiNox->__toString():'';
-        $this->equipeProcessTF=$equipe?$equipe->__toString():'';
-        $this->reactif=$react?$react->__toString():'';
+        $this->traitementNOX= Enemuration::whereIn('id_enemuration', $this->traitementNOX)->get();
+        $this->equipeProcessTF= Enemuration::whereIn('id_enemuration', $this->equipeProcessTF)->get();
+        $this->reactif = Enemuration::whereIn('id_enemuration', $this->reactif)->get();
         $this->typeTerboalternateur=$terboa?$terboa->__toString():'';
         $this->constructeurInstallation=$constru?$constru->__toString():'';
+        $this->typeFoursChaudiere = Enemuration::whereIn('id_enemuration', $this->typeFoursChaudiere)->get();
     }
 }
