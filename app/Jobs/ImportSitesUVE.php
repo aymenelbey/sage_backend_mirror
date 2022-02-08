@@ -162,7 +162,7 @@ class ImportSitesUVE implements ShouldQueue
     public function failed(Throwable $exception)
     {
         $this->user->notify(new DataImportsNotif([
-            'title'=>"Erreur lors de l'importation des sites TMB",
+            'title'=>"Erreur lors de l'importation des sites UVE",
             'description'=>'subDescData',
             'logo'=>'/media/svg/icons/Costum/WarningReqeust.svg',
             'action'=>'/sites',
