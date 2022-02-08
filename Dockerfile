@@ -18,4 +18,4 @@ RUN composer install
 
 FROM base as development
 ENV NODE_ENV=development
-CMD php artisan migrate && php artisan serve --host=0.0.0.0
+CMD service supervisor start && php artisan migrate && php artisan serve --host=0.0.0.0
