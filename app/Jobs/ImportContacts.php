@@ -15,11 +15,11 @@ use App\Events\UserNotification;
 use App\Notifications\DataImportsNotif;
 
 
-use App\models\Commune;
-use App\models\Contact;
-use App\models\ContactHasPersonMoral;
-use App\models\PersonFunction;
-use App\models\EPIC;
+use App\Models\Commune;
+use App\Models\Contact;
+use App\Models\ContactHasPersonMoral;
+use App\Models\PersonFunction;
+use App\Models\EPIC;
 use App\Models\DataTechnTMB;
 use App\Models\User;
 use App\Models\GestionnaireHasSite;
