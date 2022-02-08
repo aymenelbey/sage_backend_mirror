@@ -222,26 +222,26 @@ class ImportContacts implements ShouldQueue
         }
         $filename= "exports/Contacts/".md5("contacts".time());
         $fileResult= Excel::store(new CollectionsExport($ignoredData), $filename.".xlsx");
-        // $this->user->notify(new DataImportsNotif([
-        //     'title'=>'La list des contacts importé avec succès',
-        //     'description'=>'subDescData',
-        //     'logo'=>'/media/svg/icons/Costum/ImportSuccess.svg',
-        //     'action'=>env('APP_HOTS_URL')."imports/download/".str_replace('/','_',$filename),
-        // ]));
-        // broadcast(new UserNotification([
-        //     'async'=>true
-        // ],$this->user->user_channel));
+        $this->user->notify(new DataImportsNotif([
+            'title'=>'La list des contacts importé avec succès',
+            'description'=>'subDescData',
+            'logo'=>'/media/svg/icons/Costum/ImportSuccess.svg',
+            'action'=>env('APP_HOTS_URL')."imports/download/".str_replace('/','_',$filename),
+        ]));
+        broadcast(new UserNotification([
+            'async'=>true
+        ],$this->user->user_channel));
     }
     public function failed(Throwable $exception)
     {
-        // $this->user->notify(new DataImportsNotif([
-        //     'title'=>"Erreur lors de l'importation contacts",
-        //     'description'=>'subDescData',
-        //     'logo'=>'/media/svg/icons/Costum/WarningReqeust.svg',
-        //     'action'=>'/sites',
-        // ]));
-        // broadcast(new UserNotification([
-        //     'async'=>true
-        // ],$this->user->user_channel));
+        $this->user->notify(new DataImportsNotif([
+            'title'=>"Erreur lors de l'importation contacts",
+            'description'=>'subDescData',
+            'logo'=>'/media/svg/icons/Costum/WarningReqeust.svg',
+            'action'=>'/sites',
+        ]));
+        broadcast(new UserNotification([
+            'async'=>true
+        ],$this->user->user_channel));
     }
 }
