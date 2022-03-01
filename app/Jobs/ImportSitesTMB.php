@@ -101,7 +101,7 @@ class ImportSitesTMB implements ShouldQueue
                         $site = Site::where('sinoe', $item['sinoe'])->first();
 
                         if($site){
-                            echo 'Site Found';
+                            
                             $dataTech = DataTechn::where('id_site', $site->id_site)->first();
                             if(!$dataTech){
                                 $ignoredData []=$item+[
