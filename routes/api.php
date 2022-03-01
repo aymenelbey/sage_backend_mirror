@@ -3,6 +3,20 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Imports\CollectionsImport;
+use App\Exports\CollectionsExport;
+
+use Maatwebsite\Excel\Facades\Excel;
+
+use App\models\Enemuration;
+use App\models\Commune;
+use App\models\Contact;
+use App\models\ContactHasPersonMoral;
+use App\models\PersonFunction;
+use App\models\EPIC;
+use App\models\Site;
+use App\models\Syndicat;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,8 +28,32 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('sage/test', function(){
-    return response('here sage');
+                echo '<pre>';
+                $sites = Site::with('dataTech.dataTech')->where('categorieSite', 'TMB')->limit(10)->get();
+                $excel = [];
+                
+                foreach($sites as $site){
+                    print_r($site->dataTech);continue;
+                    $data = $site->dataTech->dataTech;
+                    array_push($excel, [
+                        'SINOE' => $site->sinoe,
+                        'Type dinstallations' => $data->typeInstallation,
+                        'Technologie' => $data->technologie,
+                        'Tonnage annuel' => $data->tonnageAnnuel,
+                        'Capacité nominale' => $data->capaciteNominal,
+                        'Types de déchets acceptés' => $data->typeDechetAccepter,
+                        'Autres activités sur site' => $data->autreActivite,
+                        'Quantité de refus t' => $data->quantiteRefus,
+                        'CSR produit t exutoire' => $data->CSRProduit,
+                        'Envoi pour préparation CSR t' => $data->envoiPreparation,
+                        'Valorisation énergétique' => $data->valorisationEnergitique,
+                    ]);
+                }
+                return $excel;
 });
+
+Route::get("data/download/{type}", [App\Http\Controllers\ImportData::class, "download_update_file"]);
+
 Route::post('/users/send-email', [App\Http\Controllers\auth\ForgotPasswordController::class,"forgot"]);
 Route::post('/login', [App\Http\Controllers\auth\LoginController::class,"login"]);
 Route::post('/create/admin', [App\Http\Controllers\auth\LoginController::class,"createAdmin"]);
