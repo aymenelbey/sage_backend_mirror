@@ -108,7 +108,6 @@ class ImportData extends Controller
                         "Code postal etablissement" => $item['postcode']
                     ]);
                 }
-                return $excel;
                 return Excel::download(new CollectionsExport($excel),"Syndicats_MAJ.xlsx");
             }
             case 'CommunesMAJ': {
