@@ -39,10 +39,10 @@ class DataTechnTMB extends Model
     public function withEnums(){
         $typeInstal=$this->hasOne(Enemuration::class,'id_enemuration', 'typeInstallation')->first();
         
-        $technologie = Enemuration::whereIn('id_enemuration', $this->technologie)->get();
-        $valorisation = Enemuration::whereIn('id_enemuration', $this->valorisationEnergitique)->get();
-        $autreActi= Enemuration::whereIn('id_enemuration', $this->autreActivite)->get();
-        $dechetaccept= Enemuration::whereIn('id_enemuration', $this->typeDechetAccepter)->get();
+        $technologie = Enemuration::whereIn('id_enemuration', is_array($this->technologie) ? $this->technologie : [$this->technologie])->get();
+        $valorisation = Enemuration::whereIn('id_enemuration', is_array($this->valorisationEnergitique) ? $this->valorisationEnergitique : [$this->valorisationEnergitique])->get();
+        $autreActi= Enemuration::whereIn('id_enemuration', is_array($this->autreActivite) ? $this->autreActivite : [$this->autreActivite])->get();
+        $dechetaccept= Enemuration::whereIn('id_enemuration', is_array($this->typeDechetAccepter) ? $this->typeDechetAccepter : [$this->typeDechetAccepter])->get();
 
         $this->typeInstallation=$typeInstal?$typeInstal->__toString():'';
         

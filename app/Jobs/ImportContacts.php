@@ -62,7 +62,7 @@ class ImportContacts implements ShouldQueue
      */
     public function handle(){
         $dataImport = Excel::toArray(new CollectionsImport, storage_path('app/'.$this->filepath))[0];
-        $dataImport = array_slice($dataImport, 0, 1); // used for testing
+        // $dataImport = array_slice($dataImport, 0, 1); // used for testing
         
         $ignoredData=[];
 
@@ -193,7 +193,7 @@ class ImportContacts implements ShouldQueue
                                 
                                 $syndicat_id = $syndicat_id->id_syndicat;
 
-                                $fonction = $commune[1];
+                                $fonction = $syndicat[1];
 
                                 $contactCollect = ContactHasPersonMoral::create([
                                     "idPersonMoral" => $syndicat_id,
@@ -228,9 +228,9 @@ class ImportContacts implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/ImportSuccess.svg',
             'action'=>env('APP_HOTS_URL')."imports/download/".str_replace('/','_',$filename),
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
     public function failed(Throwable $exception)
     {
@@ -240,8 +240,8 @@ class ImportContacts implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/WarningReqeust.svg',
             'action'=>'/sites',
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
 }

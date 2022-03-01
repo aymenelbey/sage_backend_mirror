@@ -62,7 +62,7 @@ class ImportSitesTMB implements ShouldQueue
         $this->setUpEnums($dataImport,'technologie','technologie');
         $this->setUpEnums($dataImport,'valorisation_energetique_methanisation','valorisationEnergitique');
         foreach($dataImport as $item){
-            if(array_key_exists($item['mode_de_gestion'],Constants::VALID_MODE)){
+            if(Enemuration::where('key_enum','mode_gestion')->where('value_enum',$item['mode_de_gestion'])->first()){
                 /**************** */
                 $activity=Enemuration::where('key_enum','autreActivite')->where('value_enum',$item['autres_activites_sur_site'])->first();
                 if($activity) $activity=$activity->id_enemuration;
@@ -92,66 +92,95 @@ class ImportSitesTMB implements ShouldQueue
                 $gestionaire=User::where('username',$item['employe'])
                 ->first();
                 if($region && $depart && $societe && $syndicat && $gestionaire){
-                    $adress='';
-                    if($item['adresse1']){
-                        $adress.=$item['adresse1'].' ';
-                    }
-                    if($item['adresse3']){
-                        $adress.=$item['adresse3'].' ';
-                    }
-                    if($item['adresse4']){
-                        $adress.=$item['adresse4'].' ';
-                    }
-                    $adress.=',France';
+                    $adress= $item['adresse'].',France';
                     $result = ToolHelper::fetchAdress($adress);
                     if(!$result->isEmpty()){
                         $result=$result->first();
                         $coordinates=$result->getCoordinates();
-                        $site=Site::create([
-                            'denomination'=>$item['denomination'],
-                            "categorieSite"=>$this->siteCategorie,
-                            "adresse"=>$adress,
-                            "latitude"=>$coordinates->getLatitude(),
-                            "langititude"=>$coordinates->getLongitude(),
-                            "telephoneStandrad"=>$item['telephone'],
-                            "anneeCreation"=>$item['annee'],
-                            "modeGestion"=>Constants::VALID_MODE[$item['mode_de_gestion']],
-                            "sinoe"=>$item['sinoe'],
-                            "departement_siege"=>$depart->id_departement,
-                            "region_siege"=>$region->id_region
-                        ]);
-                        $geshassite =  GestionnaireHasSite::create([
-                            'id_admin'=>1,
-                            'id_gestionnaire'=>$gestionaire->userType->id_gestionnaire,
-                            'id_site'=>$site->id_site
-                        ]);
-                        $clienthassite = ClientHasSite::create([
-                            "id_site"=>$site->id_site,
-                            "id_collectivite"=>$syndicat->id_collectivite
-                        ]);
-                        $societe = SocieteExpSite::create([
-                            "typeExploitant"=>"Societe",
-                            "id_client"=>$societe->id_societe_exploitant,
-                            "id_site"=>$site->id_site
-                        ]);
-                        $dataTech=DataTechnTMB::create([
-                            "typeInstallation"=>$instalation,
-                            "typeDechetAccepter"=>$accepter,
-                            "technologie"=>$technologie,
-                            "quantiteRefus"=>$item['quantite_de_refus_t'],
-                            "CSRProduit"=>$item['csr_produit_t_exutoire'],
-                            "envoiPreparation"=>$item['envoi_pour_preparation_csr_t'],
-                            "tonnageAnnuel"=>$item['tonnage_annuel_2018'],
-                            "capaciteNominal"=>$item['capacite_nominale'],
-                            "autreActivite"=>$activity,
-                            "dernierConstruct"=>$item['constructeur'],
-                            "valorisationEnergitique"=>$valorisation
-                        ]);
-                        DataTechn::create([
-                            "id_site"=>$site->id_site,
-                            "typesite"=>$this->siteCategorie,
-                            "id_data_tech"=>$dataTech->id_data_tmb
-                        ]);
+
+                        $site = Site::where('sinoe', $item['sinoe'])->first();
+
+                        if($site){
+                            echo 'Site Found';
+                            $dataTech = DataTechn::where('id_site', $site->id_site)->first();
+                            if(!$dataTech){
+                                $ignoredData []=$item+[
+                                    'problème trouvé'=>'Data Technique endomagé'
+                                ];
+                                continue;
+                            }
+                            
+                            $dataTech = DataTechnTMB::find($dataTech->id_data_tech);
+
+                            if(!$dataTech){
+                                $ignoredData []=$item+[
+                                    'problème trouvé'=>'Details Data Technique endomagé'
+                                ];
+                                continue;
+                            }
+
+                            $dataTech = $dataTech->update([
+                                "typeInstallation"=>$instalation,
+                                "typeDechetAccepter"=>$accepter,
+                                "technologie"=>$technologie,
+                                "quantiteRefus"=>$item['quantite_de_refus_t'],
+                                "CSRProduit"=>$item['csr_produit_t_exutoire'],
+                                "envoiPreparation"=>$item['envoi_pour_preparation_csr_t'],
+                                "tonnageAnnuel"=>$item['tonnage_annuel_2018'],
+                                "capaciteNominal"=>$item['capacite_nominale'],
+                                "autreActivite"=>$activity,
+                                "dernierConstruct"=>$item['constructeur'],
+                                "valorisationEnergitique"=>$valorisation
+                            ]);
+
+                        }else{
+                            $site=Site::create([
+                                'denomination'=>$item['denomination'],
+                                "categorieSite"=>$this->siteCategorie,
+                                "adresse"=>$adress,
+                                "latitude"=>$coordinates->getLatitude(),
+                                "langititude"=>$coordinates->getLongitude(),
+                                "telephoneStandrad"=>$item['telephone'],
+                                "anneeCreation"=>$item['annee'],
+                                "modeGestion"=>Constants::VALID_MODE[$item['mode_de_gestion']],
+                                "sinoe"=>$item['sinoe'],
+                                "departement_siege"=>$depart->id_departement,
+                                "region_siege"=>$region->id_region
+                            ]);
+                            $geshassite =  GestionnaireHasSite::create([
+                                'id_admin'=>1,
+                                'id_gestionnaire'=>$gestionaire->userType->id_gestionnaire,
+                                'id_site'=>$site->id_site
+                            ]);
+                            $clienthassite = ClientHasSite::create([
+                                "id_site"=>$site->id_site,
+                                "id_collectivite"=>$syndicat->id_collectivite
+                            ]);
+                            $societe = SocieteExpSite::create([
+                                "typeExploitant"=>"Societe",
+                                "id_client"=>$societe->id_societe_exploitant,
+                                "id_site"=>$site->id_site
+                            ]);
+                            $dataTech=DataTechnTMB::create([
+                                "typeInstallation"=>$instalation,
+                                "typeDechetAccepter"=>$accepter,
+                                "technologie"=>$technologie,
+                                "quantiteRefus"=>$item['quantite_de_refus_t'],
+                                "CSRProduit"=>$item['csr_produit_t_exutoire'],
+                                "envoiPreparation"=>$item['envoi_pour_preparation_csr_t'],
+                                "tonnageAnnuel"=>$item['tonnage_annuel_2018'],
+                                "capaciteNominal"=>$item['capacite_nominale'],
+                                "autreActivite"=>$activity,
+                                "dernierConstruct"=>$item['constructeur'],
+                                "valorisationEnergitique"=>$valorisation
+                            ]);
+                            DataTechn::create([
+                                "id_site"=>$site->id_site,
+                                "typesite"=>$this->siteCategorie,
+                                "id_data_tech"=>$dataTech->id_data_tmb
+                            ]);
+                        }
+                        
                     }else{
                         $ignoredData []=$item+[
                             'problème trouvé'=>'Adress invalid'
@@ -190,9 +219,9 @@ class ImportSitesTMB implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/ImportSuccess.svg',
             'action'=>env('APP_HOTS_URL')."imports/download/".str_replace('/','_',$filename),
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
     private function setUpEnums($data,$keyData,$keyEnum){
         $items=array_unique(array_column($data,$keyData));
@@ -215,8 +244,8 @@ class ImportSitesTMB implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/WarningReqeust.svg',
             'action'=>'/sites',
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
 }

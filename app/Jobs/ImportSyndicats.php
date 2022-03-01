@@ -72,44 +72,51 @@ class ImportSyndicats implements ShouldQueue
                 ->orWhere('name_departement',$item['code_du_departement'])
                 ->first();
                 if($nature && $depart && $region){
-                    $client = Collectivite::create([
-                        "typeCollectivite"=>"Syndicat"
-                    ]);
-                    $adresse="";
-                    if($item['complementadresseetablissement']){
-                        $adresse.=$item['complementadresseetablissement']." ";
+                    $syndicat = Syndicat::where('serin', $item['siret'])->first();
+                    if($syndicat){
+                        $syndicat->update([
+                            "nomCourt"=>$item['nom_court'],
+                            "denominationLegale"=>$item['denomination_legale'],
+                            "serin"=>$item['siret'],
+                            "adresse"=> $item['adresse'],
+                            "city"=>$item['libelle_commune_etablissement'],
+                            "siteInternet"=>$item['site_web'],
+                            "telephoneStandard"=>$item['telephone'],
+                            "nombreHabitant"=>$item['tranche_effectifs_unite_legale'],
+                            "date_enter"=>date(($item['annee_effectifs_unite_legale']?$item['annee_effectifs_unite_legale']:now()->format('Y')).'-01-01'),
+                            'nature_juridique'=>$nature->id_enemuration,
+                            'departement_siege'=>$depart->id_departement,
+                            'region_siege'=>$region->id_region,
+                            "email"=>$item['mail'],
+                            "sinoe"=>$item['code_sinoe'],
+                            "country"=>"France",
+                            "postcode"=>$item['code_postal_etablissement']
+                        ]);
+                    }else{
+                        $client = Collectivite::create([
+                            "typeCollectivite"=>"Syndicat"
+                        ]);
+                        Syndicat::create([
+                            "nomCourt"=>$item['nom_court'],
+                            "denominationLegale"=>$item['denomination_legale'],
+                            "serin"=>$item['siret'],
+                            "adresse"=> $item['adresse'],
+                            "city"=>$item['libelle_commune_etablissement'],
+                            "siteInternet"=>$item['site_web'],
+                            "telephoneStandard"=>$item['telephone'],
+                            "nombreHabitant"=>$item['tranche_effectifs_unite_legale'],
+                            "date_enter"=>date(($item['annee_effectifs_unite_legale']?$item['annee_effectifs_unite_legale']:now()->format('Y')).'-01-01'),
+                            'nature_juridique'=>$nature->id_enemuration,
+                            'departement_siege'=>$depart->id_departement,
+                            'region_siege'=>$region->id_region,
+                            "email"=>$item['mail'],
+                            "sinoe"=>$item['code_sinoe'],
+                            "country"=>"France",
+                            "postcode"=>$item['code_postal_etablissement'],
+                            "id_collectivite"=>$client->id_collectivite
+                        ]);
                     }
-                    if($item['numerovoieetablissement']){
-                        $adresse.=$item['numerovoieetablissement']." ";
-                    }
-                    if($item['indicerepetitionetablissement']){
-                        $adresse.=$item['indicerepetitionetablissement']." ";
-                    }
-                    if($item['typevoieetablissement']){
-                        $adresse.=$item['typevoieetablissement']." ";
-                    }
-                    if($item['libellevoieetablissement']){
-                        $adresse.=$item['libellevoieetablissement']." ";
-                    }
-                    Syndicat::create([
-                        "nomCourt"=>$item['nom_court'],
-                        "denominationLegale"=>$item['denomination_legale'],
-                        "serin"=>$item['siret'],
-                        "adresse"=>$adresse,
-                        "city"=>$item['libellecommuneetablissement'],
-                        "siteInternet"=>$item['site_web'],
-                        "telephoneStandard"=>$item['telephone'],
-                        "nombreHabitant"=>$item['trancheeffectifsunitelegale'],
-                        "date_enter"=>date(($item['anneeeffectifsunitelegale']?$item['anneeeffectifsunitelegale']:now()->format('Y')).'-01-01'),
-                        'nature_juridique'=>$nature->id_enemuration,
-                        'departement_siege'=>$depart->id_departement,
-                        'region_siege'=>$region->id_region,
-                        "email"=>$item['mail'],
-                        "sinoe"=>$item['code_sinoe'],
-                        "country"=>"France",
-                        "postcode"=>$item['codepostaletablissement'],
-                        "id_collectivite"=>$client->id_collectivite
-                    ]);
+                    
                 }else{
                     $ignoredData []=$item;
                 }
@@ -125,9 +132,9 @@ class ImportSyndicats implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/ImportSuccess.svg',
             'action'=>env('APP_HOTS_URL')."imports/download/".str_replace('/','_',$filename)
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
     public function failed(Throwable $exception)
     {
@@ -137,8 +144,8 @@ class ImportSyndicats implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/WarningReqeust.svg',
             'action'=>'/client/communities/communes',
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
 }

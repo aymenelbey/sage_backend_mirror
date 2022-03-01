@@ -18,7 +18,6 @@ class Site extends Model
         "region_siege",
         "sinoe",
         "adresse",
-        "sinoe",
         "latitude",
         "langititude",
         "siteIntrnet",

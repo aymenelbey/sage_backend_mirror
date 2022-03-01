@@ -112,7 +112,7 @@ class ImportCommunes implements ShouldQueue
                         'departement_siege'=>$depart->id_departement,
                         'region_siege'=>$region->id_region,
                         "nombreHabitant"=>$item['nbr_dhabitants'],
-                        "date_enter"=>date(($item['date_habitant']?$item['date_habitant']:now()->format('Y')).'-01-01'),
+                        "date_enter"=>date(($item['date_habitant'] ? $item['date_habitant'] : now()->format('Y-m-d'))),
                         "country"=>$item['pays'],
                         'id_epic'=>$epic->id_epic,
                         "id_collectivite"=>$client->id_collectivite
@@ -132,9 +132,9 @@ class ImportCommunes implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/ImportSuccess.svg',
             'action'=>env('APP_HOTS_URL')."imports/download/".str_replace('/','_',$filename),
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
     
     public function failed(Throwable $exception)
@@ -145,8 +145,8 @@ class ImportCommunes implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/WarningReqeust.svg',
             'action'=>'/client/communities/communes',
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
 }

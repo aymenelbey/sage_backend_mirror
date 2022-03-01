@@ -62,16 +62,17 @@ class ImportEpics implements ShouldQueue
                 $nature=Enemuration::where('key_enum','nature_juridique')
                 ->where('value_enum',$item['nature_juridique'])
                 ->first();
-                $searchReg=explode(' ',$item['region_du_siege']);
-                $searchDep=explode(' ',$item['departement_du_siege']);
-                $region=Region::where('region_code',$searchReg[0])
-                ->orWhere('region_code',intval($searchReg[0]))
-                ->orWhere('name_region',$searchReg[0])
+
+                $region=Region::where('region_code', $item['region_du_siege'])
+                ->orWhere('region_code',intval($item['region_du_siege']))
+                ->orWhere('name_region', $item['region_du_siege'])
                 ->first();
-                $depart=Departement::where('departement_code',$searchDep[0])
-                ->orWhere('departement_code',intval($searchDep[0]))
-                ->orWhere('name_departement',$searchDep[0])
+
+                $depart=Departement::where('departement_code',$item['departement_du_siege'])
+                ->orWhere('departement_code',intval($item['departement_du_siege']))
+                ->orWhere('name_departement',$item['departement_du_siege'])
                 ->first();
+
                 if($nature && $depart && $region){
                     $adresse="";
                     if($item['complementadresseetablissement']){
@@ -119,14 +120,14 @@ class ImportEpics implements ShouldQueue
         $filename="exports/EPCI/".md5("epcis_exports".time());
         $fileResult=Excel::store(new CollectionsExport($ignoredData), $filename.".xlsx");
         $this->user->notify(new DataImportsNotif([
-            'title'=>'La list des EPCI importé avec succès',
+            'title'=>'La list des EPCI non importé',
             'description'=>'subDescData',
             'logo'=>'/media/svg/icons/Costum/ImportSuccess.svg',
             'action'=>env('APP_HOTS_URL')."imports/download/".str_replace('/','_',$filename),
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
     public function failed(Throwable $exception)
     {
@@ -136,8 +137,8 @@ class ImportEpics implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/WarningReqeust.svg',
             'action'=>'/client/communities/communes',
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
 }

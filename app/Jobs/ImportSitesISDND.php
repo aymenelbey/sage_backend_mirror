@@ -56,7 +56,7 @@ class ImportSitesISDND implements ShouldQueue
         $dataImport = Excel::toArray(new CollectionsImport, storage_path('app/'.$this->filepath))[0];
         $ignoredData=[];
         foreach($dataImport as $item){
-            if(array_key_exists($item['mode_de_gestion'],Constants::VALID_MODE)){
+            if(Enemuration::where('key_enum','mode_gestion')->where('value_enum',$item['mode_de_gestion'])->first()){
                 $region=Region::where('region_code',$item['nom_de_la_region'])
                 ->orWhere('name_region',$item['nom_de_la_region'])
                 ->first();
@@ -65,68 +65,101 @@ class ImportSitesISDND implements ShouldQueue
                 ->first();
                 $societe=SocieteExploitant::where('sinoe',$item['sinoe_expolitant'])
                 ->first();
-                $syndicat=Syndicat::where('sinoe',$item['sinoe_syndicazt'])
+                $syndicat=Syndicat::where('sinoe',$item['sinoe_syndicat'])
                 ->first();
                 $gestionaire=User::where('username',$item['employe'])
                 ->first();
                 if($region && $depart && $societe && $syndicat && $gestionaire){
-                    $adress='';
-                    if($item['adresse1']){
-                        $adress.=$item['adresse1'].' ';
-                    }
-                    if($item['adresse3']){
-                        $adress.=$item['adresse3'].' ';
-                    }
-                    if($item['adresse4']){
-                        $adress.=$item['adresse4'].' ';
-                    }
-                    $adress.=',France';
+                    $adress = $item['adresse'].',France';
+
                     $result = ToolHelper::fetchAdress($adress);
                     if(!$result->isEmpty()){
                         $result=$result->first();
                         $coordinates=$result->getCoordinates();
-                        $site=Site::create([
-                            "denomination"=>$item['denomination'],
-                            "categorieSite"=>$this->siteCategorie,
-                            "adresse"=>$adress,
-                            "latitude"=>$coordinates->getLatitude(),
-                            "langititude"=>$coordinates->getLongitude(),
-                            "telephoneStandrad"=>$item['telephone'],
-                            "anneeCreation"=>$item['annee_creation'],
-                            "modeGestion"=>Constants::VALID_MODE[$item['mode_de_gestion']],
-                            "sinoe"=>$item['sinoe'],
-                            "departement_siege"=>$depart->id_departement,
-                            "region_siege"=>$region->id_region
-                        ]);
-                        $geshassite =  GestionnaireHasSite::create([
-                            'id_admin'=>1,
-                            'id_gestionnaire'=>$gestionaire->userType->id_gestionnaire,
-                            'id_site'=>$site->id_site
-                        ]);
-                        $clienthassite = ClientHasSite::create([
-                            "id_site"=>$site->id_site,
-                            "id_collectivite"=>$syndicat->id_collectivite
-                        ]);
-                        $societe = SocieteExpSite::create([
-                            "typeExploitant"=>"Societe",
-                            "id_client"=>$societe->id_societe_exploitant,
-                            "id_site"=>$site->id_site
-                        ]);
-                        $dataTech=DataTechnISDND::create([
-                            "capaciteNominale"=>$item['capacite_nominale'],
-                            "capaciteRestante"=>$item['capacite_restante'],
-                            "capaciteReglementaire"=>$item['capacite_reglementaire'],
-                            "projetExtension"=>strtolower($item['projet_dextension'])=='oui',
-                            "dateExtension"=>$item['date_dextension'],
-                            "dateOuverture"=>$item['date_douverture'],
-                            "dateFermeture"=>$item['date_de_fermeture'],
-                            "dateFermeturePrev"=>$item['date_de_fermeture_previsionnelle']
-                        ]);
-                        DataTechn::create([
-                            "id_site"=>$site->id_site,
-                            "typesite"=>$this->siteCategorie,
-                            "id_data_tech"=>$dataTech->id_data_isdnd
-                        ]);
+                        
+                        $site = Site::where('sinoe', $item['sinoe'])->first();
+
+                        if($site){
+                                                        
+                            $dataTech = DataTechn::where('id_site', $site->id_site)->first();
+                            if(!$dataTech){
+                                $ignoredData []=$item+[
+                                    'problème trouvé'=>'Data Technique endomagé'
+                                ];
+                                continue;
+                            }
+                            
+                            $dataTech = DataTechnISDND::find($dataTech->id_data_tech);
+
+                            if(!$dataTech){
+                                $ignoredData []=$item+[
+                                    'problème trouvé'=>'Details Data Technique endomagé'
+                                ];
+                                continue;
+                            }
+
+                            $dataTech = $dataTech->update([
+                                "capaciteNominale"=>$item['capacite_nominale'],
+                                "capaciteRestante"=>$item['capacite_restante'],
+                                "capaciteReglementaire"=>$item['capacite_reglementaire'],
+                                "projetExtension"=>strtolower($item['projet_dextension'])=='oui',
+                                "dateExtension"=>$item['date_dextension'],
+                                "dateOuverture"=>$item['date_douverture'],
+                                "dateFermeture"=>$item['date_de_fermeture'],
+                                "dateFermeturePrev"=>$item['date_de_fermeture_previsionnelle']
+                            ]);
+
+                        }else{
+                            $site = Site::create([
+                                "denomination"=>$item['denomination'],
+                                "categorieSite"=>$this->siteCategorie,
+                                "adresse"=>$adress,
+                                "latitude"=>$coordinates->getLatitude(),
+                                "langititude"=>$coordinates->getLongitude(),
+                                "telephoneStandrad"=>$item['telephone'],
+                                "anneeCreation"=>$item['annee_creation'],
+                                "modeGestion"=>Constants::VALID_MODE[$item['mode_de_gestion']],
+                                "sinoe"=>$item['sinoe'],
+                                "departement_siege"=>$depart->id_departement,
+                                "region_siege"=>$region->id_region
+                            ]);
+                            
+                            $geshassite =  GestionnaireHasSite::create([
+                                'id_admin'=>1,
+                                'id_gestionnaire'=>$gestionaire->userType->id_gestionnaire,
+                                'id_site'=>$site->id_site
+                            ]);
+    
+                            $clienthassite = ClientHasSite::create([
+                                "id_site"=>$site->id_site,
+                                "id_collectivite"=>$syndicat->id_collectivite
+                            ]);
+    
+                            $societe = SocieteExpSite::create([
+                                "typeExploitant"=>"Societe",
+                                "id_client"=>$societe->id_societe_exploitant,
+                                "id_site"=>$site->id_site
+                            ]);
+
+                            $dataTech=DataTechnISDND::create([
+                                "capaciteNominale"=>$item['capacite_nominale'],
+                                "capaciteRestante"=>$item['capacite_restante'],
+                                "capaciteReglementaire"=>$item['capacite_reglementaire'],
+                                "projetExtension"=>strtolower($item['projet_dextension'])=='oui',
+                                "dateExtension"=>$item['date_dextension'],
+                                "dateOuverture"=>$item['date_douverture'],
+                                "dateFermeture"=>$item['date_de_fermeture'],
+                                "dateFermeturePrev"=>$item['date_de_fermeture_previsionnelle']
+                            ]);
+    
+                            DataTechn::create([
+                                "id_site"=>$site->id_site,
+                                "typesite"=>$this->siteCategorie,
+                                "id_data_tech"=>$dataTech->id_data_isdnd
+                            ]);
+
+                        }
+                        
                     }else{
                         $ignoredData []=$item+[
                             'problème trouvé'=>'Adress invalid'
