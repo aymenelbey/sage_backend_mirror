@@ -48,9 +48,8 @@ class ImportRegions implements ShouldQueue
         foreach($dataImport as $item){
             if(isset($item['code']) && $item['lib_reg']){
                 $code = strlen($item['code']) == 1 ? '0'.$item['code'] : intval($item['code']);
-                
                 $region = Region::where('region_code', $code)->first();
-
+                
                 if($region){
                     $item['Problem trouvé'] = 'Regions existe dans la base de donnée';
                     $ignoredData []=$item;
@@ -73,9 +72,9 @@ class ImportRegions implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/ImportSuccess.svg',
             'action'=>env('APP_HOTS_URL')."imports/download/".str_replace('/','_',$filename),
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
     public function failed(Throwable $exception)
     {
@@ -85,8 +84,8 @@ class ImportRegions implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/WarningReqeust.svg',
             'action'=>'/client/communities/communes',
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
 }

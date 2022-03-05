@@ -68,9 +68,9 @@ class ImportDepartments implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/ImportSuccess.svg',
             'action'=>env('APP_HOTS_URL')."imports/download/".str_replace('/','_',$filename),
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
     public function failed(Throwable $exception)
     {
@@ -80,8 +80,8 @@ class ImportDepartments implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/WarningReqeust.svg',
             'action'=>'/client/communities/communes',
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
 }
