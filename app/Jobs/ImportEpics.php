@@ -63,14 +63,16 @@ class ImportEpics implements ShouldQueue
                 ->where('value_enum',$item['nature_juridique'])
                 ->first();
 
-                $region=Region::where('region_code', $item['region_du_siege'])
-                ->orWhere('region_code',intval($item['region_du_siege']))
-                ->orWhere('name_region', $item['region_du_siege'])
+                $code_region = strlen($item['region_du_siege']) == 1 ? '0'.$item['region_du_siege'] : $item['region_du_siege'];
+                $region=Region::where('region_code', $code_region)
+                ->orWhere('region_code', $code_region)
+                ->orWhere('name_region', $code_region)
                 ->first();
 
-                $depart=Departement::where('departement_code',$item['departement_du_siege'])
-                ->orWhere('departement_code',intval($item['departement_du_siege']))
-                ->orWhere('name_departement',$item['departement_du_siege'])
+                $code_depart = strlen($item['departement_du_siege']) == 1 ? '0'.$item['departement_du_siege'] : $item['departement_du_siege'];
+                $depart=Departement::where('departement_code', $item['code_depart'])
+                ->orWhere('departement_code', $item['code_depart'])
+                ->orWhere('name_departement', $item['code_depart'])
                 ->first();
 
                 if($nature && $depart && $region){
