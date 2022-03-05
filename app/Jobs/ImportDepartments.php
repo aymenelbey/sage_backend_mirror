@@ -44,9 +44,9 @@ class ImportDepartments implements ShouldQueue
         $ignoredData=[];
         foreach($dataImport as $item){
             if(isset($item['code_dep']) && $item['lib_dep']){
-                $code = strlen($item['code_dep']) == 1 ? '0'.$item['code'] : intval($item['code']);
+                $code = strlen($item['code_dep']) == 1 ? '0'.$item['code_dep'] : $item['code_dep'];
                 
-                $depart = Departement::where('departement_code', $code);
+                $depart = Departement::where('departement_code', $code)->first();
                 if($depart){
                     $item['Problem trouvé'] = 'Departement existe dans la base de donnée';
                     $ignoredData []=$item;

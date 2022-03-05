@@ -47,7 +47,7 @@ class ImportRegions implements ShouldQueue
         
         foreach($dataImport as $item){
             if(isset($item['code']) && $item['lib_reg']){
-                $code = strlen($item['code']) == 1 ? '0'.$item['code'] : intval($item['code']);
+                $code = strlen($item['code']) == 1 ? '0'.$item['code'] : $item['code'];
                 $region = Region::where('region_code', $code)->first();
                 
                 if($region){
