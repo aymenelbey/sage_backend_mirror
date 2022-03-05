@@ -59,6 +59,7 @@ class ImportEpics implements ShouldQueue
         $ignoredData=[];
         foreach($dataImport as $item){
             if($item['nom_epci']){
+                // print_r($item);
                 $nature=Enemuration::where('key_enum','nature_juridique')
                 ->where('value_enum',$item['nature_juridique'])
                 ->first();
@@ -70,27 +71,27 @@ class ImportEpics implements ShouldQueue
                 ->first();
 
                 $code_depart = strlen($item['departement_du_siege']) == 1 ? '0'.$item['departement_du_siege'] : $item['departement_du_siege'];
-                $depart=Departement::where('departement_code', $item['code_depart'])
-                ->orWhere('departement_code', $item['code_depart'])
-                ->orWhere('name_departement', $item['code_depart'])
+                $depart=Departement::where('departement_code', $code_depart)
+                ->orWhere('departement_code', $code_depart)
+                ->orWhere('name_departement', $code_depart)
                 ->first();
 
                 if($nature && $depart && $region){
                     $adresse="";
-                    if($item['complementadresseetablissement']){
-                        $adresse.=$item['complementadresseetablissement']." ";
+                    if($item['complement_adresse_etablissement']){
+                        $adresse.=$item['complement_adresse_etablissement']." ";
                     }
-                    if($item['numerovoieetablissement']){
-                        $adresse.=$item['numerovoieetablissement']." ";
+                    if($item['numero_voie_etablissement']){
+                        $adresse.=$item['numero_voie_etablissement']." ";
                     }
-                    if($item['indicerepetitionetablissement']){
-                        $adresse.=$item['indicerepetitionetablissement']." ";
+                    if($item['indice_repetition_etablissement']){
+                        $adresse.=$item['indice_repetition_etablissement']." ";
                     }
-                    if($item['typevoieetablissement']){
-                        $adresse.=$item['typevoieetablissement']." ";
+                    if($item['type_voie_etablissement']){
+                        $adresse.=$item['type_voie_etablissement']." ";
                     }
-                    if($item['libellevoieetablissement']){
-                        $adresse.=$item['libellevoieetablissement']." ";
+                    if($item['libelle_voie_etablissement']){
+                        $adresse.=$item['libelle_voie_etablissement']." ";
                     }
                     $client = Collectivite::create([
                         "typeCollectivite"=>"EPIC"
@@ -108,8 +109,8 @@ class ImportEpics implements ShouldQueue
                         'departement_siege'=>$depart->id_departement,
                         'region_siege'=>$region->id_region,
                         "date_enter"=>date(($item['annee']?$item['annee']:now()->format('Y')).'-01-01'),
-                        "city"=>$item['libellecommuneetablissement'],
-                        "postcode"=>$item['codepostaletablissement'],
+                        "city"=>$item['libelle_commune_etablissement'],
+                        "postcode"=>$item['code_commune_etablissement'],
                         "id_collectivite"=>$client->id_collectivite
                     ]);
                 }else{
