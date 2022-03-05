@@ -42,17 +42,29 @@ class ImportRegions implements ShouldQueue
     public function handle()
     {
         $dataImport = Excel::toArray(new CollectionsImport, storage_path('app/'.$this->filepath))[0];
+        
         $ignoredData=[];
+        
         foreach($dataImport as $item){
             if(isset($item['code']) && $item['lib_reg']){
-                $region = Region::create([
-                    'region_code' => $item['code'],
-                    'name_region' => $item['lib_reg']
-                ]);
+                $code = strlen($item['code']) == 1 ? '0'.$item['code'] : intval($item['code']);
+                
+                $region = Region::where('region_code', $code)->first();
+
+                if($region){
+                    $item['Problem trouvé'] = 'Regions existe dans la base de donnée';
+                    $ignoredData []=$item;
+                }else{
+                    $region = Region::create([
+                        'region_code' => $code,
+                        'name_region' => $item['lib_reg']
+                    ]);
+                } 
             }else{
                 $ignoredData []=$item;
             }
         }
+
         $filename="exports/Regions/".md5("regions_exports".time());
         $fileResult=Excel::store(new CollectionsExport($ignoredData), $filename.".xlsx");
         $this->user->notify(new DataImportsNotif([
