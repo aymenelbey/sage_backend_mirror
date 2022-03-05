@@ -61,25 +61,10 @@ class ImportCompanies implements ShouldQueue
         foreach($dataImport as $item){
             if(isset($item['siret'])){
                 $nature=Enemuration::where('key_enum','nature_juridique')
-                    ->where('value_enum',$item['nature_juridique'])
+                    ->where('value_enum',$item['categorie_juridqiue_lib'])
                     ->first();
                 if($nature){
-                    $adresse="";
-                    if($item['complementadresseetablissement']){
-                        $adresse.=$item['complementadresseetablissement']." ";
-                    }
-                    if($item['numerovoieetablissement']){
-                        $adresse.=$item['numerovoieetablissement']." ";
-                    }
-                    if($item['indicerepetitionetablissement']){
-                        $adresse.=$item['indicerepetitionetablissement']." ";
-                    }
-                    if($item['typevoieetablissement']){
-                        $adresse.=$item['typevoieetablissement']." ";
-                    }
-                    if($item['libellevoieetablissement']){
-                        $adresse.=$item['libellevoieetablissement']." ";
-                    }
+                    $adresse= $item['adresse'];
                     SocieteExploitant::create([
                         "denomination"=>$item['denomination'],
                         "groupe"=>$item['groupe'],
@@ -96,7 +81,8 @@ class ImportCompanies implements ShouldQueue
                         "postcode"=>$item['codepostaletablissement'],
                     ]);
                 }else{
-                    $ignoredData []=$item;
+                    echo 'Nature inexistante';
+                    $ignoredData []=$item + ['Problem trouvé' => 'Nature inexistante'];
                 }
             }else{
                 $ignoredData []=$item;
@@ -110,9 +96,9 @@ class ImportCompanies implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/ImportSuccess.svg',
             'action'=>env('APP_HOTS_URL')."imports/download/".str_replace('/','_',$filename)
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
     public function failed(Throwable $exception)
     {
@@ -122,8 +108,8 @@ class ImportCompanies implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/WarningReqeust.svg',
             'action'=>'/client/communities/communes',
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
 }

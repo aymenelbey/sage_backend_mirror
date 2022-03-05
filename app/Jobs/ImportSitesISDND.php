@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\GestionnaireHasSite;
 use App\Models\SocieteExpSite;
 use App\Models\ClientHasSite;
+use App\Models\Enemuration;
 use App\Models\SocieteExploitant;
 use App\Models\Syndicat;
 use App\Models\DataTechn;
@@ -57,12 +58,17 @@ class ImportSitesISDND implements ShouldQueue
         $ignoredData=[];
         foreach($dataImport as $item){
             if(Enemuration::where('key_enum','mode_gestion')->where('value_enum',$item['mode_de_gestion'])->first()){
-                $region=Region::where('region_code',$item['nom_de_la_region'])
-                ->orWhere('name_region',$item['nom_de_la_region'])
+                
+                $code_region = strlen($item['code_de_region']) == 1 ? '0'.$item['code_de_region'] : $item['code_de_region'];
+                $region=Region::where('region_code', $code_region)
+                ->orWhere('name_region', $code_region)
                 ->first();
-                $depart=Departement::where('departement_code',$item['code_du_departement'])
-                ->orWhere('name_departement',$item['code_du_departement'])
+                
+                $code_depart = strlen($item['code_du_departement']) == 1 ? '0'.$item['code_du_departement'] : $item['code_du_departement'];
+                $depart=Departement::where('departement_code', $code_region)
+                ->orWhere('name_departement', $code_region)
                 ->first();
+
                 $societe=SocieteExploitant::where('sinoe',$item['sinoe_expolitant'])
                 ->first();
                 $syndicat=Syndicat::where('sinoe',$item['sinoe_syndicat'])
@@ -198,9 +204,9 @@ class ImportSitesISDND implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/ImportSuccess.svg',
             'action'=>env('APP_HOTS_URL')."imports/download/".str_replace('/','_',$filename),
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
     public function failed(Throwable $exception)
     {
@@ -210,8 +216,8 @@ class ImportSitesISDND implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/WarningReqeust.svg',
             'action'=>'/sites',
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
 }

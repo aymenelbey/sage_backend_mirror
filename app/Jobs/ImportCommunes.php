@@ -50,15 +50,21 @@ class ImportCommunes implements ShouldQueue
         $ignoredData=[];
         foreach($dataImport as $item){
             //&& !Commune::where('nomCommune',$item['nom_commune'])->exists()
+            // print_r($item);
             if(isset($item['nom_commune'])){
-                $region=Region::where('region_code',$item['region_du_siege'])
-                ->orWhere('region_code',intval($item['region_du_siege']))
-                ->orWhere('name_region',$item['region_du_siege'])
+                print_r($item);
+                $code_region = strlen($item['region_du_siege']) == 1 ? '0'.$item['region_du_siege'] : $item['region_du_siege'];
+                
+                $region=Region::where('region_code', $code_region)
+                ->orWhere('name_region', $code_region)
                 ->first();
-                $depart=Departement::where('departement_code',$item['departement_du_siege'])
-                ->orWhere('departement_code',intval($item['departement_du_siege']))
-                ->orWhere('name_departement',$item['departement_du_siege'])
+                
+                $code_depart = strlen($item['departement_du_siege']) == 1 ? '0'.$item['departement_du_siege'] : $item['departement_du_siege'];
+
+                $depart=Departement::where('departement_code',$code_depart)
+                ->orWhere('name_departement', $code_depart)
                 ->first();
+
                 $replaceCC=preg_replace('/CC/', "Communauté de Communes", $item['nom_epci_rattachement'], 1);
                 $replaceCA=preg_replace('/CA/', "Communauté d'Agglomération", $item['nom_epci_rattachement'], 1);
                 $epic=EPIC::where('nomEpic',$item['nom_epci_rattachement'])
@@ -68,12 +74,18 @@ class ImportCommunes implements ShouldQueue
                 ->first();
                 if($depart && $region && $epic){
                     $address=[];
-                    $response = Http::withHeaders([
-                        'Authorization' => 'Bearer 41788fb0-c44e-303f-a3eb-12398235b64a'
-                    ])->get('https://api.insee.fr/entreprises/sirene/V3/siret', [
-                        'q' => "siren:".$item['siret']." AND etablissementSiege:true",
-                    ]);
-                    if($response->ok()){
+                    $response = null;
+                    try{
+                        $response = Http::withHeaders([
+                            'Authorization' => 'Bearer 41788fb0-c44e-303f-a3eb-12398235b64a'
+                        ])->get('https://api.insee.fr/entreprises/sirene/V3/siret', [
+                            'q' => "siren:".$item['siret']." AND etablissementSiege:true",
+                        ]);
+                    }catch(Exception $e){
+                        $ignoredData []=$item + ['Problem trouvé' => 'Error curl']; 
+                        continue;
+                    }
+                    if($response && $response->ok()){
                         $data=$response->json();
                         $data=$data['etablissements'][0];
                         if($data){

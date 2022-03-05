@@ -71,7 +71,7 @@ class ImportCompositionSyndicat implements ShouldQueue
                 if($epci && $competance){
                     if(strtolower($item['ouiexerceedeleguee'])=='oui'){
                         CompetanceDechet::create([
-                            'code'=>"N/A",
+                            'code'=> $competance->code ? $competance->code : 'N/A',
                             'start_date'=>now()->format('Y-m-d'),
                             'end_date'=>now()->format('Y-m-d'),
                             'owner_competance'=>$epci->id_epic,
@@ -84,7 +84,7 @@ class ImportCompositionSyndicat implements ShouldQueue
                         ->first();
                         if($syndicat){
                             CompetanceDechet::create([
-                                'code'=>"N/A",
+                                'code'=> $competance->code ? $competance->code : 'N/A',
                                 'start_date'=>now()->format('Y-m-d'),
                                 'end_date'=>now()->format('Y-m-d'),
                                 'owner_competance'=>$epci->id_epic,
@@ -94,11 +94,11 @@ class ImportCompositionSyndicat implements ShouldQueue
                                 'delegue_type'=>"Syndicat"
                             ]);
                         }else{
-                            $ignoredData []=$item;
+                            $ignoredData []=$item + ['Problem trouvé' => 'Syndicat non existante'];
                         }
                     }
                 }else{
-                    $ignoredData []=$item;
+                    $ignoredData []=$item + ['Problem trouvé' => 'EPIC non existante'];
                 }
             }else{
                 $ignoredData []=$item; 
@@ -113,9 +113,9 @@ class ImportCompositionSyndicat implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/ImportSuccess.svg',
             'action'=>env('APP_HOTS_URL')."imports/download/".str_replace('/','_',$filename),
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
     public function failed(Throwable $exception)
     {
@@ -125,8 +125,8 @@ class ImportCompositionSyndicat implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/WarningReqeust.svg',
             'action'=>'/client/communities/epic',
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
 }

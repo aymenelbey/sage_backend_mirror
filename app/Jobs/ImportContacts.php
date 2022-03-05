@@ -62,7 +62,7 @@ class ImportContacts implements ShouldQueue
      */
     public function handle(){
         $dataImport = Excel::toArray(new CollectionsImport, storage_path('app/'.$this->filepath))[0];
-        // $dataImport = array_slice($dataImport, 0, 1); // used for testing
+        // $dataImport = array_slice($dataImport, 0, 100); // used for testing
         
         $ignoredData=[];
 
