@@ -64,11 +64,11 @@ class ImportSyndicats implements ShouldQueue
                 ->where('value_enum',$item['nature_juridique'])
                 ->first();
                 $region=Region::where('region_code',$item['nom_de_la_region'])
-                ->orWhere('region_code',intval($item['nom_de_la_region']))
+                ->orWhere('region_code',strlen($item['nom_de_la_region']) == 1 ? '0'.$item['nom_de_la_region'] : intval($item['nom_de_la_region']))
                 ->orWhere('name_region',$item['nom_de_la_region'])
                 ->first();
                 $depart=Departement::where('departement_code',$item['code_du_departement'])
-                ->orWhere('departement_code',intval($item['code_du_departement']))
+                ->orWhere('departement_code', strlen($item['code_du_departement']) == 1 ? '0'.$item['code_du_departement'] : intval($item['code_du_departement']))
                 ->orWhere('name_departement',$item['code_du_departement'])
                 ->first();
                 if($nature && $depart && $region){
@@ -118,10 +118,23 @@ class ImportSyndicats implements ShouldQueue
                     }
                     
                 }else{
-                    $ignoredData []=$item;
+                    $item['Problem trouvé'] = '';
+                    if(!$nature){
+                        $item['Problem trouvé'] .= 'Nature non existante';
+                    }
+                    if(!$region){
+                        $item['Problem trouvé'] .= ", Region n'existe pas";
+                    }
+                    if(!$depart){
+                        $item['Problem trouvé'] .= ", Departement n'existe pas";
+                    }
+                    print_r($item);
+                    $ignoredData []= $item;
                 }
             }else{
-                $ignoredData []=$item;
+                $item['Problem trouvé'] .= ", Siret obligatoire";
+                print_r($item);
+                $ignoredData []= $item;
             }
         }
         $filename="exports/Syndicats/".md5("syndicats_exports".time());
