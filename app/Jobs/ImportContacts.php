@@ -100,6 +100,11 @@ class ImportContacts implements ShouldQueue
 
         foreach($dataImport as $contact){
             $contact['problème trouvé'] = '';
+            if(!isset($contact['civilite']) || empty($contact['civilite'])){
+                $contact['problème trouvé'] = 'Empty row';
+                $ignoredData[] = $contact;
+                continue;
+            }
             try{
                 if(in_array($contact['status'], ['actif', 'inactif']) && in_array($contact['civilite'], ['MME', 'MR'])){
                     $created = Contact::create([
