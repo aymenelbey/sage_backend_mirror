@@ -51,7 +51,11 @@ class ImportGestionaires implements ShouldQueue
             'SAGE EXPERT'=>'Sage_expert'
         ];
         foreach($dataImport as $item){
-            if(!Gestionnaire::where('email',$item['email'])->exists() && $item['nom'] && $item['prenom'] && in_array($item['civilite'],['MME','MR']) && in_array($item['societe'],['SAGE ENGINEERING','SAGE INDUSTRY','SAGE EXPERT'])){
+            $email_exist = Gestionnaire::where('email',$item['email'])->exists();
+            if(!$email_exist 
+                    && isset($item['nom']) && !empty($item['nom']) && isset($item['prenom']) && !empty($item['prenom']) 
+                    && in_array($item['civilite'],['MME','MR']) 
+                    && in_array($item['societe'],['SAGE ENGINEERING','SAGE INDUSTRY','SAGE EXPERT'])){
                 $username=User::getUsername($item['nom'],$item['prenom']);
                 $password=Str::random(10);
                 $user =  User::create([
@@ -72,6 +76,19 @@ class ImportGestionaires implements ShouldQueue
                     "id_admin"=>1
                 ]);
             }else{
+                $item['Problem trouvé'] = '';
+                if($email_exist){
+                    $item['Problem trouvé'] .= 'Email existante, ';
+                }
+                if(!( isset($item['nom']) && !empty($item['nom']) && isset($item['prenom']) && !empty($item['prenom']) )){
+                    $item['Problem trouvé'] .= 'Nom ou prénom invalid, ';
+                }
+                if(!(in_array($item['societe'],['SAGE ENGINEERING','SAGE INDUSTRY','SAGE EXPERT']))){
+                    $item['Problem trouvé'] .= 'Societe invalid, ';
+                }
+                if(!in_array($item['civilite'],['MME','MR'])){
+                    $item['Problem trouvé'] .= 'Civilité invalide';
+                }
                 $ignoredData []=$item;
             }
         }
@@ -83,9 +100,9 @@ class ImportGestionaires implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/ImportSuccess.svg',
             'action'=>env('APP_HOTS_URL')."imports/download/".str_replace('/','_',$filename),
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
     public function failed(Throwable $exception)
     {
@@ -95,8 +112,8 @@ class ImportGestionaires implements ShouldQueue
             'logo'=>'/media/svg/icons/Costum/WarningReqeust.svg',
             'action'=>'/manager',
         ]));
-        broadcast(new UserNotification([
-            'async'=>true
-        ],$this->user->user_channel));
+        // broadcast(new UserNotification([
+        //     'async'=>true
+        // ],$this->user->user_channel));
     }
 }
