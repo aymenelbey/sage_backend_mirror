@@ -14,7 +14,8 @@ class Departement extends Model
         "region_code",
         "departement_code",
         "name_departement",
-        "slug_departement"
+        "slug_departement",
+        "region_code"
     ];
     protected $dates = ['deleted_at'];
     public function __toString()
@@ -23,5 +24,9 @@ class Departement extends Model
     }
     public function sites(){
         return $this->hasMany(Site::class,"departement_siege","id_departement");
+    }
+
+    public function region(){
+        return $this->belongsTo(Region::class, "region_code", "region_code");
     }
 }

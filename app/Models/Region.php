@@ -10,17 +10,24 @@ class Region extends Model
 {
     use HasFactory,SoftDeletes;
     protected $primaryKey = "id_region";
+    
     protected $fillable = [
         "region_code",
         "name_region",
         "slug_region"
     ];
+
     protected $dates = ['deleted_at'];
-    public function __toString()
-    {
+
+    public function __toString(){
         return $this->name_region;
     }
+    
     public function sites(){
         return $this->hasMany(Site::class,"region_siege","id_region");
+    }
+
+    public function departements(){
+        return $this->hasMany(Departement::class,"region_code","region_code");
     }
 }

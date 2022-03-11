@@ -43,20 +43,30 @@ class ImportDepartments implements ShouldQueue
         $dataImport = Excel::toArray(new CollectionsImport, storage_path('app/'.$this->filepath))[0];
         $ignoredData=[];
         foreach($dataImport as $item){
-            if(isset($item['code_dep']) && $item['lib_dep']){
+            if(isset($item['code_dep']) && isset($item['region_code']) && isset($item['lib_dep']) && !empty($item['code_dep']) && !empty($item['region_code']) && !empty($item['lib_dep'])){
                 $code = strlen($item['code_dep']) == 1 ? '0'.$item['code_dep'] : $item['code_dep'];
-                
-                $depart = Departement::where('departement_code', $code)->first();
-                if($depart){
-                    $item['Problem trouvé'] = 'Departement existe dans la base de donnée';
-                    $ignoredData []=$item;
-                }else{
-                    Departement::create([
-                        "departement_code"=> $code,
-                        "name_departement"=>$item['lib_dep']
-                    ]);
-                }
+                $region_code = strlen($item['region_code']) == 1 ? '0'.$item['region_code'] : $item['region_code'];
+                Deparement::updateOrCreate([
+                    "departement_code" => $code,
+                ], [
+                    "region_code" => $region_code,
+                    "name_departement" => $item['lib_dep']
+                ]);
             }else{
+                $item['Problem trouvé'] = '';
+                
+                if(empty($item['code_dep'])){
+                    $item['Problem trouvé'] .= 'Code departement requis';
+                }
+
+                if(empty($item['lib_dep'])){
+                    $item['Problem trouvé'] .= ', Label departement requis';
+                }
+
+                if(empty($item['region_code'])){
+                    $item['Problem trouvé'] .= ', Code region requis';
+                }
+
                 $ignoredData []=$item;
             }
         }

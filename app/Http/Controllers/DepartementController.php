@@ -43,8 +43,8 @@ class DepartementController extends Controller
     }
     public function fetch_list(Request $request){
         $query=Departement::query()
-        ->orderBy("slug_departement","ASC");
-        $list=$query->paginate(15);
+        ->orderBy("departement_code","ASC");
+        $list=$query->paginate(120);
         return response([
             'message'=>'async',
             'list'=>$list
@@ -57,6 +57,7 @@ class DepartementController extends Controller
                 'departement_code' => $request->departement_code,
                 'name_departement' => $request->name_departement,
                 'slug_departement' => $request->slug_departement,
+                'region_code' => $request->region_code,
             ]
         );
         return response([
