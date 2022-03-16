@@ -11,6 +11,8 @@ use Validator;
 use App\Rules\Siren;
 use Carbon\Carbon;
 
+use Illuminate\Validation\Rule;
+
 class CommuneController extends Controller
 {
     /**
@@ -121,7 +123,7 @@ class CommuneController extends Controller
             "country"=>['required'],
             "postcode"=>['required'],
             "serin"=> ["required","numeric", new Siren],
-            "insee"=>["required","numeric","digits:5"],
+            "insee"=>["required","numeric","digits:5", 'unique:communes'],
             "nombreHabitant"=>["required","numeric"],
             'departement_siege'=>["required","exists:enemurations,id_enemuration"],
             'region_siege'=>["required","exists:enemurations,id_enemuration"],
@@ -157,7 +159,7 @@ class CommuneController extends Controller
             'departement_siege'=>["required","exists:enemurations,id_enemuration"],
             'region_siege'=>["required","exists:enemurations,id_enemuration"],
             "serin"=> ["required","numeric", new Siren],
-            "insee"=>["required","numeric","digits:5"]
+            "insee"=>["required","numeric","digits:5", Rule::unique('communes', 'insee')->ignore($request["id_commune"], 'id_commune')]
         ],[],[
             'serin'=>'Siren'
         ]);

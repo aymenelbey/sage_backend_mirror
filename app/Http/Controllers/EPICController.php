@@ -10,6 +10,8 @@ use App\Models\InfoClientHistory;
 use Illuminate\Http\Request;
 use App\Http\Helpers\SiteHelper;
 
+use Illuminate\Validation\Rule;
+
 use Validator;
 use App\Rules\Siren;
 use Carbon\Carbon;
@@ -202,7 +204,7 @@ class EPICController extends Controller
         $this->validate($request,[
             "nomEpic"=>["required","string"],
             'nom_court'=>["required"],
-            "sinoe"=>['required'],
+            "sinoe"=>['required', 'unique:epics'],
             "city"=>["required"],
             "country"=>['required'],
             "postcode"=>['required'],
@@ -267,7 +269,7 @@ class EPICController extends Controller
         $this->validate($request,[
             "id_epic"=>["required","exists:epics"],
             "nomEpic"=>["required","string"],
-            "sinoe"=>['required'],
+            "sinoe" => ['required', Rule::unique('epics', 'sinoe')->ignore($request["id_epic"], 'id_epic')],
             "serin"=> ["required","numeric", new Siren],
             'nom_court'=>["required"],
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],

@@ -7,7 +7,6 @@ class SiteHelper
 {
     protected static $RULES_CREATE=[
         "categorieSite"=>["required",'in:UVE,TRI,TMB,ISDND'],
-        "sinoe"=>["required"],
         "modeGestion"=>["required"],
         "denomination"=>["required"],
         "adresse"=>['required'],
@@ -37,7 +36,16 @@ class SiteHelper
                     break;
             }
         }
-        $validator = Validator::make($dataEntry,self::$RULES_CREATE);
+        $sinoe = [];
+        
+        if(isset($dataEntry['id_site'])){
+            $sinoe = ['sinoe' => ["required", "unique:sites,sinoe,".$dataEntry['id_site']]];
+        }else{
+            $sinoe = ['sinoe' => ["required", "unique:sites,sinoe"]];
+        }
+
+        $validator = Validator::make($dataEntry,array_merge(self::$RULES_CREATE, $sinoe));
+
         return $validator;
     }
     public static function extractTechData($techData,String $typeSite){

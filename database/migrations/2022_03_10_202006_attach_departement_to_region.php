@@ -14,7 +14,9 @@ class AttachDepartementToRegion extends Migration
     public function up()
     {
         Schema::table('departements', function (Blueprint $table) {
-            $table->string('region_code');
+            if (!Schema::hasColumn('departements', 'region_code')){
+                $table->string('region_code');
+            }
         });
     }
 
@@ -25,8 +27,10 @@ class AttachDepartementToRegion extends Migration
      */
     public function down()
     {
-        // Schema::table('region', function (Blueprint $table) {
-        //     //
-        // });
+        Schema::table('departements', function (Blueprint $table) {
+            if (Schema::hasColumn('departements', 'region_code')){
+                $table->dropColumn('region_code');
+            }
+        });
     }
 }

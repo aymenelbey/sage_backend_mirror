@@ -19,7 +19,8 @@ class Contact extends Model
         "mobile",
         "email",
         "informations",
-        'address'
+        'address',
+        'linkedin'
     ];
     protected $dates = ['deleted_at'];
     public function persons_moral(){

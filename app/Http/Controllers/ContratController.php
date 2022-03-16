@@ -17,7 +17,7 @@ class ContratController extends Controller
     public function index(Request $request){
         $query = Contrat::query();
         $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
-        $query=$query->with('contractant.groupe');
+        $query=$query->with(['contractant.groupe', 'site']);
         $contra = $query->orderBy("created_at","DESC")
         ->paginate($pageSize)
         ->toArray();
@@ -43,8 +43,8 @@ class ContratController extends Controller
      */
     public function create(Request $request){
         $this->validate($request,[
-            "dateDebut"=>["required"],
-            "dateFin"=>["required"],
+            "dateDebut"=>[],
+            "dateFin"=>[],
             "communes"=>['required',"array"],
             "site"=>["exists:sites,id_site"],
             "contractant"=>["exists:societe_exploitants,id_societe_exploitant"]
@@ -79,8 +79,8 @@ class ContratController extends Controller
     {
         $this->validate($request,[
             "id_contrat"=>["required","exists:contrats"],
-            "dateDebut"=>["required"],
-            "dateFin"=>["required"],
+            "dateDebut"=>[],
+            "dateFin"=>[],
             "communes"=>['required',"array"],
             "site"=>["exists:sites,id_site"],
             "contractant"=>["exists:societe_exploitants,id_societe_exploitant"]
