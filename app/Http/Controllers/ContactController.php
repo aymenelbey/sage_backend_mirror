@@ -105,10 +105,11 @@ class ContactController extends Controller
             "nom"=>["required"],
             "prenom"=>["required"],
             "address"=>["required"],
+            "linkedin"=>[],
             'telephone'=>['nullable','phone:FR'],
             "persons_moral"=>["required","array"],
         ]);
-        $contact = Contact::create($request->only(['status','genre','nom','prenom','telephone','mobile','email','informations','address']));
+        $contact = Contact::create($request->only(['status','genre','nom','prenom','telephone','mobile','email','informations','address', 'linkedin']));
         foreach($request['persons_moral'] as $presonMorl){
             if(in_array($presonMorl['type'],['Syndicat','Epic','Commune','Societe']) && !ContactHasPersonMoral::where('idPersonMoral', $presonMorl['id_person'])->where('typePersonMoral',$presonMorl['type'])->where('id_contact',$contact->id_contact)->exists()){
                 $contactCollect = ContactHasPersonMoral::create([
@@ -146,11 +147,12 @@ class ContactController extends Controller
             "genre"=>["required","in:MME,MR"],
             "nom"=>["required"],
             "prenom"=>["required"],
+            "linkedin" => [],
             "address"=>["required"],
             'telephone'=>['nullable','phone:FR'],
             "persons_moral"=>["required","array"]
         ]);
-        $cont=Contact::find($request["id_contact"])->update($request->only(["status","genre","nom","prenom","telephone","mobile","email","informations","address"]));
+        $cont=Contact::find($request["id_contact"])->update($request->only(["status","genre","nom","prenom","telephone","mobile","email","informations","address", "linkedin"]));
         $ignorekey=[];
         $persons=ContactHasPersonMoral::where('id_contact',$request["id_contact"])->get();
         $personSearch=array_column($request['persons_moral'],'id_person');
@@ -230,7 +232,7 @@ class ContactController extends Controller
                     'id_person'=>$person_moral->idPersonMoral,
                     "id_person_moral"=>$person_moral->id_contact_has_person_morals,
                     'fonction_person'=>$person_moral->fonction_person->append('function_string')
-                ]+$person_moral->person->only(['adresse',self::PERSONS_TYPE[strtolower($person_moral->typePersonMoral)]['dataIndex']]);
+                ]+$person_moral->person->only(['adresse','city',self::PERSONS_TYPE[strtolower($person_moral->typePersonMoral)]['dataIndex']]);
             });
             return response([
                 "ok"=>true,
@@ -258,7 +260,7 @@ class ContactController extends Controller
                 return self::PERSONS_TYPE[strtolower($person_moral->typePersonMoral)]+[
                     'id_person'=>$person_moral->idPersonMoral,
                     'fonction_person'=>$person_moral->fonction_person
-                ]+$person_moral->person->only(['adresse',self::PERSONS_TYPE[strtolower($person_moral->typePersonMoral)]['dataIndex']]);
+                ]+$person_moral->person->only(['adresse','city',self::PERSONS_TYPE[strtolower($person_moral->typePersonMoral)]['dataIndex']]);
             });
             return response([
                 "ok"=>true,
