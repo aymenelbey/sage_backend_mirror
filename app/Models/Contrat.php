@@ -19,7 +19,7 @@ class Contrat extends Model
     ];
     protected $dates = ['deleted_at'];
     public function site(){
-        return $this->hasOne(Site::class,"id_site","id_site");
+        return $this->hasOne(Site::class,"id_site","id_site")->withDefault();
     }
     public function contractant(){
         return $this->hasOne(SocieteExploitant::class,"id_societe_exploitant","contractant")

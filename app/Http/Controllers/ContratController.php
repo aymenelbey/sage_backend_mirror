@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contrat;
 use App\Models\CommunHasContrat;
+use App\Models\Enemuration;
 use Illuminate\Http\Request;
 use Validator;
 
@@ -17,19 +18,13 @@ class ContratController extends Controller
     public function index(Request $request){
         $query = Contrat::query();
         $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
-        $query=$query->with(['contractant.groupe', 'site']);
-        $contra = $query->orderBy("created_at","DESC")
-        ->paginate($pageSize)
-        ->toArray();
-        
+        $query = $query->with(['contractant', 'site']);
+        $contra = $query->orderBy("created_at","DESC")->paginate($pageSize)->toArray();
         foreach($contra['data'] as &$contract){
-            if(isset($contract['contractant']) && isset($contract['contractant']['groupe'])){
-                $contract['contractant']['groupe'] = $contract['contractant']['groupe']['value_enum'];
-            }else{
-                $contract['contractant'] = [ 'groupe' => []];
+            if(isset($contract['contractant'])){
+                $contract['contractant']['groupe'] = Enemuration::whereIn('id_enemuration', is_array($contract['contractant']['groupe']) ? $contract['contractant']['groupe'] : [$contract['contractant']['groupe']])->get();
             }
         }
-
         return response([
             "ok"=>"server",
             "data"=>$contra
