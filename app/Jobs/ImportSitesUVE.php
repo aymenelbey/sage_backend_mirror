@@ -14,6 +14,7 @@ use App\Models\Enemuration;
 use App\Events\UserNotification;
 use App\Notifications\DataImportsNotif;
 use App\Models\DataTechnTMB;
+use App\Models\DataTechnUVE;
 use App\Models\User;
 use App\Models\GestionnaireHasSite;
 use App\Models\SocieteExpSite;
@@ -125,6 +126,15 @@ class ImportSitesUVE implements ShouldQueue
                     "id_client"=>$societe->id_societe_exploitant,
                     "id_site"=>$site->id_site
                 ]);
+
+                $dataTech = DataTechnUVE::create([]);
+
+                DataTechn::create([
+                    "id_site" => $site->id_site,
+                    "typesite" => 'UVE',
+                    "id_data_tech" => $dataTech->id_data_uve
+                ]);
+
 
             }else{
                 $item['problème trouvé']='';
