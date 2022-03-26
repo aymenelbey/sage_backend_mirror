@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 
-class EPIC extends Model
+class EPIC extends TrackableModel
 {
     use HasFactory,SoftDeletes;
     protected $primaryKey = "id_epic";
@@ -32,7 +32,10 @@ class EPIC extends Model
         "country",
         "postcode",
         "id_collectivite",
-        "id_syndicat"
+        "id_syndicat",
+        'status',
+        'updated_by',
+        'status_updated_by'
     ];
 
     protected $dates = ['deleted_at'];
@@ -100,5 +103,11 @@ class EPIC extends Model
         $this->departement_siege=$dep?$dep->__toString():'';
         $this->region_siege=$reg?$reg->__toString():'';
         $this->nature_juridique=$nat?$nat->__toString():'';
+    }
+    public function updated_by(){
+        return $this->hasOne(Admin::class, 'id_admin', 'updated_by');
+    }
+    public function status_updated_by(){
+        return $this->hasOne(Admin::class,'id_admin', 'status_updated_by');
     }
 }
