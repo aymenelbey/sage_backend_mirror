@@ -27,9 +27,7 @@ class Commune extends TrackableModel
         "postcode",
         'id_epic',
         'id_collectivite',
-        'status',
         'updated_by',
-        'status_updated_by'
     ];
     protected $dates = ['deleted_at'];
     protected $appends = ['typePersonMoral','dataIndex','id_person','name'];
@@ -71,9 +69,5 @@ class Commune extends TrackableModel
 
     public function updated_by(){
         return $this->hasOne(Admin::class, 'id_admin', 'updated_by');
-    }
-    public function status_updated_by(){
-        return $this->hasOne(Admin::class,'id_admin', 'status_updated_by');
-    }
-    
+    }    
 }

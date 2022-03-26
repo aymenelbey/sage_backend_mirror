@@ -134,7 +134,7 @@ class ContratController extends Controller
     public function show(Request $request)
     {
         $idcontract=$request['idContract'];
-        $contract=Contrat::with('site')
+        $contract=Contrat::with('site', 'updated_by')
         ->with('contractant')
         ->with('communes')
         ->find($idcontract);

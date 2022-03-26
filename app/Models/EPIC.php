@@ -33,9 +33,7 @@ class EPIC extends TrackableModel
         "postcode",
         "id_collectivite",
         "id_syndicat",
-        'status',
-        'updated_by',
-        'status_updated_by'
+        'updated_by'
     ];
 
     protected $dates = ['deleted_at'];
@@ -106,8 +104,5 @@ class EPIC extends TrackableModel
     }
     public function updated_by(){
         return $this->hasOne(Admin::class, 'id_admin', 'updated_by');
-    }
-    public function status_updated_by(){
-        return $this->hasOne(Admin::class,'id_admin', 'status_updated_by');
     }
 }

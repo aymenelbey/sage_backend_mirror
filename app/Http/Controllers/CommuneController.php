@@ -76,7 +76,7 @@ class CommuneController extends Controller
     }
     public function show(Request $request){
         if(!empty($request['idcommune'])){
-            $commune=Commune::with(['epic','contacts','logo', 'updated_by', 'status_updated_by'])
+            $commune=Commune::with(['epic','contacts','logo', 'updated_by'])
             ->find($request['idcommune']);
             $commune->withEnums();
             $commune=$commune->toArray();
@@ -135,7 +135,7 @@ class CommuneController extends Controller
         $client = Collectivite::create([
             "typeCollectivite"=>"Commune"
         ]);
-        $commune = Commune::create($request->only(["nomCommune",'status',"adresse","logo","serin","insee","departement_siege","region_siege","lat","lang","nombreHabitant","id_epic","city","country","postcode"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
+        $commune = Commune::create($request->only(["nomCommune","adresse","logo","serin","insee","departement_siege","region_siege","lat","lang","nombreHabitant","id_epic","city","country","postcode"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
         return response([
             "ok"=>true,
             "data"=> $commune
@@ -181,7 +181,7 @@ class CommuneController extends Controller
         $moreItems=[
             'logo'=>isset($request['logo'])?$request['logo']:null
         ];
-        $commune->update($request->only(["nomCommune",'status', "adresse","serin","insee","departement_siege","region_siege","lat","lang","city","country","postcode","id_epic"])+$moreItems);
+        $commune->update($request->only(["nomCommune", "adresse","serin","insee","departement_siege","region_siege","lat","lang","city","country","postcode","id_epic"])+$moreItems);
         return response([
             "ok"=>true,
             "data"=>"Commune modifiée avec succée"
@@ -214,7 +214,7 @@ class CommuneController extends Controller
     public function edit(Request $request)
     {
         if(!empty($request['idcommune'])){
-            $commune=Commune::with(['epic','logo','departement_siege:id_departement,id_departement AS value,name_departement AS label','region_siege:id_region,id_region AS value,name_region AS label', 'updated_by', 'status_updated_by'])->find($request['idcommune']);
+            $commune=Commune::with(['epic','logo','departement_siege:id_departement,id_departement AS value,name_departement AS label','region_siege:id_region,id_region AS value,name_region AS label', 'updated_by'])->find($request['idcommune']);
             return response([
                 'ok'=>true,
                 'data'=>$commune

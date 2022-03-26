@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Contrat extends Model
+class Contrat extends TrackableModel
 {
     use HasFactory,SoftDeletes;
     protected $primaryKey = "id_contrat";
@@ -15,7 +15,8 @@ class Contrat extends Model
         'dateFin',
         "autreActivite",
         "id_site",
-        "contractant"
+        "contractant",
+        'updated_by',
     ];
     protected $dates = ['deleted_at'];
     public function site(){
@@ -27,5 +28,8 @@ class Contrat extends Model
     }
     public function communes(){
         return $this->hasMany(CommunHasContrat::class,'id_contrat','id_contrat');
+    }
+    public function updated_by(){
+        return $this->hasOne(Admin::class, 'id_admin', 'updated_by');
     }
 }
