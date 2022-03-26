@@ -3,6 +3,8 @@
 namespace App\Http\Helpers;
 use Validator;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
+
 class SiteHelper
 {
     protected static $RULES_CREATE=[
@@ -39,7 +41,7 @@ class SiteHelper
         $sinoe = [];
         
         if(isset($dataEntry['id_site'])){
-            $sinoe = ['sinoe' => ["required", "unique:sites,sinoe,".$dataEntry['id_site']]];
+            $sinoe = ['sinoe' => ["required", Rule::unique('sites', 'sinoe')->ignore($dataEntry["id_site"], 'id_site')]];
         }else{
             $sinoe = ['sinoe' => ["required", "unique:sites,sinoe"]];
         }
@@ -67,7 +69,7 @@ class SiteHelper
         return $techReturn;
     }
     public static function extractSiteData($siteinfo){
-        $infoUse=$siteinfo->only(["denomination","categorieSite","adresse","latitude","langititude","siteIntrnet","telephoneStandrad","anneeCreation","photoSite","modeGestion","perdiocitRelance","sinoe","departement_siege","region_siege"])->toArray();
+        $infoUse=$siteinfo->only(["denomination","categorieSite",'status',"adresse","latitude","langititude","siteIntrnet","telephoneStandrad","anneeCreation","photoSite","modeGestion","perdiocitRelance","sinoe","departement_siege","region_siege"])->toArray();
         return $infoUse;
     }
     public static function formatDateIfNotNull($date){

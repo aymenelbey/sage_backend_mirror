@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\DataTechn;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Site extends Model
-{
-    use HasFactory,SoftDeletes;
+class Site extends TrackableModel {
+    use HasFactory, SoftDeletes;
     protected $primaryKey = "id_site";
+
     protected $fillable = [
         "denomination",
         "categorieSite",
@@ -25,8 +25,12 @@ class Site extends Model
         "anneeCreation",
         "photoSite",
         "modeGestion",
-        "perdiocitRelance"
+        "perdiocitRelance",
+        'status',
+        'updated_by',
+        'status_updated_by'
     ];
+
     protected $dates = ['deleted_at'];
     public function dataTech(){
         return $this->hasOne(DataTechn::class,"id_site","id_site");
@@ -51,5 +55,11 @@ class Site extends Model
     }
     public function region_siege(){
         return $this->hasOne(Region::class,'id_region', 'region_siege');
+    }
+    public function updated_by(){
+        return $this->hasOne(Admin::class, 'id_admin', 'updated_by');
+    }
+    public function status_updated_by(){
+        return $this->hasOne(Admin::class,'id_admin', 'status_updated_by');
     }
 }
