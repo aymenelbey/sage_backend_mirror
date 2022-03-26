@@ -278,7 +278,7 @@ class SyndicatController extends Controller
                 'nombreHabitant'=>$request['nombreHabitant'],
                 'date_enter'=>Carbon::now()
             ];
-            InfoClientHistory::create([
+            InfoClientHistory::customCreate([
                 'id_reference'=>$syndicat->id_syndicat,
                 'referenced_table'=>"Syndicat",
                 'referenced_column'=>'nombreHabitant',

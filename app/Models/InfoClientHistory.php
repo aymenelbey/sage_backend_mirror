@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+
 
 class InfoClientHistory extends Model
 {
@@ -14,7 +16,14 @@ class InfoClientHistory extends Model
         'prev_value',
         'referenced_table',
         'referenced_column',
-        'date_reference'
+        'date_reference',
+        'updated_by'
     ];
     public $timestamps = false;
+    public function updated_by(){
+        return $this->hasOne(Admin::class, 'id_admin', 'updated_by');
+    }
+    public static function customCreate(array $attributes){
+        return parent::create(array_merge($attributes, ['updated_by' => Auth::user()->id]));
+    }
 }

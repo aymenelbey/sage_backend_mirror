@@ -64,7 +64,7 @@ class ImportCommunesMAJ implements ShouldQueue
                 continue;
             }
             
-            InfoClientHistory::create([
+            InfoClientHistory::customCreate([
                 'id_reference' => $dbCommune->id_commune,
                 'referenced_table' => "Commune",
                 'referenced_column' => 'nombreHabitant',

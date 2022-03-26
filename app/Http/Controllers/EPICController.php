@@ -287,7 +287,7 @@ class EPICController extends Controller
                 'nombreHabitant'=>$request['nombreHabitant'],
                 'date_enter'=>Carbon::now()
             ];
-            InfoClientHistory::create([
+            InfoClientHistory::customCreate([
                 'id_reference'=>$epic->id_epic,
                 'referenced_table'=>"Epic",
                 'referenced_column'=>'nombreHabitant',

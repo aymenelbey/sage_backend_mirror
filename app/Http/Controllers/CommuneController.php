@@ -170,7 +170,7 @@ class CommuneController extends Controller
                 'nombreHabitant'=>$request['nombreHabitant'],
                 'date_enter'=>Carbon::now()
             ];
-            InfoClientHistory::create([
+            InfoClientHistory::customCreate([
                 'id_reference'=>$commune->id_commune,
                 'referenced_table'=>"Commune",
                 'referenced_column'=>'nombreHabitant',

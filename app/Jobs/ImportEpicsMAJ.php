@@ -64,7 +64,7 @@ class ImportEpicsMAJ implements ShouldQueue
                 continue;
             }
             
-            InfoClientHistory::create([
+            InfoClientHistory::customCreate([
                 'id_reference' => $dbEpic->id_epic,
                 'referenced_table' => "Epic",
                 'referenced_column' => 'nombreHabitant',
