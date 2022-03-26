@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Syndicat extends Model
+class Syndicat extends TrackableModel
 {
     use HasFactory,SoftDeletes;
     protected $primaryKey = "id_syndicat";
@@ -32,7 +32,10 @@ class Syndicat extends Model
         "city",
         "country",
         "postcode",
-        "id_collectivite"
+        "id_collectivite",
+        'status',
+        'updated_by',
+        'status_updated_by'
     ];
     protected $dates = ['deleted_at'];
     protected $appends = ['typePersonMoral','dataIndex','id_person','name'];
@@ -105,5 +108,11 @@ class Syndicat extends Model
         $this->region_siege=$reg?$reg->__toString():'';
         $this->nature_juridique=$nat?$nat->__toString():'';
         $this->amobe=$amo?$amo->__toString():'';
+    }
+    public function updated_by(){
+        return $this->hasOne(Admin::class, 'id_admin', 'updated_by');
+    }
+    public function status_updated_by(){
+        return $this->hasOne(Admin::class,'id_admin', 'status_updated_by');
     }
 }

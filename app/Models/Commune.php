@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Commune extends Model
+class Commune extends TrackableModel
 {
     use HasFactory,SoftDeletes;
     protected $primaryKey = "id_commune";
@@ -27,6 +27,9 @@ class Commune extends Model
         "postcode",
         'id_epic',
         'id_collectivite',
+        'status',
+        'updated_by',
+        'status_updated_by'
     ];
     protected $dates = ['deleted_at'];
     protected $appends = ['typePersonMoral','dataIndex','id_person','name'];
@@ -64,6 +67,13 @@ class Commune extends Model
     }
     public function logo(){
         return $this->hasMany(ImageSage::class,"uid","logo");
+    }
+
+    public function updated_by(){
+        return $this->hasOne(Admin::class, 'id_admin', 'updated_by');
+    }
+    public function status_updated_by(){
+        return $this->hasOne(Admin::class,'id_admin', 'status_updated_by');
     }
     
 }
