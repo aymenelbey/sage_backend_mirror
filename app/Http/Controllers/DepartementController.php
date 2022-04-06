@@ -42,8 +42,7 @@ class DepartementController extends Controller
         ]);
     }
     public function fetch_list(Request $request){
-        $query=Departement::query()->with()
-        ->orderBy("departement_code","ASC");
+        $query=Departement::query()->with('region')->orderBy("departement_code","ASC");
         $list=$query->paginate(120);
         return response([
             'message'=>'async',
@@ -60,6 +59,7 @@ class DepartementController extends Controller
                 'region_code' => $request->region_code,
             ]
         );
+        $depart = Departement::with('region')->find($request->id_departement);
         return response([
             'ok'=>true,
             'departement'=>$depart
