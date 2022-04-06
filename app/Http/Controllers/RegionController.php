@@ -65,10 +65,17 @@ class RegionController extends Controller
         ]);
     }
     public function soft_delete(Request $request){
-        $depart = Region::find($request['idReg'])->delete();
-        return response([
-            'ok'=>'async',
-            'region'=>$request['idReg']
-        ]);
+        try{
+            $depart = Region::find($request['idReg'])->delete();
+            return response([
+                'ok'=>'async',
+                'region'=>$request['idReg']
+            ]);
+        }catch(\Exception $e){
+            return response([
+                "errors"=> true,
+                'message'=> 'Item already in use'
+            ]);
+        }
     }
 }

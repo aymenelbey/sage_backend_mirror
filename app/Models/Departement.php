@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+
+use App\Models\EPIC;
+use App\Models\Syndicat;
+use App\Models\Commune;
+use App\Models\Site;
+
 class Departement extends Model
 {
     use HasFactory,SoftDeletes;
@@ -28,5 +34,12 @@ class Departement extends Model
 
     public function region(){
         return $this->belongsTo(Region::class, "region_code", "region_code");
+    }
+
+    public function delete(){
+        if(EPIC::where('departement_siege', $this->id_departement)->exists() || Commune::where('departement_siege', $this->id_departement)->exists() || Syndicat::where('departement_siege', $this->id_departement)->exists() || Site::where('departement_siege', $this->id_departement)->exists()){
+            throw new \Exception('cantdelete');
+        }
+        return $this->delete(); 
     }
 }

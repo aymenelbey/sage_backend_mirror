@@ -66,10 +66,17 @@ class DepartementController extends Controller
         ]);
     }
     public function soft_delete(Request $request){
-        $depart = Departement::find($request['idDep'])->delete();
-        return response([
-            'ok'=>'async',
-            'departement'=>$request['idDep']
-        ]);
+        try{
+            $depart = Departement::find($request['idDep'])->delete();
+            return response([
+                'ok'=>'async',
+                'departement'=>$request['idDep']
+            ]);
+        }catch(\Exception $e){
+            return response([
+                "errors"=> true,
+                'message'=> 'Item already in use'
+            ]);
+        }
     }
 }
