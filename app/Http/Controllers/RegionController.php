@@ -43,8 +43,7 @@ class RegionController extends Controller
         ]);
     }
     public function fetch_list(Request $request){
-        $query=Region::query()
-        ->orderBy("region_code","ASC");
+        $query=Region::query()->with('departements')->orderBy("region_code","ASC");
         $list=$query->paginate(100);
         return response([
             'message'=>'async',

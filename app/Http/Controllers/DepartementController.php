@@ -42,7 +42,7 @@ class DepartementController extends Controller
         ]);
     }
     public function fetch_list(Request $request){
-        $query=Departement::query()
+        $query=Departement::query()->with()
         ->orderBy("departement_code","ASC");
         $list=$query->paginate(120);
         return response([
