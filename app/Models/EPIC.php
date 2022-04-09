@@ -105,4 +105,7 @@ class EPIC extends TrackableModel
     public function updated_by(){
         return $this->hasOne(Admin::class, 'id_admin', 'updated_by');
     }
+    public function effectif_history(){
+        return InfoClientHistory::with('updated_by')->where('referenced_table', 'Epic')->where('id_reference', $this->id_epic)->orderBy('date_reference', 'DESC');
+    }
 }

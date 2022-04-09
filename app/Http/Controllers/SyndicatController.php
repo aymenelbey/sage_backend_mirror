@@ -115,6 +115,10 @@ class SyndicatController extends Controller
             $idSyndicat=$request['idSyndicat'];
             $syndicat=Syndicat::with(['contacts.persons_moral', 'competance_exercee','competance_delegue','competance_recu','sites','logo','ged_rapport', 'epics', 'updated_by'])->find($idSyndicat);
             $syndicat->withEnums();
+            
+            $syndicat->effectif_history = $syndicat->effectif_history()->get();
+
+
             $syndicat->epics->map(function($epic){
                 $epic->withEnums();
             });
@@ -286,9 +290,9 @@ class SyndicatController extends Controller
                 'prev_value'=>$syndicat->nombreHabitant
             ]);
         }
-        $moreItems=[
-            'logo'=>isset($request['logo'])?$request['logo']:null
-        ];
+        
+        $moreItems['logo'] = isset($request['logo']) ? $request['logo']: null;
+
         $syndicat->update($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe","city","country","postcode"])+$moreItems);
         $competanceExercee=$syndicat->competance_exercee->toArray();
         $searchedComp=array_column($competanceExercee,'id_competance_dechet');

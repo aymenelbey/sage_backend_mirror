@@ -79,6 +79,9 @@ class CommuneController extends Controller
             $commune=Commune::with(['epic','contacts','logo', 'updated_by'])
             ->find($request['idcommune']);
             $commune->withEnums();
+            
+            $commune->effectif_history = $commune->effectif_history()->get();
+            
             $commune=$commune->toArray();
             if(!empty($commune["logo"][0])){
                 $commune["logo"]=$commune["logo"][0]["url"];
@@ -178,9 +181,7 @@ class CommuneController extends Controller
                 'prev_value'=>$commune->nombreHabitant
             ]);
         }
-        $moreItems=[
-            'logo'=>isset($request['logo'])?$request['logo']:null
-        ];
+        $moreItems['logo'] = isset($request['logo']) ? $request['logo']: null;
         $commune->update($request->only(["nomCommune", "adresse","serin","insee","departement_siege","region_siege","lat","lang","city","country","postcode","id_epic"])+$moreItems);
         return response([
             "ok"=>true,

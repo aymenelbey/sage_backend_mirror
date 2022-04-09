@@ -295,9 +295,8 @@ class EPICController extends Controller
                 'prev_value'=>$epic->nombreHabitant
             ]);
         }
-        $moreItems=[
-            'logo'=>isset($request['logo'])?$request['logo']:null
-        ];
+        $moreItems['logo'] = isset($request['logo']) ? $request['logo']: null;
+        
         $epic->update($request->only(["nomEpic", "nom_court","sinoe","serin","adresse","lat","lang","siteInternet","telephoneStandard","nature_juridique","departement_siege","region_siege","city","country","postcode"])+$moreItems);
         $competanceExercee=$epic->competance_exercee->toArray();
         $searchedComp=array_column($competanceExercee,'id_competance_dechet');
@@ -404,9 +403,10 @@ class EPICController extends Controller
     {
         if(!empty($request['idepic'])){
             $idEpic=$request['idepic'];
-            $epic=EPIC::with(['communes','syndicat','updated_by', 'contacts','logo','competance_exercee','competance_delegue','competance_recu', 'sites'])
-            ->find($idEpic);
+            $epic=EPIC::with(['communes','syndicat','updated_by', 'contacts','logo','competance_exercee','competance_delegue','competance_recu', 'sites'])->find($idEpic);
             $epic->withEnums();
+            $epic->effectif_history = $epic->effectif_history()->get();
+
             $epic=$epic->toArray();
             $tmpArray=array_merge($epic['competance_exercee'],$epic['competance_recu']);
             unset($epic['competance_recu']);unset($epic['competance_exercee']);

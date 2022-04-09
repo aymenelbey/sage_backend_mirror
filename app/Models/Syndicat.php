@@ -115,4 +115,7 @@ class Syndicat extends TrackableModel
     public function status_updated_by(){
         return $this->hasOne(Admin::class,'id_admin', 'status_updated_by');
     }
+    public function effectif_history(){
+        return InfoClientHistory::with('updated_by')->where('referenced_table', 'Syndicat')->where('id_reference', $this->id_syndicat)->orderBy('date_reference', 'DESC');
+    }
 }
