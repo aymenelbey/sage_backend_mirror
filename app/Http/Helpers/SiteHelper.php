@@ -54,7 +54,8 @@ class SiteHelper
         $techReturn=[];
         switch($typeSite){
             case "UVE":
-                $techReturn=$techData->only(["typeDechetRecus",'nombreFours',"capacite","nombreChaudiere","debitEau","miseEnService","typeFoursChaudiere","traitementFumee","installationComplementair","capaciteMaxAnu","videFour","voiTraiFemuee","traitementNOX","reseauChaleur","rsCommentaire","tonnageReglementaireAp","equipeProcessTF","reactif","performenceEnergetique","cycleVapeur","typeTerboalternateur","terboalternateur","venteProduction","constructeurInstallation"])->toArray();
+                // $techReturn=$techData->only(["typeDechetRecus",'nombreFours',"capacite","nombreChaudiere","debitEau","miseEnService","typeFoursChaudiere","traitementFumee","installationComplementair","capaciteMaxAnu","videFour","voiTraiFemuee","traitementNOX","reseauChaleur","rsCommentaire","tonnageReglementaireAp","equipeProcessTF","reactif","performenceEnergetique","cycleVapeur","typeTerboalternateur","terboalternateur","venteProduction","constructeurInstallation"])->toArray();
+                $techReturn=$techData->only(['infos', 'lines', 'valorisations'])->toArray();
                 break;
             case "TRI":
                 $techReturn=$techData->only(["capaciteHoraire","capaciteNominale","capaciteReglementaire","extension","dateExtension","miseEnService","dernierConstructeur"])->toArray();
