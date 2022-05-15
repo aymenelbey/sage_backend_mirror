@@ -18,7 +18,13 @@ class RegionController extends Controller
             ->skip(0)->take(10)
             ->select("id_region AS value","name_region AS label");
             if($with_count){
-                $query=$query->withCount('sites');
+                if($request->has("category") && !empty($request->get("category")) && $request->get("category") != 'all'){
+                    $query=$query->withCount(['sites' => function ($query) use ($request){
+                        return $query->where('sites.categorieSite', $request->get("category"));
+                    }]);
+                }else{
+                    $query=$query->withCount('sites');
+                }
             }
             $list=$query->get();
             return response([
@@ -29,7 +35,13 @@ class RegionController extends Controller
             $query=Region::query();
             $query=$query->select("id_region AS value","name_region AS label");
             if($with_count){
-                $query=$query->withCount('sites');
+                if($request->has("category") && !empty($request->get("category")) && $request->get("category") != 'all'){
+                    $query=$query->withCount(['sites' => function ($query) use ($request){
+                        return $query->where('sites.categorieSite', $request->get("category"));
+                    }]);
+                }else{
+                    $query=$query->withCount('sites');
+                }
             }
             $list=$query->get();
             return response([

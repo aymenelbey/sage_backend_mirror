@@ -121,7 +121,12 @@ class SyndicatController extends Controller
 
             $syndicat->epics->map(function($epic){
                 $epic->withEnums();
+
             });
+            $syndicat['files']=$syndicat->files()->get();
+            foreach($syndicat['files'] as $file){
+                $file->entity = $file->entity();
+            }
             $syndicat=$syndicat->toArray();
             $tmpArray=array_merge($syndicat['competance_exercee'],$syndicat['competance_recu']);
             unset($syndicat['competance_recu']);unset($syndicat['competance_exercee']);

@@ -118,4 +118,7 @@ class Syndicat extends TrackableModel
     public function effectif_history(){
         return InfoClientHistory::with('updated_by')->where('referenced_table', 'Syndicat')->where('id_reference', $this->id_syndicat)->orderBy('date_reference', 'DESC');
     }
+    public function files(){
+        return GEDFile::with('category')->where('type', 'syndicats')->where('entity_id', $this->id_syndicat);
+    }
 }

@@ -19,6 +19,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Validator;
 use DB;
+use Illuminate\Support\Facades\Storage;
+
 
 class UserSitesController extends Controller{
 
@@ -80,7 +82,8 @@ class UserSitesController extends Controller{
         ->where("share_sites.id_user_premieum",$idUserPrem)
         ->where("share_sites.is_blocked",false)
         ->where("share_sites.start","<=",$dataCompare)
-        ->where("share_sites.end",">=",$dataCompare);
+        ->where("share_sites.end",">=",$dataCompare)
+        ->whereNull("share_sites.deleted_at");
         if($search){
             $fields=$request['fields'];
             if(is_array($fields)){
@@ -153,6 +156,7 @@ class UserSitesController extends Controller{
         ->where("end",">=",Carbon::now()->format('Y-m-d'))
         ->where("start","<=",Carbon::now()->format('Y-m-d'))
         ->where("id_share_site",$idShare)
+        ->whereNull("deleted_at")
         ->first();
         $client=[];
         $company=[];
@@ -171,6 +175,20 @@ class UserSitesController extends Controller{
                 $site=Site::where("id_site",$detail->id_data_share)
                 ->with(['client.client','exploitant.client'])
                 ->first($clmnSite);
+
+                if($detail['files'] && !empty($detail['files'])){
+                    
+                    $file_categories = array_filter($detail['files'], function($key, $value) use ($detail){
+                        return $detail['files'][$value];
+                    }, ARRAY_FILTER_USE_BOTH);
+                    
+                    $files = $site->files(array_keys($file_categories))->get();
+                }else{
+                    $files = [];
+                }
+                foreach($files as $file){
+                    $file->name = asset(Storage::url("GED/".$file->name));
+                }
             }else{
                 $clmnSite=array_intersect(array_keys($detail->columns['generalInfo']),self::BASE_SITE);
                 $clmnClient=array_intersect(array_keys($detail->columns['Client']),array_keys(self::DATA_CLIENT));
@@ -178,15 +196,30 @@ class UserSitesController extends Controller{
                 if(!in_array("categorieSite",$clmnSite)){
                     $clmnSite[]="categorieSite";    
                 }
+
                 $clmnSite[]="id_site";
-                $site=Site::where("id_site",$idSite)
-                ->with(['client.client','exploitant.client']);
+
+                $site= Site::where("id_site",$idSite)->with(['client.client','exploitant.client']);
+                
                 if($detail->type_data_share=="Departement"){
                     $site=$site->where("departement_siege",$detail->id_data_share);
                 }else{
                     $site=$site->where("region_siege",$detail->id_data_share);
                 }
                 $site=$site->first($clmnSite);
+
+                
+                    
+                $file_categories = array_filter($detail['files'], function($key, $value) use ($detail){
+                    return $detail['files'][$value];
+                }, ARRAY_FILTER_USE_BOTH);
+                
+
+                $files = $site->files(array_keys($file_categories))->get();
+
+                foreach($files as $file){
+                    $file->name = asset(Storage::url("GED/".$file->name));
+                }
             }
             if($site){
                 if($detail->type_data_share=="Site"){
@@ -220,7 +253,9 @@ class UserSitesController extends Controller{
                         "infoTech"=>$techData,
                         'client'=>$client,
                         'company'=>$company,
-                        "photos"=>$photos
+                        "photos"=>$photos,
+                        "files" => $files,
+                        "categories" => $file_categories,
                     ]
                 ],200);
             }

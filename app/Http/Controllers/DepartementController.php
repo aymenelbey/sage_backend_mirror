@@ -17,7 +17,13 @@ class DepartementController extends Controller
             ->orWhere("slug_departement","ILIKE","%{$search}%")
             ->select("id_departement AS value","name_departement AS label");
             if($with_count){
-                $query=$query->withCount('sites');
+                if($request->has("category") && !empty($request->get("category")) && $request->get("category") != 'all'){
+                    $query=$query->withCount(['sites' => function ($query) use ($request){
+                        return $query->where('sites.categorieSite', $request->get("category"));
+                    }]);
+                }else{
+                    $query=$query->withCount('sites');
+                }
             }
             $list=$query->get();
             return response([
@@ -28,7 +34,13 @@ class DepartementController extends Controller
             $query=Departement::query();
             $query=$query->select("id_departement AS value","name_departement AS label");
             if($with_count){
-                $query=$query->withCount('sites');
+                if($request->has("category") && !empty($request->get("category")) && $request->get("category") != 'all'){
+                    $query=$query->withCount(['sites' => function ($query) use ($request){
+                        return $query->where('sites.categorieSite', $request->get("category"));
+                    }]);
+                }else{
+                    $query=$query->withCount('sites');
+                }
             }
             $list=$query->get();
             return response([

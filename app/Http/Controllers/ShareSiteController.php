@@ -46,6 +46,7 @@ class ShareSiteController extends Controller
                             "start"=>Carbon::createFromFormat('d/m/Y', $request->dateDebut)->format('Y-m-d'),
                             "end"=>Carbon::createFromFormat('d/m/Y', $request->dateFin)->format('Y-m-d'),
                             "columns"=> SiteHelper::prepareCols($dataShare['typeShare'], $dataShare['columns'], true),
+                            "files" => $dataShare['files'],
                             "id_user_premieum"=>$user,
                             "id_data_share"=>$dataShare['dataShare'],
                             "type_data_share"=>$dataShare['typeShare'],
@@ -140,6 +141,9 @@ class ShareSiteController extends Controller
         $share->end=Carbon::createFromFormat('d/m/Y', $request->end)->format('Y-m-d');
         if(isset($request["columns"]) && is_array($request["columns"])){
             $share->columns= SiteHelper::prepareCols($share->type_data_share, $request['columns'], true);
+        }
+        if(isset($request["files"]) && is_array($request["files"])){
+            $share->files = $request['files'];
         }
         $share->save();
         $share->columns = SiteHelper::explodeCols($share->type_data_share, $share->columns);

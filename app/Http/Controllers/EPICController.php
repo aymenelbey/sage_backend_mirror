@@ -406,7 +406,12 @@ class EPICController extends Controller
             $epic=EPIC::with(['communes','syndicat','updated_by', 'contacts','logo','competance_exercee','competance_delegue','competance_recu', 'sites'])->find($idEpic);
             $epic->withEnums();
             $epic->effectif_history = $epic->effectif_history()->get();
-
+            
+            $epic['files'] = $epic->files()->get();
+            foreach($epic['files'] as $file){
+                $file->entity = $file->entity(); 
+            }
+            
             $epic=$epic->toArray();
             $tmpArray=array_merge($epic['competance_exercee'],$epic['competance_recu']);
             unset($epic['competance_recu']);unset($epic['competance_exercee']);

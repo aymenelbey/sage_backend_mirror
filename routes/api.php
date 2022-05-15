@@ -181,6 +181,17 @@ Route::middleware('auth:api')->group(function () {
             Route::get("edit/{idContract}",[App\Http\Controllers\ContratController::class,"edit"]);
             Route::patch("update",[App\Http\Controllers\ContratController::class,"update"]);
         });
+        Route::prefix("ged/")->group(function(){
+            
+            Route::post("create",[App\Http\Controllers\GEDController::class,"create"]);
+            Route::get("all",[App\Http\Controllers\GEDController::class,"show"]);
+            Route::get("show/{file_id}",[App\Http\Controllers\GEDController::class,"getGEDFile"]);
+
+            Route::delete("delete",[App\Http\Controllers\GEDController::class,"destroy"]);
+            Route::get("show/{idContract}",[App\Http\Controllers\GEDController::class,"show"]);
+            Route::get("edit/{idContract}",[App\Http\Controllers\GEDController::class,"edit"]);
+            Route::patch("update",[App\Http\Controllers\GEDController::class,"update"]);
+        });
         Route::prefix("contacts/")->group(function(){
             Route::post("create",[App\Http\Controllers\ContactController::class,"create"]);
             Route::get("all",[App\Http\Controllers\ContactController::class,"index"]);

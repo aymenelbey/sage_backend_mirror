@@ -16,11 +16,15 @@ class ShareSite extends Model
         "start",
         "end",
         "columns",
+        "files",
         "id_user_premieum",
         "id_data_share",
         "type_data_share",
         "id_admin",
         "is_blocked"
+    ];
+    protected $casts = [
+        'files' => 'json'
     ];
     protected $dates = ["deleted_at"];
     public function site(){

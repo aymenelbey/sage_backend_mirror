@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\DataTechn;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
+
 
 class Site extends TrackableModel {
     use HasFactory, SoftDeletes;
@@ -61,5 +63,14 @@ class Site extends TrackableModel {
     }
     public function status_updated_by(){
         return $this->hasOne(Admin::class,'id_admin', 'status_updated_by');
+    }
+    public function files($category = null){
+        if($category && !empty($category)){
+            return GEDFile::with(['category'])->whereHas('category', function ($query) use ($category){
+                return $query->whereIn('code', array_values($category));
+            })->where('type', 'sites')->where('entity_id', $this->id_site);
+
+        }
+        return GEDFile::with('category')->where('type', 'sites')->where('entity_id', $this->id_site);
     }
 }

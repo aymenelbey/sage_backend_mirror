@@ -81,7 +81,10 @@ class CommuneController extends Controller
             $commune->withEnums();
             
             $commune->effectif_history = $commune->effectif_history()->get();
-            
+            $commune['files'] = $commune->files()->get();
+            foreach($commune['files'] as $file){
+                $file->entity = $file->entity(); 
+            }
             $commune=$commune->toArray();
             if(!empty($commune["logo"][0])){
                 $commune["logo"]=$commune["logo"][0]["url"];
