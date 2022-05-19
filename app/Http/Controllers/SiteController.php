@@ -48,6 +48,9 @@ class SiteController extends Controller
         $search=$request->get('search');
         $typeJoin=$request->get('typeFilter');
         $categorieSite=$request->get('categorieSite');
+        
+        $status = $request->get('status');
+        
         $modeGestion=$request->get('modeGestion');
         $address=$request->get('adresse');$address=$address?$address:$search;
         $denomination=$request->get('denomination');$denomination=$denomination?$denomination:$search;
@@ -65,6 +68,11 @@ class SiteController extends Controller
             $siteQuery=$siteQuery->{$function}("categorieSite","=","{$categorieSite}");
             $function=$typeJoin=="inter"?"where":"orWhere";
         }
+
+        if(!empty($status)){
+            $siteQuery = $siteQuery->whereIn("status", $status);
+        }
+
         if(!empty($modeGestion)){
             $siteQuery=$siteQuery->{$function}("modeGestion","=","{$modeGestion}");
             $function=$typeJoin=="inter"?"where":"orWhere";

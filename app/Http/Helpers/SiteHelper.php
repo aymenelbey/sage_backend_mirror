@@ -77,6 +77,7 @@ class SiteHelper
         return isset($date) && !empty($date) ? Carbon::createFromFormat('d/m/Y', $date)->format('Y-m-d') : NULL;
     }
     public static function prepareCols($type, $cols, $imploded = false){
+        return $cols;
         $result = [];
         if($type == 'Site'){
             foreach($cols as $key => $value){

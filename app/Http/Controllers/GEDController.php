@@ -14,9 +14,12 @@ class GEDController extends Controller
             $per_page = $request->input('per_page');
         }
         $files = GEDFile::with(['category'])->paginate($per_page);
+        
         foreach($files as $file){
             $file->entity = $file->entity();
+            $file->path = $file->getPath();
         }
+
         return response([
             "ok"=>"server",
             "data"=> $files
@@ -28,7 +31,7 @@ class GEDController extends Controller
         // ]);
         if($file_id){
             $file = GEDFile::with(['category'])->find($file_id);
-
+            
             if(!$file) {
                 return response([
                     "ok"=> false,
@@ -37,6 +40,7 @@ class GEDController extends Controller
             }
 
             $file->entity = $file->entity();
+            $file->path = $file->getPath();
             
             return response([
                 "ok"=> true,
@@ -80,7 +84,7 @@ class GEDController extends Controller
 
     public function create(Request $request){
         $this->validate($request, [
-            'file' => 'required|mimes:pdf',
+            'file' => 'required|mimes:pdf,jpeg,jpg,png',
             'entities' => 'required',
             'fileCategory' => 'required'
         ]);

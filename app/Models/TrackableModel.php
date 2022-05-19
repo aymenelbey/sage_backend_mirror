@@ -33,4 +33,8 @@ class TrackableModel extends Model
 
         return false;
     }
+
+    public function status_updated_by(){
+        return $this->hasOne(Admin::class,'id_admin', 'status_updated_by');
+    }
 }

@@ -33,7 +33,9 @@ class EPIC extends TrackableModel
         "postcode",
         "id_collectivite",
         "id_syndicat",
-        'updated_by'
+        'updated_by',
+        'status',
+        'status_updated_by'
     ];
 
     protected $dates = ['deleted_at'];

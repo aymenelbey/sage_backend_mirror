@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class GEDFile extends Model
 {
@@ -63,5 +64,8 @@ class GEDFile extends Model
     }
     public function category(){
         return $this->hasOne(Enemuration::class, 'id_enemuration', 'category');
+    }
+    public function getPath(){
+        return asset(Storage::url("GED/".$this->name));
     }
 }

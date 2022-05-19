@@ -174,7 +174,7 @@ class UserSitesController extends Controller{
                 $clmnCompany=array_intersect(array_keys($detail->columns),array_keys(self::DATA_COMPANY));
                 $site=Site::where("id_site",$detail->id_data_share)
                 ->with(['client.client','exploitant.client'])
-                ->first($clmnSite);
+                ->first();
 
                 if($detail['files'] && !empty($detail['files'])){
                     
@@ -227,33 +227,40 @@ class UserSitesController extends Controller{
                 }else{
                     $clmnTech=array_intersect(array_keys($detail->columns[$site->categorieSite]),constant("self::DATA_TECH_".$site->categorieSite));
                 }
-                $dataTech=DataTechn::where("id_site",$site->id_site)
-                ->first();
+
+                $dataTech=DataTechn::where("id_site",$site->id_site)->first();
+
                 $techClassName='App\Models\DataTechn'.$site->categorieSite;
-                $techData=$techClassName::find($dataTech->id_data_tech,$clmnTech);
+                
+                $techData= $techClassName::find($dataTech->id_data_tech);
+
                 $photos=array_column($site->photos->toArray(),"url");
+
                 $tmpClient=$site->client->client->toArray();
-                foreach($clmnClient as $clmn){
-                    if(isset($tmpClient[self::DATA_CLIENT[$clmn]])){
-                        $client[$clmn]=$tmpClient[self::DATA_CLIENT[$clmn]];
-                    }
-                }
+
+                // foreach($clmnClient as $clmn){
+                //     if(isset($tmpClient[self::DATA_CLIENT[$clmn]])){
+                //         $client[$clmn]=$tmpClient[self::DATA_CLIENT[$clmn]];
+                //     }
+                // }
                 $tmpCompany=$site->exploitant->client->toArray();
-                foreach($clmnCompany as $clmn){
-                    if(isset($tmpCompany[self::DATA_COMPANY[$clmn]])){
-                        $company[$clmn]=$tmpCompany[self::DATA_COMPANY[$clmn]];
-                    }
-                }
+                // foreach($clmnCompany as $clmn){
+                //     if(isset($tmpCompany[self::DATA_COMPANY[$clmn]])){
+                //         $company[$clmn]=$tmpCompany[self::DATA_COMPANY[$clmn]];
+                //     }
+                // }
                 $site=$site->toArray();
                 unset($site["photos"]);unset($site["id_site"]);unset($site["exploitant"]);unset($site["client"]);
                 return response([
                     'ok'=>true,
                     'data'=>[
+                        'share' => $detail,
+
                         "infoBase"=>$site,
-                        "infoTech"=>$techData,
-                        'client'=>$client,
-                        'company'=>$company,
-                        "photos"=>$photos,
+                        "infoTech" => $techData,
+                        'client'=>$tmpClient,
+                        'company'=>$tmpCompany,
+                        "photos"=> $photos,
                         "files" => $files,
                         "categories" => $file_categories,
                     ]

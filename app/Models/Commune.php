@@ -28,6 +28,8 @@ class Commune extends TrackableModel
         'id_epic',
         'id_collectivite',
         'updated_by',
+        'status',
+        'status_updated_by'
     ];
     protected $dates = ['deleted_at'];
     protected $appends = ['typePersonMoral','dataIndex','id_person','name'];

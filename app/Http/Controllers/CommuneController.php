@@ -76,7 +76,7 @@ class CommuneController extends Controller
     }
     public function show(Request $request){
         if(!empty($request['idcommune'])){
-            $commune=Commune::with(['epic','contacts','logo', 'updated_by'])
+            $commune=Commune::with(['epic','contacts','logo', 'updated_by', 'status_updated_by'])
             ->find($request['idcommune']);
             $commune->withEnums();
             
@@ -107,7 +107,8 @@ class CommuneController extends Controller
     public function updateEpic(Request $request){
         $this->validate($request,[
             "id_epic"=>["required","exists:e_p_i_c_s"],
-            "id_commune"=>["required","exists:communes"]
+            "id_commune"=>["required","exists:communes"],
+            "status" => ['required']
         ]);
         $commune = Commune::where("id_commune","=",$request["id_commune"])->update(["id_epic"=>$request["id_epic"]]);
         if($commune){
@@ -133,7 +134,8 @@ class CommuneController extends Controller
             "nombreHabitant"=>["required","numeric"],
             'departement_siege'=>["required","exists:enemurations,id_enemuration"],
             'region_siege'=>["required","exists:enemurations,id_enemuration"],
-            "id_epic"=>["required","exists:epics,id_epic"]
+            "id_epic"=>["required","exists:epics,id_epic"],
+            "status" => ['required']
         ],[],[
             'serin'=>'Siren',
             'id_epic'=>"EPCI de rattachement"
@@ -141,7 +143,7 @@ class CommuneController extends Controller
         $client = Collectivite::create([
             "typeCollectivite"=>"Commune"
         ]);
-        $commune = Commune::create($request->only(["nomCommune","adresse","logo","serin","insee","departement_siege","region_siege","lat","lang","nombreHabitant","id_epic","city","country","postcode"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
+        $commune = Commune::create($request->only(["nomCommune","adresse","logo","serin","insee","departement_siege","region_siege","lat","lang","nombreHabitant","id_epic","city","country","postcode", "status"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
         return response([
             "ok"=>true,
             "data"=> $commune
@@ -185,7 +187,7 @@ class CommuneController extends Controller
             ]);
         }
         $moreItems['logo'] = isset($request['logo']) ? $request['logo']: null;
-        $commune->update($request->only(["nomCommune", "adresse","serin","insee","departement_siege","region_siege","lat","lang","city","country","postcode","id_epic"])+$moreItems);
+        $commune->update($request->only(["nomCommune", "adresse","serin","insee","departement_siege","region_siege","lat","lang","city","country","postcode","id_epic", "status"])+$moreItems);
         return response([
             "ok"=>true,
             "data"=>"Commune modifiée avec succée"
