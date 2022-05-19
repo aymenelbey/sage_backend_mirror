@@ -164,14 +164,14 @@ class UserSitesController extends Controller{
             $clmnSite=[]; 
             $clmnTech=[];
             if($detail->type_data_share=="Site"){
-                $clmnSite=array_intersect(array_keys($detail->columns),self::BASE_SITE);
-                if(!in_array("categorieSite",$clmnSite)){
-                    $clmnSite[]="categorieSite";    
-                }
-                $clmnSite[]="id_site";
+                // $clmnSite=array_intersect(array_keys($detail->columns),self::BASE_SITE);
+                // if(!in_array("categorieSite",$clmnSite)){
+                //     $clmnSite[]="categorieSite";    
+                // }
+                // $clmnSite[]="id_site";
                 
-                $clmnClient=array_intersect(array_keys($detail->columns),array_keys(self::DATA_CLIENT));
-                $clmnCompany=array_intersect(array_keys($detail->columns),array_keys(self::DATA_COMPANY));
+                // $clmnClient=array_intersect(array_keys($detail->columns),array_keys(self::DATA_CLIENT));
+                // $clmnCompany=array_intersect(array_keys($detail->columns),array_keys(self::DATA_COMPANY));
                 $site=Site::where("id_site",$detail->id_data_share)
                 ->with(['client.client','exploitant.client'])
                 ->first();
@@ -190,14 +190,14 @@ class UserSitesController extends Controller{
                     $file->name = asset(Storage::url("GED/".$file->name));
                 }
             }else{
-                $clmnSite=array_intersect(array_keys($detail->columns['generalInfo']),self::BASE_SITE);
-                $clmnClient=array_intersect(array_keys($detail->columns['Client']),array_keys(self::DATA_CLIENT));
-                $clmnCompany=array_intersect(array_keys($detail->columns['Company']),array_keys(self::DATA_COMPANY));
-                if(!in_array("categorieSite",$clmnSite)){
-                    $clmnSite[]="categorieSite";    
-                }
+                // $clmnSite=array_intersect(array_keys($detail->columns['generalInfo']),self::BASE_SITE);
+                // $clmnClient=array_intersect(array_keys($detail->columns['Client']),array_keys(self::DATA_CLIENT));
+                // $clmnCompany=array_intersect(array_keys($detail->columns['Company']),array_keys(self::DATA_COMPANY));
+                // if(!in_array("categorieSite",$clmnSite)){
+                //     $clmnSite[]="categorieSite";    
+                // }
 
-                $clmnSite[]="id_site";
+                // $clmnSite[]="id_site";
 
                 $site= Site::where("id_site",$idSite)->with(['client.client','exploitant.client']);
                 
@@ -206,7 +206,7 @@ class UserSitesController extends Controller{
                 }else{
                     $site=$site->where("region_siege",$detail->id_data_share);
                 }
-                $site=$site->first($clmnSite);
+                $site=$site->first();
 
                 
                     
@@ -222,11 +222,11 @@ class UserSitesController extends Controller{
                 }
             }
             if($site){
-                if($detail->type_data_share=="Site"){
-                    $clmnTech=array_intersect(array_keys($detail->columns),constant("self::DATA_TECH_".$site->categorieSite));
-                }else{
-                    $clmnTech=array_intersect(array_keys($detail->columns[$site->categorieSite]),constant("self::DATA_TECH_".$site->categorieSite));
-                }
+                // if($detail->type_data_share=="Site"){
+                //     $clmnTech=array_intersect(array_keys($detail->columns),constant("self::DATA_TECH_".$site->categorieSite));
+                // }else{
+                //     $clmnTech=array_intersect(array_keys($detail->columns[$site->categorieSite]),constant("self::DATA_TECH_".$site->categorieSite));
+                // }
 
                 $dataTech=DataTechn::where("id_site",$site->id_site)->first();
 
