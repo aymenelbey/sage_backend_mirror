@@ -19,4 +19,4 @@ RUN composer install
 COPY ./supervisor.conf /etc/supervisor/conf.d/
 FROM base as development
 ENV NODE_ENV=development
-CMD service supervisor start && php artisan migrate && php artisan serve --host=0.0.0.0
+CMD service supervisor start && php artisan migrate && rm -rf ./public/storage; php artisan storage:link ; php artisan serve --host=0.0.0.0
