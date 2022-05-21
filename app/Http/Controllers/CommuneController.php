@@ -84,6 +84,7 @@ class CommuneController extends Controller
             $commune['files'] = $commune->files()->get();
             foreach($commune['files'] as $file){
                 $file->entity = $file->entity(); 
+                $file->path = $file->getPath();
             }
             $commune=$commune->toArray();
             if(!empty($commune["logo"][0])){

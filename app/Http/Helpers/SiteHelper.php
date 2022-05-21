@@ -102,6 +102,7 @@ class SiteHelper
         return $result;
     }
     public static function explodeCols($type, $cols){
+        return $cols;
         $columns = [];
         if($type == "Site"){
             foreach(explode("|", $cols) as $col){

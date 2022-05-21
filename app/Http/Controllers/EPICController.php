@@ -412,6 +412,7 @@ class EPICController extends Controller
             $epic['files'] = $epic->files()->get();
             foreach($epic['files'] as $file){
                 $file->entity = $file->entity(); 
+                $file->path = $file->getPath();
             }
             
             $epic=$epic->toArray();

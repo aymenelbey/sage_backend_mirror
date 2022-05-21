@@ -81,6 +81,7 @@
             "arretDate"
         ],
         "valorisations": [
+            "valorisationTypes",
             "valorisationType",
             "name",
             "miseEnService",

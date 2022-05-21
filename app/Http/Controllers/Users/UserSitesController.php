@@ -164,14 +164,7 @@ class UserSitesController extends Controller{
             $clmnSite=[]; 
             $clmnTech=[];
             if($detail->type_data_share=="Site"){
-                // $clmnSite=array_intersect(array_keys($detail->columns),self::BASE_SITE);
-                // if(!in_array("categorieSite",$clmnSite)){
-                //     $clmnSite[]="categorieSite";    
-                // }
-                // $clmnSite[]="id_site";
-                
-                // $clmnClient=array_intersect(array_keys($detail->columns),array_keys(self::DATA_CLIENT));
-                // $clmnCompany=array_intersect(array_keys($detail->columns),array_keys(self::DATA_COMPANY));
+   
                 $site=Site::where("id_site",$detail->id_data_share)
                 ->with(['client.client','exploitant.client'])
                 ->first();
@@ -190,14 +183,6 @@ class UserSitesController extends Controller{
                     $file->name = asset(Storage::url("GED/".$file->name));
                 }
             }else{
-                // $clmnSite=array_intersect(array_keys($detail->columns['generalInfo']),self::BASE_SITE);
-                // $clmnClient=array_intersect(array_keys($detail->columns['Client']),array_keys(self::DATA_CLIENT));
-                // $clmnCompany=array_intersect(array_keys($detail->columns['Company']),array_keys(self::DATA_COMPANY));
-                // if(!in_array("categorieSite",$clmnSite)){
-                //     $clmnSite[]="categorieSite";    
-                // }
-
-                // $clmnSite[]="id_site";
 
                 $site= Site::where("id_site",$idSite)->with(['client.client','exploitant.client']);
                 
@@ -222,44 +207,98 @@ class UserSitesController extends Controller{
                 }
             }
             if($site){
-                // if($detail->type_data_share=="Site"){
-                //     $clmnTech=array_intersect(array_keys($detail->columns),constant("self::DATA_TECH_".$site->categorieSite));
-                // }else{
-                //     $clmnTech=array_intersect(array_keys($detail->columns[$site->categorieSite]),constant("self::DATA_TECH_".$site->categorieSite));
-                // }
 
-                $dataTech=DataTechn::where("id_site",$site->id_site)->first();
+                $dataTech = DataTechn::where("id_site",$site->id_site)->first();
 
                 $techClassName='App\Models\DataTechn'.$site->categorieSite;
                 
-                $techData= $techClassName::find($dataTech->id_data_tech);
+                $newTechData = [];
 
-                $photos=array_column($site->photos->toArray(),"url");
+                $techData = $techClassName::find($dataTech->id_data_tech)->toArray();
+                if(isset($detail['columns'][$site->categorieSite])){
+                    
+                    if(in_array($site->categorieSite, ["TRI","TMB","ISDND"])){
+                        
+                        foreach($techData  as $key => $value){
+                            if(isset($detail['columns'][$site->categorieSite][$key]) && $detail['columns'][$site->categorieSite][$key]){
+                                $newTechData[$key] = $value;
+                            }
+                        }
 
+                    }else if($site->categorieSite == 'UVE'){
+                        $newTechData = ['infos' => [], 'lines' => [], 'valorisations' => ['blocks' => []]];
+                        foreach($techData['infos']  as $key => $value){
+                            if(isset($detail['columns'][$site->categorieSite]['infos'][$key]) && $detail['columns'][$site->categorieSite]['infos'][$key]){
+                                $newTechData['infos'][$key] = $value;
+                            }
+                        }
+                        foreach($techData['lines'] as $index => $line){
+                            $newTechData['lines'][$index] = [];
+                            foreach($line as $key => $value){
+                                if(isset($detail['columns'][$site->categorieSite]['lines'][$key]) && $detail['columns'][$site->categorieSite]['lines'][$key]){
+                                    $newTechData['lines'][$index][$key] = $value;
+                                }
+                            }
+                        }
+                        foreach($techData['valorisations']  as $key => $value){
+                            if(isset($detail['columns'][$site->categorieSite]['valorisations'][$key]) && $detail['columns'][$site->categorieSite]['valorisations'][$key]){
+                                $newTechData['valorisations'][$key] = $value;
+                            }
+                        }
+
+                        foreach($techData['valorisations']['blocks']  as $index => $block){
+                            $newTechData['valorisations']['blocks'][$index] = [];
+                            foreach($block as $key => $value){
+                                if(isset($detail['columns'][$site->categorieSite]['valorisations'][$key]) && $detail['columns'][$site->categorieSite]['valorisations'][$key]){
+                                    $newTechData['valorisations']['blocks'][$index][$key] = $value;
+                                }
+                            }
+                        }
+
+                    }else{
+                        $newTechData = $techData;
+                    }
+
+                }else{
+                    $newTechData = $techData;
+                }
+
+                $photos = array_column($site->photos->toArray(),"url");
+
+                $client = [];
                 $tmpClient=$site->client->client->toArray();
+                foreach($tmpClient  as $key => $value){
+                    if(isset($detail['columns']['Client']["client_$key"]) && $detail['columns']['Client']["client_$key"]){
+                        $client[$key] = $value;
+                    }
+                }
 
-                // foreach($clmnClient as $clmn){
-                //     if(isset($tmpClient[self::DATA_CLIENT[$clmn]])){
-                //         $client[$clmn]=$tmpClient[self::DATA_CLIENT[$clmn]];
-                //     }
-                // }
-                $tmpCompany=$site->exploitant->client->toArray();
-                // foreach($clmnCompany as $clmn){
-                //     if(isset($tmpCompany[self::DATA_COMPANY[$clmn]])){
-                //         $company[$clmn]=$tmpCompany[self::DATA_COMPANY[$clmn]];
-                //     }
-                // }
+                $company = [];
+                $tmpCompany = $site->exploitant->client->toArray();
+
+                foreach($tmpCompany as $key => $value){
+                    if(isset($detail['columns']['Company']["company_$key"]) && $detail['columns']['Company']["company_$key"]){
+                        $company[$key] = $value;
+                    }
+                }
+
+                $finalSite = [];
                 $site=$site->toArray();
                 unset($site["photos"]);unset($site["id_site"]);unset($site["exploitant"]);unset($site["client"]);
+                foreach($site as $key => $value){
+                    if(isset($detail['columns']['generalInfo'][$key]) && $detail['columns']['generalInfo'][$key]){
+                        $finalSite[$key] = $value;
+                    }
+                }
                 return response([
                     'ok'=>true,
                     'data'=>[
                         'share' => $detail,
-
-                        "infoBase"=>$site,
-                        "infoTech" => $techData,
-                        'client'=>$tmpClient,
-                        'company'=>$tmpCompany,
+                        "infoBase" => $finalSite,
+                        "infoTech" => $newTechData,
+                        'originalInfoTech' => $dataTech,
+                        'client'=> $client,
+                        'company'=> $company,
                         "photos"=> $photos,
                         "files" => $files,
                         "categories" => $file_categories,

@@ -123,6 +123,7 @@ class SiteController extends Controller
         $siteReturn['files'] = $site->files()->get();
         foreach($siteReturn['files'] as $file){
             $file->entity = $file->entity();
+            $file->path = $file->getPath();
         }
         $siteReturn['departement_siege']=!empty($siteReturn['departement_siege']['name_departement'])?$siteReturn['departement_siege']['name_departement']:'';
         $siteReturn['region_siege']=!empty($siteReturn['region_siege']['name_region'])?$siteReturn['region_siege']['name_region']:'';
