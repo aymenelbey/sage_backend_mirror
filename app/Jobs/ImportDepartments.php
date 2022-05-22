@@ -46,7 +46,7 @@ class ImportDepartments implements ShouldQueue
             if(isset($item['code_dep']) && isset($item['region_code']) && isset($item['lib_dep']) && !empty($item['code_dep']) && !empty($item['region_code']) && !empty($item['lib_dep'])){
                 $code = strlen($item['code_dep']) == 1 ? '0'.$item['code_dep'] : $item['code_dep'];
                 $region_code = strlen($item['region_code']) == 1 ? '0'.$item['region_code'] : $item['region_code'];
-                Deparement::updateOrCreate([
+                Departement::updateOrCreate([
                     "departement_code" => $code,
                 ], [
                     "region_code" => $region_code,
