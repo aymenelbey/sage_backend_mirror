@@ -120,7 +120,7 @@ class SiteController extends Controller
         $siteReturn['photos']=$site->photos->map(function($photo){
             return $photo->__toString();
         });
-        $siteReturn['files'] = $site->files()->get();
+        $siteReturn['files'] = $site->files(null)->get();
         foreach($siteReturn['files'] as $file){
             $file->entity = $file->entity();
             $file->path = $file->getPath();

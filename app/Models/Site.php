@@ -65,12 +65,32 @@ class Site extends TrackableModel {
         return $this->hasOne(Admin::class,'id_admin', 'status_updated_by');
     }
     public function files($category = null){
-        if($category && !empty($category)){
-            return GEDFile::with(['category'])->whereHas('category', function ($query) use ($category){
-                return $query->whereIn('code', array_values($category));
-            })->where('type', 'sites')->where('entity_id', $this->id_site);
+        $mapping = ['Syndicat' => 'syndicats', 'Epic' => 'epics', 'Commune' => 'communes', 'Societe' => 'societies'];
+        $ids_mapping = ['Syndicat' => 'id_syndicat', 'Epic' => 'id_epic', 'Commune' => 'id_commune', 'Societe' => 'id_societe_exploitant'];
+        $query = (new GEDFile())->newQuery();
+        $query = $query->with(['category']);
 
+        $exploitant = $this->exploitant()->first();
+        $client = $this->client()->first();
+
+
+        if($category && !empty($category)){
+            $query = $query->whereHas('category', function ($query) use ($category){
+                return $query->whereIn('code', array_values($category));
+            });
         }
-        return GEDFile::with('category')->where('type', 'sites')->where('entity_id', $this->id_site);
+
+        $query = $query->where([
+                ['type', '=','sites'],
+                ['entity_id', '=',$this->id_site]
+        ])->orWhere([
+            ['type', '=', $mapping[$exploitant->typeExploitant] ],
+            ['entity_id', '=', $exploitant->id_client ]
+        ])->orWhere([
+            ['type', '=', $mapping[$client->typeCollectivite]],
+            ['entity_id', '=', $client->client[$ids_mapping[$client->typeCollectivite]] ]
+        ]);
+
+        return $query;
     }
 }
