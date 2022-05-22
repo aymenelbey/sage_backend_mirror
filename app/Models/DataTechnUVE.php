@@ -43,6 +43,13 @@ class DataTechnUVE extends Model
     ];
 
         
+    protected static function booted(){
+        static::retrieved(function ($model) {
+            $model->infos = $model->infos ? $model->infos : json_decode('{}', 1); 
+            $model->lines = $model->lines ? $model->lines : []; 
+            $model->valorisations = $model->valorisations ? $model->valorisations : json_decode('{"blocks": []}', 1); 
+        });
+    }
     protected $casts = [
         'infos' => 'json',
         'lines'  => 'json', 
@@ -63,6 +70,100 @@ class DataTechnUVE extends Model
     }
     public function withEnums(){
         
+        $infos = ['infos' => [], 'lines' => [], 'valorisations' => $this->valorisations];
+        $infos['valorisations']['blocks'] = [];
+
+        if(isset($this->infos['typeDechetRecus'])){
+            $infos['infos']['typeDechetRecus'] = array_map(function($enum){
+                return $enum['value_enum'];
+            }, Enemuration::whereIn('id_enemuration', $this->infos['typeDechetRecus'])->get()->toArray());
+        }
+
+        foreach($this->lines as $line){
+            
+            if(isset($line['constructeurChaudiere'])){
+                $line['constructeurChaudiere'] = Enemuration::where('id_enemuration', $line['constructeurChaudiere'])->first()->value_enum;
+            }
+
+            if(isset($line['constructeurInstallation'])){
+                $line['constructeurInstallation'] = Enemuration::where('id_enemuration', $line['constructeurInstallation'])->first()->value_enum;
+            }
+
+            if(isset($line['equipeProcessTF'])){
+                $line['equipeProcessTF'] = array_map(function($enum){
+                    return $enum['value_enum'];
+                }, Enemuration::whereIn('id_enemuration', $line['equipeProcessTF'])->get()->toArray());
+            }
+            
+            if(isset($line['installationComplementair'])){
+                $line['installationComplementair'] = array_map(function($enum){
+                    return $enum['value_enum'];
+                }, Enemuration::whereIn('id_enemuration', $line['installationComplementair'])->get()->toArray());
+            }
+            
+            if(isset($line['reactif'])){
+                $line['reactif'] = array_map(function($enum){
+                    return $enum['value_enum'];
+                }, Enemuration::whereIn('id_enemuration', $line['reactif'])->get()->toArray());
+            }
+
+            if(isset($line['traitementFumee'])){
+                $line['traitementFumee'] = array_map(function($enum){
+                    return $enum['value_enum'];
+                }, Enemuration::whereIn('id_enemuration', $line['traitementFumee'])->get()->toArray());
+            }
+
+            if(isset($line['traitementNOX'])){
+                $line['traitementNOX'] = array_map(function($enum){
+                    return $enum['value_enum'];
+                }, Enemuration::whereIn('id_enemuration', $line['traitementNOX'])->get()->toArray());
+            }
+            $infos['lines'][] = $line;
+        }
+
+        foreach($this->valorisations['blocks'] as $block){
+            
+            if(isset($block['marqueEquipement'])){
+
+                if(is_array($block['marqueEquipement'])){
+                    $block['marqueEquipement'] = array_map(function($enum){
+                        return $enum['value_enum'];
+                    }, Enemuration::whereIn('id_enemuration', $block['marqueEquipement'])->get()->toArray());
+                }else{
+                    $block['marqueEquipement'] = Enemuration::where('id_enemuration', $block['marqueEquipement'])->first()->value_enum;
+                }
+
+            }
+            
+            if(isset($block['typeEquipement'])){
+                if(is_array($block['typeEquipement'])){
+                    $block['typeEquipement'] = array_map(function($enum){
+                        return $enum['value_enum'];
+                    }, Enemuration::whereIn('id_enemuration', $block['typeEquipement'])->get()->toArray());
+                }else{
+                    $block['typeEquipement'] = Enemuration::where('id_enemuration', $block['typeEquipement'])->first()->value_enum;
+                }
+            }
+            
+            if(isset($block['RCUIndustirel'])){
+                if(is_array($block['RCUIndustirel'])){
+                    $block['RCUIndustirel'] = array_map(function($enum){
+                        return $enum['value_enum'];
+                    }, Enemuration::whereIn('id_enemuration', $block['RCUIndustirel'])->get()->toArray());
+                }else{
+                    $block['RCUIndustirel'] = Enemuration::where('id_enemuration', $block['RCUIndustirel'])->first()->value_enum;
+                }
+            }
+            
+            if(isset($block['client'])){
+                $block['client'] = array_map(function($enum){
+                    return $enum['value_enum'];
+                }, Enemuration::whereIn('id_enemuration', $block['client'])->get()->toArray());
+            }
+
+            $infos['valorisations']['blocks'][] = $block;
+        }
+        return $infos;
         // $typeDech=$this->hasOne(Enemuration::class,'id_enemuration', 'typeDechetRecus')->first();
         // $trait=$this->hasOne(Enemuration::class, 'id_enemuration', 'traitementFumee')->first();
         // $install=$this->hasOne(Enemuration::class,'id_enemuration', 'installationComplementair')->first();

@@ -214,7 +214,11 @@ class UserSitesController extends Controller{
                 
                 $newTechData = [];
 
-                $techData = $techClassName::find($dataTech->id_data_tech)->toArray();
+                $techData = $techClassName::find($dataTech->id_data_tech);
+                
+                // $techData  = $techData->toArray();
+                $techData = $techData->withEnums();
+
                 if(isset($detail['columns'][$site->categorieSite])){
                     
                     if(in_array($site->categorieSite, ["TRI","TMB","ISDND"])){
