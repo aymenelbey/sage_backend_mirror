@@ -65,7 +65,7 @@ class Site extends TrackableModel {
         return $this->hasOne(Admin::class,'id_admin', 'status_updated_by');
     }
     public function files($category = null){
-        $mapping = ['Syndicat' => 'syndicats', 'Epic' => 'epics', 'Commune' => 'communes', 'Societe' => 'societies'];
+        $mapping = ['Syndicat' => 'syndicats', 'Epic' => 'epics','EPIC' => 'epics', 'Commune' => 'communes', 'Societe' => 'societies'];
         $ids_mapping = ['Syndicat' => 'id_syndicat', 'Epic' => 'id_epic', 'Commune' => 'id_commune', 'Societe' => 'id_societe_exploitant'];
         $query = (new GEDFile())->newQuery();
         $query = $query->with(['category']);
