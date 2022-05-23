@@ -66,7 +66,7 @@ class Site extends TrackableModel {
     }
     public function files($category = null){
         $mapping = ['Syndicat' => 'syndicats', 'Epic' => 'epics','EPIC' => 'epics', 'Commune' => 'communes', 'Societe' => 'societies'];
-        $ids_mapping = ['Syndicat' => 'id_syndicat', 'Epic' => 'id_epic', 'Commune' => 'id_commune', 'Societe' => 'id_societe_exploitant'];
+        $ids_mapping = ['Syndicat' => 'id_syndicat', 'Epic' => 'id_epic', 'EPIC' => 'id_epic' ,'Commune' => 'id_commune', 'Societe' => 'id_societe_exploitant'];
         $query = (new GEDFile())->newQuery();
         $query = $query->with(['category']);
 
