@@ -130,7 +130,8 @@ class DataTechnUVE extends Model
                         return $enum['value_enum'];
                     }, Enemuration::whereIn('id_enemuration', $block['marqueEquipement'])->get()->toArray());
                 }else{
-                    $block['marqueEquipement'] = Enemuration::where('id_enemuration', $block['marqueEquipement'])->first()->value_enum;
+                    $block['marqueEquipement'] = Enemuration::where('id_enemuration', $block['marqueEquipement'])->first();
+                    if($block['marqueEquipement']) $block['marqueEquipement'] = $block['marqueEquipement']->value_enum;
                 }
 
             }
@@ -141,7 +142,8 @@ class DataTechnUVE extends Model
                         return $enum['value_enum'];
                     }, Enemuration::whereIn('id_enemuration', $block['typeEquipement'])->get()->toArray());
                 }else{
-                    $block['typeEquipement'] = Enemuration::where('id_enemuration', $block['typeEquipement'])->first()->value_enum;
+                    $block['typeEquipement'] = Enemuration::where('id_enemuration', $block['typeEquipement'])->first();
+                    if($block['typeEquipement']) $block['typeEquipement'] = $block['typeEquipement']->value_enum;
                 }
             }
             
@@ -151,7 +153,8 @@ class DataTechnUVE extends Model
                         return $enum['value_enum'];
                     }, Enemuration::whereIn('id_enemuration', $block['RCUIndustirel'])->get()->toArray());
                 }else{
-                    $block['RCUIndustirel'] = Enemuration::where('id_enemuration', $block['RCUIndustirel'])->first()->value_enum;
+                    $block['RCUIndustirel'] = Enemuration::where('id_enemuration', $block['RCUIndustirel'])->first();
+                    if($block['RCUIndustirel']) $block['RCUIndustirel'] = $block['RCUIndustirel']->value_enum;
                 }
             }
             
