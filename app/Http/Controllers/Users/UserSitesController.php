@@ -217,7 +217,7 @@ class UserSitesController extends Controller{
                 $techData = $techClassName::find($dataTech->id_data_tech);
                 
                 // $techData  = $techData->toArray();
-                $techData = $techData->withEnums();
+                
 
                 if(isset($detail['columns'][$site->categorieSite])){
                     
@@ -230,6 +230,7 @@ class UserSitesController extends Controller{
                         }
 
                     }else if($site->categorieSite == 'UVE'){
+                        $techData = $techData->withEnums();
                         $newTechData = ['infos' => [], 'lines' => [], 'valorisations' => ['blocks' => []]];
                         foreach($techData['infos']  as $key => $value){
                             if(isset($detail['columns'][$site->categorieSite]['infos'][$key]) && $detail['columns'][$site->categorieSite]['infos'][$key]){
@@ -260,11 +261,11 @@ class UserSitesController extends Controller{
                         }
 
                     }else{
-                        $newTechData = $techData;
+                        $newTechData = $techData->toArray();
                     }
 
                 }else{
-                    $newTechData = $techData;
+                    $newTechData = $techData->toArray();
                 }
 
                 $photos = array_column($site->photos->toArray(),"url");
