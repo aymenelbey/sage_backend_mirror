@@ -158,7 +158,11 @@ class ContratController extends Controller
         ->with("communes")
         ->find($idcontract)
         ->toArray();
-        $contract['contractant']['groupe']=$contract['contractant']['groupe']['value_enum'];
+        if(isset($contract['contractant']['groupe']['value_enum'])){
+            $contract['contractant']['groupe']=$contract['contractant']['groupe']['value_enum'];
+        }else{
+            $contract['contractant']['groupe']= '';
+        }
         return response([
             'ok'=>true,
             'data'=>$contract
