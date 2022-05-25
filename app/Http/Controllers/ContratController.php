@@ -153,18 +153,10 @@ class ContratController extends Controller
     public function edit(Request $request)
     {
         $idcontract=$request['idContract'];
-        $contract=Contrat::with("contractant.groupe")
-        ->with("site")
-        ->with("communes")
-        ->find($idcontract)
-        ->toArray();
-        foreach($contract['contractant']['groupe'] as $groupe){
-            if(isset($groupe['value_enum'])){
-                $groupe = $groupe['value_enum'];
-            }else{
-                $groupe = '';
-            }
-        }
+        $contract=Contrat::with("contractant")->with("site")->with("communes")->find($idcontract);
+        $contract->contractant->withEnums();
+        $contract = $contract->toArray();
+
         return response([
             'ok'=>true,
             'data'=>$contract
