@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contrat;
+use App\Models\SocieteExploitant;
 use App\Models\CommunHasContrat;
 use App\Models\Enemuration;
 use Illuminate\Http\Request;
@@ -22,7 +23,8 @@ class ContratController extends Controller
         $contra = $query->orderBy("created_at","DESC")->paginate($pageSize)->toArray();
         foreach($contra['data'] as &$contract){
             if(isset($contract['contractant'])){
-                $contract['contractant']['groupe'] = Enemuration::whereIn('id_enemuration', is_array($contract['contractant']['groupe']) ? $contract['contractant']['groupe'] : [$contract['contractant']['groupe']])->get();
+                    $contract['contractant']['groupe'] = SocieteExploitant::getGroupeStatic($contract['contractant']['groupe']); 
+                    // $contract['contractant']['groupe'] = Enemuration::whereIn('id_enemuration', is_array($contract['contractant']['groupe']) ? $contract['contractant']['groupe'] : [$contract['contractant']['groupe']])->get();
             }
         }
         return response([
@@ -137,7 +139,13 @@ class ContratController extends Controller
         $contract=Contrat::with('site', 'updated_by')
         ->with('contractant')
         ->with('communes')
-        ->find($idcontract);
+        ->find($idcontract)->toArray();
+
+        if(isset($contract['contractant']) && isset($contract['contractant']['groupe'])){
+            $contract['contractant']['groupe'] = SocieteExploitant::getGroupeStatic($contract['contractant']['groupe']); 
+        }
+    
+
         return response([
             'ok'=>true,
             'data'=>$contract
@@ -153,10 +161,12 @@ class ContratController extends Controller
     public function edit(Request $request)
     {
         $idcontract=$request['idContract'];
-        $contract=Contrat::with("contractant")->with("site")->with("communes")->find($idcontract);
-        $contract->contractant->withEnums();
-        $contract = $contract->toArray();
-
+        $contract = Contrat::with("contractant")->with("site")->with("communes")->find($idcontract)->toArray();
+        
+        if(isset($contract['contractant']) && isset($contract['contractant']['groupe'])){
+            $contract['contractant']['groupe'] = SocieteExploitant::getGroupeStatic($contract['contractant']['groupe']); 
+        }
+    
         return response([
             'ok'=>true,
             'data'=>$contract
