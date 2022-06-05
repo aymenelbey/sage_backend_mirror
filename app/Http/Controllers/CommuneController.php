@@ -131,6 +131,7 @@ class CommuneController extends Controller
             "country"=>['required'],
             "postcode"=>['required'],
             "serin"=> ["required","numeric", new Siren],
+            "siret"=> ["required","numeric", new Siren],
             "insee"=>["required","numeric","digits:5", 'unique:communes'],
             "nombreHabitant"=>["required","numeric"],
             'departement_siege'=>["required","exists:enemurations,id_enemuration"],
@@ -144,7 +145,7 @@ class CommuneController extends Controller
         $client = Collectivite::create([
             "typeCollectivite"=>"Commune"
         ]);
-        $commune = Commune::create($request->only(["nomCommune","adresse","logo","serin","insee","departement_siege","region_siege","lat","lang","nombreHabitant","id_epic","city","country","postcode", "status"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
+        $commune = Commune::create($request->only(["nomCommune","adresse","logo","serin", "siret", "insee","departement_siege","region_siege","lat","lang","nombreHabitant","id_epic","city","country","postcode", "status"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
         return response([
             "ok"=>true,
             "data"=> $commune
@@ -168,6 +169,7 @@ class CommuneController extends Controller
             'departement_siege'=>["required","exists:enemurations,id_enemuration"],
             'region_siege'=>["required","exists:enemurations,id_enemuration"],
             "serin"=> ["required","numeric", new Siren],
+            "siret"=> ["required","numeric", new Siren],
             "insee"=>["required","numeric","digits:5", Rule::unique('communes', 'insee')->ignore($request["id_commune"], 'id_commune')]
         ],[],[
             'serin'=>'Siren'
@@ -188,7 +190,7 @@ class CommuneController extends Controller
             ]);
         }
         $moreItems['logo'] = isset($request['logo']) ? $request['logo']: null;
-        $commune->update($request->only(["nomCommune", "adresse","serin","insee","departement_siege","region_siege","lat","lang","city","country","postcode","id_epic", "status"])+$moreItems);
+        $commune->update($request->only(["nomCommune", "adresse","serin","siret","insee","departement_siege","region_siege","lat","lang","city","country","postcode","id_epic", "status"])+$moreItems);
         return response([
             "ok"=>true,
             "data"=>"Commune modifiée avec succée"

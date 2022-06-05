@@ -14,6 +14,7 @@ class Syndicat extends TrackableModel
         "nomCourt",
         "denominationLegale",
         "serin",
+        "siret",
         "adresse",
         'lat',
         'lang',

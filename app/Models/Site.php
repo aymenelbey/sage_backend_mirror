@@ -80,16 +80,18 @@ class Site extends TrackableModel {
             });
         }
 
-        $query = $query->where([
-                ['type', '=','sites'],
-                ['entity_id', '=',$this->id_site]
-        ])->orWhere([
-            ['type', '=', $mapping[$exploitant->typeExploitant] ],
-            ['entity_id', '=', $exploitant->id_client ]
-        ])->orWhere([
-            ['type', '=', $mapping[$client->typeCollectivite]],
-            ['entity_id', '=', $client->client[$ids_mapping[$client->typeCollectivite]] ]
-        ]);
+        $query = $query->where(function($query) use ($mapping, $ids_mapping, $exploitant, $client) {
+            return $query->where([
+                    ['type', '=','sites'],
+                    ['entity_id', '=',$this->id_site]
+                ])->orWhere([
+                    ['type', '=', $mapping[$exploitant->typeExploitant] ],
+                    ['entity_id', '=', $exploitant->id_client ]
+                ])->orWhere([
+                    ['type', '=', $mapping[$client->typeCollectivite]],
+                    ['entity_id', '=', $client->client[$ids_mapping[$client->typeCollectivite]] ]
+                ]);
+        });
 
         return $query;
     }

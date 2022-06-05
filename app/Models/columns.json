@@ -6,8 +6,7 @@
         "adresse",
         "siteIntrnet",
         "telephoneStandrad",
-        "anneeCreation",
-        "perdiocitRelance"
+        "anneeCreation"
     ],
     "Client": [
         "client_nomEpic",
@@ -18,7 +17,6 @@
         "client_nature_juridique",
         "client_nomCourt",
         "client_denominationLegale",
-        "client_sinoe",
         "client_amobe",
         "client_nomCommune",
         "client_insee",
@@ -34,7 +32,6 @@
         "company_groupe",
         "company_denomination",
         "company_serin",
-        "company_sinoe",
         "company_nature_juridique",
         "company_codeape",
         "company_siteInternet",

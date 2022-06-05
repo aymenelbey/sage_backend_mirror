@@ -15,6 +15,7 @@ class EPIC extends TrackableModel
     protected $fillable = [
         "nomEpic",
         "serin",
+        "siret",
         "adresse",
         'lat',
         'lang',

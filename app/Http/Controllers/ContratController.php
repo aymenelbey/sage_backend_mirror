@@ -19,7 +19,7 @@ class ContratController extends Controller
     public function index(Request $request){
         $query = Contrat::query();
         $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
-        $query = $query->with(['contractant', 'site']);
+        $query = $query->with(['contractant', 'site', 'communes']);
         $contra = $query->orderBy("created_at","DESC")->paginate($pageSize)->toArray();
         foreach($contra['data'] as &$contract){
             if(isset($contract['contractant'])){
@@ -45,6 +45,9 @@ class ContratController extends Controller
             "communes"=>['required',"array"],
             "site"=>["exists:sites,id_site"],
             "contractant"=>["exists:societe_exploitants,id_societe_exploitant"]
+        ],
+        [
+            "communes.required" => "Le champ Acteur public est obligatoire."
         ]);
         $contrat =  Contrat::create([
             "dateDebut"=>$request["dateDebut"],
@@ -81,6 +84,9 @@ class ContratController extends Controller
             "communes"=>['required',"array"],
             "site"=>["exists:sites,id_site"],
             "contractant"=>["exists:societe_exploitants,id_societe_exploitant"]
+        ],
+        [
+            "communes.required" => "Le champ Acteur public est obligatoire."
         ]);
         $contrat = Contrat::find($request["id_contrat"]);
         $contrat->update([

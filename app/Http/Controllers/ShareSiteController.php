@@ -67,34 +67,70 @@ class ShareSiteController extends Controller
         * @param  \Illuminate\Http\Request  $request
         * @return \Illuminate\Http\Response
     */
-    public function handle_share(Request $request){
-        $share=ShareSite::find($request['idShare']);
-        if($share){
-            ShareSite::where('id_share_site',$request['idShare'])->update([
-                'is_blocked'=>!$share->is_blocked
-            ]);
-            $share->is_blocked=!$share->is_blocked;
-            switch($share->type_data_share){
-                case "Site":
-                    $share->site;
-                    break;
-                case "Departement":
-                    $share->departement;
-                    break;
-                case "Region":
-                    $share->region;
-                    break;
-            }
-            $share->start=Carbon::parse($share->start)->format('d/m/Y');
-            $share->end=Carbon::parse($share->end)->format('d/m/Y');
-            return response([
-                "ok"=>true,
-                "data"=>$share
-            ],200);
+    public function hnadle_update_share($request){
+
+        $sites = ShareSite::where([['id_user_premieum', $request['id_user_premieum']], ['type_data_share', $request['type_data_share']]]);
+
+
+        switch($request['action']){
+            case 'pause-all':
+            case 'unpause-all':
+                $sites->update(['is_blocked' => $request['action'] == 'pause-all' ? true : false]);
+                return response([
+                    "message"=> $request['action'] == 'pause-all' ? "All paused" : 'All unpaused'
+                ], 200);
+            case 'update-dates':
+                $sites->update(["start" => Carbon::createFromFormat('d/m/Y', $request['start_date'])->format('Y-m-d'), "end" => Carbon::createFromFormat('d/m/Y', $request['end_date'])->format('Y-m-d')]);
+                return response([
+                    "message"=> "Shares updated"
+                ], 200);
+                break;
         }
+
         return response([
-            "message"=>"Failed to get site"
+            "message"=> "sites updated",
+            "ok" => true
         ],400);
+
+    }
+    public function handle_share(Request $request){
+        switch($request['action']){
+            case 'update-status-one':
+                $share = ShareSite::find($request['idShareSite']);        
+                if($share){
+                    ShareSite::where('id_share_site',$request['idShareSite'])->update([
+                        'is_blocked'=>!$share->is_blocked
+                    ]);
+                    $share->is_blocked=!$share->is_blocked;
+                    switch($share->type_data_share){
+                        case "Site":
+                            $share->site;
+                            break;
+                        case "Departement":
+                            $share->departement;
+                            break;
+                        case "Region":
+                            $share->region;
+                            break;
+                    }
+                    $share->start=Carbon::parse($share->start)->format('d/m/Y');
+                    $share->end=Carbon::parse($share->end)->format('d/m/Y');
+                    return response([
+                        "ok"=>true,
+                        "data"=>$share
+                    ],200);
+                }
+                return response([
+                    "message"=>"Failed to get site"
+                ],400);
+                break;
+            case 'pause-all':
+            case 'unpause-all':
+            case 'update-dates':
+                return $this->hnadle_update_share($request);
+            default:
+                break;
+        }
     }
 
     /**
@@ -105,7 +141,15 @@ class ShareSiteController extends Controller
      */
     public function destroy(Request $request)
     {
-        if(isset($request['shares']) && is_array($request['shares'])){
+        if(isset($request['id_user_premieum']) && !empty($request['id_user_premieum']) && isset($request['type_data_share']) && !empty($request['type_data_share'])){
+            
+            ShareSite::where('id_user_premieum', $request['id_user_premieum'])->where('type_data_share', $request['type_data_share'])->delete();
+            return response([
+                'ok' => true,
+                'data' => "Deleted"
+            ]);
+
+        }else if(isset($request['shares']) && is_array($request['shares'])){
             $deletedLis=[];
             foreach($request['shares'] as $share){
                 $shr=ShareSite::find($share);
@@ -123,6 +167,12 @@ class ShareSiteController extends Controller
             'ok'=>true,
             'data'=>"no action"
         ]);
+    }
+    public function extend_site_dates($request){
+
+        $share->start=Carbon::createFromFormat('d/m/Y', $request->start)->format('Y-m-d');
+        $share->end=Carbon::createFromFormat('d/m/Y', $request->end)->format('Y-m-d');
+
     }
     public function extend_site(Request $request){
 

@@ -198,6 +198,7 @@ class SyndicatController extends Controller
         $this->validate($request,[
             "nomCourt"=>["required","string"],
             "serin"=> ["required","numeric", new Siren],
+            "siret"=> ["required","numeric", new Siren],
             "sinoe"=>["required", "unique:syndicats"],
             "email"=>["nullable","email"],
             "logo"=>["nullable","uuid","exists:image_sages,uid"],
@@ -214,12 +215,12 @@ class SyndicatController extends Controller
             "competance_delegue"=>["array"],
             'telephoneStandard'=>['nullable','phone:FR']
         ],[],
-            ['serin'=>'Siret']
+            ['serin'=> 'siren']
         );
         $client = Collectivite::create([
             "typeCollectivite"=>"Syndicat"
         ]);
-        $syndicat = Syndicat::create($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","nombreHabitant","logo","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe","city","country","postcode", "status"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
+        $syndicat = Syndicat::create($request->only(["nomCourt","denominationLegale","serin","siret","adresse",'lat','lang',"siteInternet","telephoneStandard","nombreHabitant","logo","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe","city","country","postcode", "status"])+['id_collectivite'=>$client->id_collectivite,'date_enter'=>Carbon::now()]);
         foreach($request->competance_exercee as $competance){
             if($competance['code'] && $competance['competence_dechet']){
                 CompetanceDechet::create([
@@ -266,6 +267,7 @@ class SyndicatController extends Controller
             "id_syndicat"=>["required","exists:syndicats"],
             "nomCourt"=>["required","string"],
             "serin"=> ["required","numeric", new Siren],
+            "siret"=> ["required","numeric", new Siren],
             "sinoe" => ["required", Rule::unique('syndicats', 'sinoe')->ignore($request["id_syndicat"], 'id_syndicat')],
             "email"=>["nullable","email"],
             "logo"=>["nullable","uuid","exists:image_sages,uid"],
@@ -279,7 +281,7 @@ class SyndicatController extends Controller
             "competance_delegue"=>["array"],
             'telephoneStandard'=>['nullable','phone:FR']
         ],[],
-            ['serin'=>'Siret']
+            ['serin'=> 'siren']
         );
         $syndicat=Syndicat::find($request['id_syndicat']);
         $moreItems=[];
@@ -299,7 +301,7 @@ class SyndicatController extends Controller
         
         $moreItems['logo'] = isset($request['logo']) ? $request['logo']: null;
 
-        $syndicat->update($request->only(["nomCourt","denominationLegale","serin","adresse",'lat','lang',"siteInternet","telephoneStandard","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe","city","country","postcode", "status"])+$moreItems);
+        $syndicat->update($request->only(["nomCourt","denominationLegale","serin","siret","adresse",'lat','lang',"siteInternet","telephoneStandard","ged_rapport",'amobe','nature_juridique','departement_siege','region_siege',"email","sinoe","city","country","postcode", "status"])+$moreItems);
         $competanceExercee=$syndicat->competance_exercee->toArray();
         $searchedComp=array_column($competanceExercee,'id_competance_dechet');
         foreach($request->competance_exercee as $competance){

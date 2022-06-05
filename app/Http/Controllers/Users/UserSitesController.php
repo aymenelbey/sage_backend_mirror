@@ -174,8 +174,8 @@ class UserSitesController extends Controller{
                     $file_categories = array_filter($detail['files'], function($key, $value) use ($detail){
                         return $detail['files'][$value];
                     }, ARRAY_FILTER_USE_BOTH);
-                    
-                    $files = $site->files(array_keys($file_categories))->get();
+
+                    $files = $site->files(array_keys($file_categories))->where('shareable', '1')->get();
                 }else{
                     $files = [];
                 }
@@ -200,7 +200,7 @@ class UserSitesController extends Controller{
                 }, ARRAY_FILTER_USE_BOTH);
                 
 
-                $files = $site->files(array_keys($file_categories))->get();
+                $files = $site->files(array_keys($file_categories))->where('shareable', '1')->get();
 
                 foreach($files as $file){
                     $file->name = asset(Storage::url("GED/".$file->name));

@@ -16,6 +16,7 @@ class Commune extends TrackableModel
         "insee",
         "logo",
         "serin",
+        "siret",
         "departement_siege",
         "region_siege",
         'lat',
