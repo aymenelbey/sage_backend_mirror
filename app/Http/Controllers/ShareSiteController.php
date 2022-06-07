@@ -77,11 +77,15 @@ class ShareSiteController extends Controller
             case 'unpause-all':
                 $sites->update(['is_blocked' => $request['action'] == 'pause-all' ? true : false]);
                 return response([
+                    "ok" => true,
+                    "request" => $request->input(), 
                     "message"=> $request['action'] == 'pause-all' ? "All paused" : 'All unpaused'
                 ], 200);
             case 'update-dates':
                 $sites->update(["start" => Carbon::createFromFormat('d/m/Y', $request['start_date'])->format('Y-m-d'), "end" => Carbon::createFromFormat('d/m/Y', $request['end_date'])->format('Y-m-d')]);
                 return response([
+                    "ok" => true,
+                    "request" => $request->input(),
                     "message"=> "Shares updated"
                 ], 200);
                 break;
@@ -160,7 +164,8 @@ class ShareSiteController extends Controller
             }
             return response([
                 'ok'=>true,
-                'data'=>"async"
+                'data'=>"async",
+                "request" => $request->input()
             ]);
         }
         return response([
