@@ -22,9 +22,11 @@ class ContratController extends Controller
         $query = $query->with(['contractant', 'site', 'communes']);
         $contra = $query->orderBy("created_at","DESC")->paginate($pageSize)->toArray();
         foreach($contra['data'] as &$contract){
-            if(isset($contract['contractant'])){
+            if(isset($contract['contractant']) && !empty($contract['contractant']) && isset($contract['contractant']['groupe'])){
                     $contract['contractant']['groupe'] = SocieteExploitant::getGroupeStatic($contract['contractant']['groupe']); 
                     // $contract['contractant']['groupe'] = Enemuration::whereIn('id_enemuration', is_array($contract['contractant']['groupe']) ? $contract['contractant']['groupe'] : [$contract['contractant']['groupe']])->get();
+            }else{
+                $contract['contractant']['groupe'] = [];
             }
         }
         return response([
