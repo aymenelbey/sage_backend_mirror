@@ -351,9 +351,9 @@ class SiteController extends Controller
             $arraySite=$site->toArray();
             $siteReturn=['siteInfo'=>$site->toArray()];
             $siteReturn['departement_siege']=$arraySite['departement_siege'];
-            $siteReturn['region_siege']=$arraySite['region_siege'];
-            $siteReturn['siteInfo']['departement_siege']=$arraySite['departement_siege']['value'];
-            $siteReturn['siteInfo']['region_siege']=$arraySite['region_siege']['value'];
+            $siteReturn['region_siege']     = $arraySite['region_siege'];
+            $siteReturn['siteInfo']['departement_siege']= isset($arraySite['departement_siege']['value']) ? $arraySite['departement_siege']['value'] : '';
+            $siteReturn['siteInfo']['region_siege']= isset($arraySite['region_siege']['value']) ? $arraySite['region_siege']['value'] : '';
             $client=$site->client;
             if($client){
                 $siteReturn['siteInfo']['client']=$client->client->toArray();
@@ -363,6 +363,7 @@ class SiteController extends Controller
             if($exploi){
                 $clientSocie=$exploi->client;
                 $siteReturn['siteInfo']['societe']=$clientSocie?$clientSocie->toArray():[];
+                $siteReturn['siteInfo']['societe']['groupe'] = isset($siteReturn['siteInfo']['societe']['groupe']) && !empty($siteReturn['siteInfo']['societe']['groupe']) ? SocieteExploitant::getGroupeStatic($siteReturn['siteInfo']['societe']['groupe']) : [];
                 $siteReturn['siteInfo']['societe'] +=!empty($personsData[strtolower($exploi->typeExploitant)])?$personsData[strtolower($exploi->typeExploitant)]:[];
             }
             $siteReturn['siteInfo']['gestionaire']=$site->gestionnaire;
