@@ -185,8 +185,9 @@ Route::middleware('auth:api')->group(function () {
             
             Route::post("create",[App\Http\Controllers\GEDController::class,"create"]);
             Route::get("all",[App\Http\Controllers\GEDController::class,"show"]);
-            Route::get("show/{file_id}",[App\Http\Controllers\GEDController::class,"getGEDFile"]);
 
+            Route::get("show/{file_id}",[App\Http\Controllers\GEDController::class,"getGEDFile"]);
+            
             Route::delete("delete",[App\Http\Controllers\GEDController::class,"destroy"]);
             Route::get("show/{idContract}",[App\Http\Controllers\GEDController::class,"show"]);
             Route::get("edit/{idContract}",[App\Http\Controllers\GEDController::class,"edit"]);

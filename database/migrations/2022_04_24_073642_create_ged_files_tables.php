@@ -23,7 +23,7 @@ class CreateGedFilesTables extends Migration
             $table->foreign('category')->references('id_enemuration')->on('enemurations');
 
             
-            $table->enum('type', ['syndicats', 'sites', 'epics', 'societies', 'communes']);
+            $table->enum('type', ['syndicats', 'sites', 'epics', 'societe_exploitants', 'communes']);
             $table->bigInteger('entity_id');
             $table->boolean("shareable")->default(true);
             $table->timestamps();

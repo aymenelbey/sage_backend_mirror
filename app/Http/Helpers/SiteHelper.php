@@ -19,7 +19,10 @@ class SiteHelper
         "typeExploitant"=>['required','in:Syndicat,Epic,Commune,Societe'],
         'departement_siege'=>["required","exists:enemurations,id_enemuration"],
         'region_siege'=>["required","exists:enemurations,id_enemuration"],
-        "societe"=>['required']
+        "societe"=>['required'],
+        "city" => ['required'],
+        "country" => ['required'],
+        "postcode" => ['required']
     ];
     public static function validateSiteInfo($dataEntry){
         if(!empty($dataEntry["typeExploitant"])){
@@ -70,7 +73,7 @@ class SiteHelper
         return $techReturn;
     }
     public static function extractSiteData($siteinfo){
-        $infoUse=$siteinfo->only(["denomination","categorieSite",'status',"adresse","latitude","langititude","siteIntrnet","telephoneStandrad","anneeCreation","photoSite","modeGestion","perdiocitRelance","sinoe","departement_siege","region_siege"])->toArray();
+        $infoUse=$siteinfo->only(["denomination","categorieSite",'status',"adresse","latitude","langititude","city", "country", "postcode", "siteIntrnet","telephoneStandrad","anneeCreation","photoSite","modeGestion","perdiocitRelance","sinoe","departement_siege","region_siege"])->toArray();
         return $infoUse;
     }
     public static function formatDateIfNotNull($date){

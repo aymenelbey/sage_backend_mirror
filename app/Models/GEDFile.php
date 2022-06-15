@@ -30,37 +30,11 @@ class GEDFile extends Model
             case 'communes':
                 $entity = Commune::find($this->entity_id);
                 break;
-            case 'societies':
+            case 'societe_exploitants':
                 $entity = SocieteExploitant::find($this->entity_id);
                 break;
         }
         return $entity;
-        // $query->leftJoin('sites', function($query){
-        //     $query->where('ged_files_entities.type', 'sites');
-        //     $query->on('ged_files_entities.entity_id', '=', 'sites.id_site');
-        // });
-
-        // $query->leftJoin('epics', function($query){
-        //     $query->where('ged_files_entities.type', 'epics');
-        //     $query->on('ged_files_entities.entity_id', '=', 'epics.id_epic');
-        // });
-
-        // $query->leftJoin('communes', function($query){
-        //     $query->where('ged_files_entities.type', 'communes');
-        //     $query->on('ged_files_entities.entity_id', '=', 'communes.id_commune');
-        // });
-
-        // $query->leftJoin('syndicats', function($query){
-        //     $query->where('ged_files_entities.type', 'syndicats');
-        //     $query->on('ged_files_entities.entity_id', '=', 'syndicats.id_syndicat');
-        // });
-
-        // $query->leftJoin('societe_exps', function($query){
-        //     $query->where('ged_files_entities.type', 'societe_exps');
-        //     $query->on('ged_files_entities.entity_id', '=', 'societe_exps.id_societe_exp');
-        // });
-
-        // return $query->get();
     }
     public function category(){
         return $this->hasOne(Enemuration::class, 'id_enemuration', 'category');

@@ -30,7 +30,10 @@ class Site extends TrackableModel {
         "perdiocitRelance",
         'status',
         'updated_by',
-        'status_updated_by'
+        'status_updated_by',
+        "city",
+        "country",
+        "postcode",
     ];
 
     protected $dates = ['deleted_at'];
@@ -65,7 +68,7 @@ class Site extends TrackableModel {
         return $this->hasOne(Admin::class,'id_admin', 'status_updated_by');
     }
     public function files($category = null){
-        $mapping = ['Syndicat' => 'syndicats', 'Epic' => 'epics','EPIC' => 'epics', 'Commune' => 'communes', 'Societe' => 'societies'];
+        $mapping = ['Syndicat' => 'syndicats', 'Epic' => 'epics','EPIC' => 'epics', 'Commune' => 'communes', 'Societe' => 'societe_exploitants'];
         $ids_mapping = ['Syndicat' => 'id_syndicat', 'Epic' => 'id_epic', 'EPIC' => 'id_epic' ,'Commune' => 'id_commune', 'Societe' => 'id_societe_exploitant'];
         $query = (new GEDFile())->newQuery();
         $query = $query->with(['category']);

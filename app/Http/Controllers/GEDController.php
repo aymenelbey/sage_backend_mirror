@@ -11,10 +11,36 @@ class GEDController extends Controller
 {
     public function show(Request $request){
         $per_page = 10;
+        
         if($request->has('per_page')){
             $per_page = $request->input('per_page');
         }
-        $files = GEDFile::with(['category'])->paginate($per_page);
+        
+        $sort = $request->has('sort') && !empty($request->input('sort')) ? $request->input('sort') : 'ASC';
+        $sorter = $request->has('sorter') && !empty($request->input('sorter')) ? $request->input('sorter') : 'id';
+        
+        $search = $request->has('search') && !empty($request->input('search')) ? $request->input('search') : false;
+
+        $files = GEDFile::with(['category'])->orderBy($sorter, $sort);
+
+        
+        if($search){
+            $files = $files->where('name', 'like' , "%$search%");
+            
+            $files = $files->orWhereHas('category', function($query) use ($search){
+                return $query->where('value_enum', 'like' , "%$search%");
+            });
+
+            // $files = $files->where(function($query) use ($search){
+            //     "SELECT * from [file.type] where table.id = file.entity_id and table.name like %search%";
+            // });
+
+            $files = $files->orWhere('date', 'like' , "%$search%");
+            $files = $files->orWhere('created_at', 'like' , "%$search%");
+        }
+
+
+        $files = $files->paginate($per_page);
         
         foreach($files as $file){
             $file->entity = $file->entity();
@@ -26,6 +52,30 @@ class GEDController extends Controller
             "data"=> $files
         ], 200);
     }
+
+    public function update(Request $request){
+        $this->validate($request, [
+            'id' => 'required',
+            'shareable' => 'required',
+        ]);
+        $file = GEDFile::find($request->input('id'));
+        if($file){
+            
+            $file->update(['shareable' => $request->input('shareable')]);
+            $file = GEDFile::with('category')->find($request->input('id'));
+
+            return response([
+                "ok"=> true,
+                "data"=> $file
+            ], 200);
+
+        }
+        return response([
+            "ok"=> false,
+            "data"=> []
+        ], 203);
+    }
+
     public function getGEDFile(Request $request, $file_id){
         // $this->validate($request, [
         //     'file_id' => 'required',
@@ -120,7 +170,7 @@ class GEDController extends Controller
                         $file_to_add['entity_id'] = $entity['elem']['id_commune'];
                         $file_to_add['name'] = $entity['elem']['nomCommune'];
                         break;
-                    case 'societies':
+                    case 'societe_exploitants':
                         $file_to_add['entity_id'] = $entity['elem']['id_societe_exploitant'];
                         $file_to_add['name'] = $entity['elem']['denomination'];
                         break;
