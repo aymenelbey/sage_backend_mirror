@@ -5,11 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\DeleteChecks;
 
 class Contrat extends TrackableModel
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes, DeleteChecks;
     protected $primaryKey = "id_contrat";
+    public $deleteChecks = ['site', 'contractant', 'communes'];
+
+
     protected $fillable = [
         "dateDebut",
         'dateFin',

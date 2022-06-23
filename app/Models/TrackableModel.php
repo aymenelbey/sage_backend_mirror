@@ -7,10 +7,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Auth;
 
-
 class TrackableModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
     public $timestamps = true;
     public static $VALID_STATUS = ['VALIDATED', 'NOT_VALIDATED', 'NOT_PUBLISHED'];
 
@@ -37,4 +36,5 @@ class TrackableModel extends Model
     public function status_updated_by(){
         return $this->hasOne(Admin::class,'id_admin', 'status_updated_by');
     }
+
 }

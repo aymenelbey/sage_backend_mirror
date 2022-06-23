@@ -4,13 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+// use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\DeleteChecks;
 
 
 class EPIC extends TrackableModel
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, DeleteChecks;
     protected $primaryKey = "id_epic";
+    public $deleteChecks = ['contacts', 'communes', 'syndicat', 'sites', 'files', 'competance_recu', 'competance_exercee', 'competance_delegue'];
+
     protected $table = "epics";
     protected $fillable = [
         "nomEpic",

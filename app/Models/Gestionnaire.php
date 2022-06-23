@@ -5,11 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\DeleteChecks;
+
 
 class Gestionnaire extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes, DeleteChecks;
     protected $primaryKey = "id_gestionnaire";
+
+    public $deleteChecks = ['sites', 'user'];
+
     protected $fillable = [
         "status",
         "genre",

@@ -247,17 +247,38 @@ class CommuneController extends Controller
     {
         if(isset($request['communes']) && is_array($request['communes'])){
             $deletedLis=[];
-            foreach($request['communes'] as $commune){
-                $communeObj=Commune::find($commune);
-                if($communeObj){
-                    $deletedLis [] = $commune;
-                    $communeObj->delete();
+            $notDeletedLis = [];
+            foreach($request['communes'] as $commune_id){
+                try{
+                    $commune = Commune::find($commune_id);
+                    if($commune){
+                        $canDelete = $commune->canDelete();
+                        if($canDelete['can']){
+                            $deletedLis[] = $commune_id;
+                            $commune->delete();
+                        }else{
+                            $notDeletedLis[$commune_id] = $canDelete['errors'];
+                        }
+
+                    }
+                }catch(\Exception $e){
+                    $notDeletedLis[$commune_id] = ['db.destroy-error'];
+                }
+
+                if(sizeof($request['communes']) == 1 && sizeof($notDeletedLis) == 1){
+                    return response([
+                        "errors" => true,
+                        "message" => "item already in use",
+                        "reasons" => $notDeletedLis
+                    ], 402);
                 }
             }
+
             return response([
                 'ok'=>true,
                 'data'=>"async",
-                'communes'=>$deletedLis
+                'communes'=>$deletedLis,
+                'not_deleted' => $notDeletedLis
             ]);
         }
         return response([

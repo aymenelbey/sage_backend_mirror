@@ -474,20 +474,52 @@ class EPICController extends Controller
     {
         if(isset($request['epics']) && is_array($request['epics'])){
             $deletedLis=[];
-            foreach($request['epics'] as $epic){
-                $epicObj=EPIC::find($epic);
-                $collect=Collectivite::find($epicObj->id_collectivite);
-                if($epicObj && $collect){
-                    $deletedLis [] = $epic;
-                    $collect->delete();
-                    $epicObj->delete();
+            $notDeletedLis = [];
+
+            foreach($request['epics'] as $epic_id){
+                try{
+
+                    $epicObj = EPIC::find($epic_id);
+                    
+                    $collect = Collectivite::find($epicObj->id_collectivite);
+
+                    if($epicObj && $collect){
+                        $canDelete = $epicObj->canDelete();
+
+                        if($canDelete['can']){
+                            $collect->delete();
+                            $epicObj->delete();
+                            $deletedLis[] = $epic_id;
+                        }else{
+                            $notDeletedLis[$epic_id] = $canDelete['erros'];
+                        }
+
+                    }else{
+                        $notDeletedLis[$epic_id] = ['db.not-found'];
+                    }
+                    
+                }catch(\Exception $e){
+
+                    $notDeletedLis[$epic_id] = ['db.destroy-error'];
                 }
+
+                if(sizeof($request['epics']) == 1 && sizeof($notDeletedLis) == 1){
+                    return response([
+                        "errors" => true,
+                        "message" => "item already in use",
+                        "reasons" => $notDeletedLis
+                    ], 402);
+                }
+
             }
+
             return response([
                 'ok'=>true,
                 'data'=>"async",
-                'epics'=>$deletedLis
+                'epics'=>$deletedLis,
+                "not_deleted" => $notDeletedLis
             ]);
+
         }
         return response([
             'ok'=>true,

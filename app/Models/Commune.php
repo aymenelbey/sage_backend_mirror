@@ -6,10 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Traits\DeleteChecks;
+
 class Commune extends TrackableModel
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes, DeleteChecks;
     protected $primaryKey = "id_commune";
+    
+    public $deleteChecks = ['contacts', 'files'];
+
     protected $fillable = [
         "nomCommune",
         "adresse",

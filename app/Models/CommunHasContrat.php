@@ -22,13 +22,23 @@ class CommunHasContrat extends Model
         return $this->morphTo(__FUNCTION__, 'typePersonMoral', 'idPersonMoral');
     }
     public function toArray(){
-        return [
-            'id_person'=>$this->person->id_person,
-            'typePersonMoral'=>$this->person->typePersonMoral,
-            'name'=>$this->person->name,
-            'dataIndex'=>$this->person->dataIndex,
-            'adresse'=>$this->person->adresse,
-            $this->person->dataIndex=>$this->person[$this->person->dataIndex]
-        ];
+        if($this->person){
+            return [
+                'id_person'=> $this->person->id_person,
+                'typePersonMoral'=>$this->person->typePersonMoral,
+                'name'=>$this->person->name,
+                'dataIndex'=>$this->person->dataIndex,
+                'adresse'=>$this->person->adresse,
+                $this->person->dataIndex=>$this->person[$this->person->dataIndex]
+            ];
+        }else{
+            return [
+                'id_person'=>  '',
+                'typePersonMoral'=> '',
+                'name'=> '',
+                'dataIndex'=> '',
+                'adresse'=> '',
+            ];
+        }
     }
 }

@@ -14,32 +14,6 @@ class DataTechnUVE extends Model
         'infos',
         'lines', 
         'valorisations',
-
-        // 'nombreFours',
-        // "capacite",
-        // "nombreChaudiere",
-        // "debitEau",
-        // "miseEnService",
-        // "typeFoursChaudiere",
-        // "capaciteMaxAnu",
-        // "videFour",
-        // "reseauChaleur",
-        // "rsCommentaire",
-        // "tonnageReglementaireAp",
-        // "performenceEnergetique",
-        // "cycleVapeur",
-        // "terboalternateur",
-        // "venteProduction",
-        // /****** */
-        // "typeDechetRecus",
-        // "traitementFumee",
-        // "installationComplementair",
-        // "voiTraiFemuee",
-        // "traitementNOX",
-        // "equipeProcessTF",
-        // "reactif",
-        // "typeTerboalternateur",
-        // "constructeurInstallation"
     ];
 
         

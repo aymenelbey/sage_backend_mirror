@@ -442,18 +442,40 @@ class SyndicatController extends Controller
     public function destroy(Request $request)
     {
         if(isset($request['syndicats']) && is_array($request['syndicats'])){
+            
             $deletedLis=[];
-            foreach($request['syndicats'] as $syndicat){
-                $syndica=Syndicat::find($syndicat);
-                if($syndica){
-                    $deletedLis [] = $syndicat;
-                    $syndica->delete();
+            $notDeletedLis = [];
+            
+            foreach($request['syndicats'] as $syndicat_id){
+                try{
+                    $syndicat = Syndicat::find($syndicat_id);
+                    if($syndicat){
+                        $canDelete = $syndicat->canDelete();
+                        if($canDelete['can']){
+                            Syndicat::destroy($syndicat_id);
+                            $deletedLis[] = $syndicat_id;
+                        }else{
+                            $notDeletedLis[$syndicat_id] = $canDelete['errors'];
+                        }
+                    }
+                }catch(\Exception $e){
+                    $notDeletedLis[$syndicat_id] = ['db.destroy-error'];
+                }
+
+                if(sizeof($request['syndicats']) == 1 && sizeof($notDeletedLis) == 1){
+                    return response([
+                        "errors" => true,
+                        "message" => "item already in use",
+                        "reasons" => $notDeletedLis
+                    ], 402);
                 }
             }
+
             return response([
-                'ok'=>true,
-                'data'=>"async",
-                'syndicats'=>$deletedLis
+                'ok' => true,
+                'data' => "async",
+                'societes' => $deletedLis,
+                'not_deleted' => $notDeletedLis
             ]);
         }
         return response([

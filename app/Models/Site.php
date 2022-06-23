@@ -7,11 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\DataTechn;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use App\Traits\DeleteChecks;
 
 
 class Site extends TrackableModel {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, DeleteChecks;
     protected $primaryKey = "id_site";
+
+    public $deleteChecks = ['contracts', 'ged_files', 'gestionnaire', 'exploitant', 'client'];
 
     protected $fillable = [
         "denomination",
@@ -66,6 +69,9 @@ class Site extends TrackableModel {
     }
     public function status_updated_by(){
         return $this->hasOne(Admin::class,'id_admin', 'status_updated_by');
+    }
+    public function ged_files(){
+        return GEDFile::with('category')->where('type', 'sites')->where('entity_id', $this->id_site);
     }
     public function files($category = null){
         $mapping = ['Syndicat' => 'syndicats', 'Epic' => 'epics','EPIC' => 'epics', 'Commune' => 'communes', 'Societe' => 'societe_exploitants'];

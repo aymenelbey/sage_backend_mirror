@@ -242,18 +242,41 @@ class GestionnaireController extends Controller
     {
         if(isset($request['gestionnaires']) && is_array($request['gestionnaires'])){
             $deletedLis=[];
-            foreach($request['gestionnaires'] as $gestionnaire){
-                $gestion=Gestionnaire::find($gestionnaire);
-                if($gestion){
-                    $deletedLis [] = $gestionnaire;
-                    $gestion->delete();
+            $notDeletedLis=[];
+            foreach($request['gestionnaires'] as $gestionnaire_id){
+
+                try{
+                    $gestionnaire = Gestionnaire::find($gestionnaire_id);
+                    if($gestionnaire){
+                        $canDelete = $gestionnaire->canDelete();
+                        if($canDelete['can']){
+                            Gestionnaire::destroy($gestionnaire_id);
+                            $deletedLis[] = $gestionnaire_id;
+                            
+                        }else{
+                            $notDeletedLis[$gestionnaire_id] = $canDelete['errors'];
+                        }
+    
+                    }
+                }catch(\Exception $e){
+                    $notDeletedLis[$gestionnaire_id] = ['db.destroy-error'];
+                }
+
+                if(sizeof($request['gestionnaires']) == 1 && sizeof($notDeletedLis) == 1){
+                    return response([
+                        "errors" => true,
+                        "message" => "item already in use",
+                        "reasons" => $notDeletedLis
+                    ], 402);
                 }
             }
+
             return response([
                 'ok'=>true,
                 'data'=>"async",
-                'gestionnaires'=>$deletedLis
-            ],200);
+                'gestionnaires'=>$deletedLis,
+                'not_deleted' => $notDeletedLis,
+            ], 200);
         }
         return response([
             'ok'=>true,

@@ -485,17 +485,38 @@ class SiteController extends Controller
     {
         if(isset($request['sites']) && is_array($request['sites'])){
             $deletedLis=[];
-            foreach($request['sites'] as $site){
-                $siteObj=Site::find($site);
-                if($siteObj){
-                    $deletedLis [] = $site;
-                    $siteObj->delete();
+            foreach($request['sites'] as $site_id){
+
+                try{
+                    $site = Site::find($site_id);
+                    if($site){
+                        $canDelete = $site->canDelete();
+    
+                        if($canDelete['can']){
+                            Site::destroy($site_id);
+                            $deletedLis[] = $site_id;
+                        }else{
+                            $notDeletedLis[$site_id] = $canDelete['errors'];
+                        }
+                    }
+                }catch(\Exception $e){
+                    $notDeletedLis[$site_id] = ['db.destroy-error'];
                 }
+
+                if(sizeof($request['sites']) == 1 && sizeof($notDeletedLis) == 1){
+                    return response([
+                        "errors" => true,
+                        "message" => "item already in use",
+                        "reasons" => $notDeletedLis
+                    ], 402);
+                }
+                
             }
             return response([
                 'ok'=>true,
                 'data'=>"async",
-                'sites'=>$deletedLis
+                'sites'=>$deletedLis,
+                'not_deleted' => $notDeletedLis
             ]);
         }
         return response([

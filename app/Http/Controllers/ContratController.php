@@ -204,17 +204,37 @@ class ContratController extends Controller
         }
         $contracts=$request['contracts'];
         $deletedLis=[];
-        foreach($contracts as $contract){
-            $contrObj=Contrat::find($contract);
-            if($contrObj){
-                $deletedLis [] = $contract;
-                $contrObj->delete();
+        $notDeletedLis = [];
+        foreach($contracts as $contract_id){
+            try{
+                $contract = Contrat::find($contract_id);
+                if($contract){
+                    $canDelete = $contract->canDelete();
+                    if($canDelete['can']){
+                        Contrat::destroy($contract_id);
+                        $deletedLis[] = $contract_id;
+                    }else{
+                        $notDeletedLis[$contract_id] = $canDelete['errors'];
+                    }
+                }
+            }catch(\Exception $e){
+                $notDeletedLis[$epic] = ['db.destroy-error'];
             }
+
+            if(sizeof($request['contracts']) == 1 && sizeof($notDeletedLis) == 1){
+                return response([
+                    "errors" => true,
+                    "message" => "item already in use",
+                    "reasons" => $notDeletedLis
+                ], 402);
+            }
+
         }
         return response([
             'ok'=>true,
             'data'=>"async",
-            'contracts'=>$deletedLis
+            'contracts'=>$deletedLis,
+            'not_deleted' => $notDeletedLis
         ]);
     }
 }

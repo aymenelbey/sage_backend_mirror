@@ -4,12 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+// use Illuminate\Database\Eloquent\SoftDeletes;
+
+use App\Traits\DeleteChecks;
 
 class Syndicat extends TrackableModel
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, DeleteChecks;
     protected $primaryKey = "id_syndicat";
+    
+    public $deleteChecks = ['contacts', 'sites', 'files', 'epics', 'competance_exercee', 'competance_delegue', 'competance_recu'];
+        
     protected $fillable = [
         "nomCourt",
         "denominationLegale",
@@ -38,7 +43,7 @@ class Syndicat extends TrackableModel
         'updated_by',
         'status_updated_by'
     ];
-    protected $dates = ['deleted_at'];
+    // protected $dates = ['deleted_at'];
     protected $appends = ['typePersonMoral','dataIndex','id_person','name'];
     public function getTypePersonMoralAttribute(){
         return "Syndicat";
@@ -122,4 +127,5 @@ class Syndicat extends TrackableModel
     public function files(){
         return GEDFile::with('category')->where('type', 'syndicats')->where('entity_id', $this->id_syndicat);
     }
+
 }
