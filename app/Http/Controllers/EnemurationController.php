@@ -112,12 +112,18 @@ class EnemurationController extends Controller
              "enumuration"=>["required","exists:enemurations,id_enemuration"]
         ]);
         try{
-            $enum = Enemuration::destroy($request['enumuration']);
-            return response([
-                "ok"=>true,
-                "data"=>$request['enumuration']
-            ],200);
-        }catch(Exeption $e){
+            $enum = Enemuration::find($request['enumuration']);
+            if($enum){
+                if($enum->canDelete()){
+                    $enum = Enemuration::destroy($request['enumuration']);
+                    return response([
+                        "ok"=>true,
+                        "data"=>$request['enumuration']
+                    ],200);
+                }
+                throw new \Exception();
+            }
+        }catch(\Exception $e){
             return response([
                 "errors"=>true,
                 "message"=>"item already in use"
