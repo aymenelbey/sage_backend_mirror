@@ -64,6 +64,9 @@ class GEDController extends Controller
             $file->update(['shareable' => $request->input('shareable')]);
             $file = GEDFile::with('category')->find($request->input('id'));
 
+            $file->entity = $file->entity();
+            $file->path = $file->getPath();
+            
             return response([
                 "ok"=> true,
                 "data"=> $file
