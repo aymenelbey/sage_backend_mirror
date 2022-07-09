@@ -10,13 +10,17 @@ use Maatwebsite\Excel\Facades\Excel;
 
 use App\models\Enemuration;
 use App\models\Commune;
+use App\models\Departement;
 use App\models\Contact;
 use App\models\ContactHasPersonMoral;
 use App\models\PersonFunction;
 use App\models\EPIC;
 use App\models\Site;
+use App\models\SocieteExploitant;
 use App\models\Syndicat;
+use Carbon\Carbon;
 
+use App\Http\Helpers\ToolHelper;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -27,30 +31,9 @@ use App\models\Syndicat;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::get('sage/test', function(){
-                echo '<pre>';
-                $sites = Site::with('dataTech.dataTech')->where('categorieSite', 'TMB')->limit(10)->get();
-                $excel = [];
-                
-                foreach($sites as $site){
-                    print_r($site->dataTech);continue;
-                    $data = $site->dataTech->dataTech;
-                    array_push($excel, [
-                        'SINOE' => $site->sinoe,
-                        'Type dinstallations' => $data->typeInstallation,
-                        'Technologie' => $data->technologie,
-                        'Tonnage annuel' => $data->tonnageAnnuel,
-                        'Capacité nominale' => $data->capaciteNominal,
-                        'Types de déchets acceptés' => $data->typeDechetAccepter,
-                        'Autres activités sur site' => $data->autreActivite,
-                        'Quantité de refus t' => $data->quantiteRefus,
-                        'CSR produit t exutoire' => $data->CSRProduit,
-                        'Envoi pour préparation CSR t' => $data->envoiPreparation,
-                        'Valorisation énergétique' => $data->valorisationEnergitique,
-                    ]);
-                }
-                return $excel;
-});
+// Route::get('sage/test', [App\Http\Controllers\CommuneController::class, "sync_api"]);
+Route::get('sage/test', [App\Http\Controllers\SocieteExploitantController::class, "sync_api"]);
+
 
 Route::get("data/download/{type}", [App\Http\Controllers\ImportData::class, "download_update_file"]);
 
