@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Commune;
 use App\Models\Collectivite;
 use App\Models\InfoClientHistory;
+use App\Models\Departement;
+
 use Illuminate\Http\Request;
 use App\Http\Helpers\SiteHelper;
+use App\Http\Helpers\ToolHelper;
 use Validator;
 use App\Rules\Siren;
 use Carbon\Carbon;
@@ -264,5 +267,43 @@ class CommuneController extends Controller
             'ok'=>true,
             'data'=>"no action"
         ]);
+    }
+    public function sync_api(Request $request){
+        $communes_insee = [
+            '02102', '02100', '02087'
+        ];
+        $communes = Commune::whereIn('insee', $communes_insee)->get();
+        $q = [];
+
+        foreach($communes as $commune){
+            $q[] = "siren:".$commune->serin;
+        }
+
+        $departements = Departement::with('region')->get();
+        $deps = [];
+
+        foreach($departements as $dep){
+            $deps[strlen($dep->departement_code) == 2 ? $dep->departement_code : '0'.$dep->departement_code] = $dep;
+        }
+
+        $entities = ToolHelper::fetchDataFromInseeAPI($q, function($entity) use ($deps){    
+            $mapping = [];
+            
+            $dep = $deps[substr($entity['adresseEtablissement']['codePostalEtablissement'], 0, 2)];
+
+            $mapping['departement_siege'] = $dep->id_departement;
+            if($dep->region){
+                $mapping['region_siege'] = $dep->region->id_region;
+            }else{
+                $mapping['region_siege'] = null;
+            }
+
+            $mapping['nomCommune'] = $entity['uniteLegale']['denominationUniteLegale'];
+            return $mapping;
+        });
+
+        foreach($entities as $commune){
+            Commune::where('serin', $soc['serin'])->update($commune);
+        }
     }
 }
