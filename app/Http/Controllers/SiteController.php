@@ -112,10 +112,15 @@ class SiteController extends Controller
         $this->validate($request,[
             "id_site"=>['exists:sites,id_site']
         ]);
-        $site = Site::with(['client.client', 'exploitant.client','dataTech.dataTech',"gestionnaire","contracts.contractant","departement_siege",'region_siege', 'updated_by', 'status_updated_by'])
+        $site = Site::with(['client.client', 'exploitant.client','dataTech.dataTech',"gestionnaire","contracts.communes","contracts.contractant","contracts.site", "departement_siege",'region_siege', 'updated_by', 'status_updated_by'])
         ->find($request['id_site']);
+
         $site->dataTech->dataTech->withEnums();
-        $site->exploitant->client->withEnums();
+        
+        if(isset($site->exploitant) && isset($site->exploitant->client)){
+            $site->exploitant->client->withEnums();
+        }
+
         $siteReturn=$site->toArray();
         $siteReturn['photos']=$site->photos->map(function($photo){
             return $photo->__toString();

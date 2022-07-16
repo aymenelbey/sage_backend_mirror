@@ -29,6 +29,7 @@ class CommunHasContrat extends Model
                 'name'=>$this->person->name,
                 'dataIndex'=>$this->person->dataIndex,
                 'adresse'=>$this->person->adresse,
+                'city' => $this->person->city,
                 $this->person->dataIndex=>$this->person[$this->person->dataIndex]
             ];
         }else{
@@ -36,6 +37,7 @@ class CommunHasContrat extends Model
                 'id_person'=>  '',
                 'typePersonMoral'=> '',
                 'name'=> '',
+                'city' => '',
                 'dataIndex'=> '',
                 'adresse'=> '',
             ];
