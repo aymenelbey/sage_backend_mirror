@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 // use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\DeleteChecks;
 
+use App\Http\Helpers\ToolHelper;
+use Carbon\Carbon;
+
+
 
 class EPIC extends TrackableModel
 {
@@ -117,4 +121,56 @@ class EPIC extends TrackableModel
     public function files(){
         return GEDFile::with('category')->where('type', 'epics')->where('entity_id', $this->id_epic);
     }
+
+    public static function sync_api($token, $epics_sirens){
+
+        $q = [];
+
+        foreach($epics_sirens as $siren){
+            $q[] = "siren:".str_replace(' ', '', $siren);
+        }
+
+        $departements = Departement::with('region')->get();        
+        $deps = [];
+
+        foreach($departements as $dep){
+            $deps[strlen($dep->departement_code) == 2 ? $dep->departement_code : '0'.$dep->departement_code] = $dep;
+        }
+
+        $entities = ToolHelper::fetchDataFromInseeAPI($token, $q, function($entity) use ($deps){    
+            
+            $mapping = [];
+            
+            $dep_code = substr($entity['adresseEtablissement']['codePostalEtablissement'], 0, 2);
+            if(isset($deps[$dep_code])){
+                $dep = $deps[$dep_code];
+                $mapping['departement_siege'] = $dep->id_departement;
+                if($dep->region){
+                    $mapping['region_siege'] = $dep->region->id_region;
+                }else{
+                    $mapping['region_siege'] = null;
+                }
+            }
+
+            $mapping['nomEpic'] = $entity['uniteLegale']['denominationUniteLegale'];
+            $mapping['nom_court'] = $entity['uniteLegale']['sigleUniteLegale'];
+
+            $nature = Enemuration::where('code', $entity['uniteLegale']['categorieJuridiqueUniteLegale'])->first();
+
+
+            if($nature){
+                $mapping['nature_juridique'] = $nature->id_enemuration;
+            }else{
+                $mapping['nature_juridique'] = null;
+            }
+
+            return $mapping;
+        });
+        foreach($entities as $epic){
+            EPIC::where('serin', $epic['serin'])->update($epic);
+        }
+        
+        return true;
+    }
+
 }

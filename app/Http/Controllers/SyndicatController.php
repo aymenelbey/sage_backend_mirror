@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\SiteHelper;
+use App\Http\Helpers\ToolHelper;
 use App\Models\Syndicat;
 use App\Models\Collectivite;
 use App\Models\SyndicatHasEpic;
@@ -483,4 +484,14 @@ class SyndicatController extends Controller
             'data'=>"no action"
         ]);
     }
+
+    public function sync_api(Request $request){
+        $token = ToolHelper::fetchInseeAPIToken();
+        if($request->input('action') == 'sync_array'){
+            return Syndicat::sync_api($token, $request->input('syndicats'));
+        }else if($request->input('action') == 'sync_all'){
+            \App\Jobs\SyncINSEEAPISyndicat::dispatch($token, 'sync_all');
+        }
+    }
+    
 }

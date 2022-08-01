@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Http\Helpers\ToolHelper;
+
+
 use App\Traits\DeleteChecks;
 
 class Commune extends TrackableModel
@@ -39,6 +42,7 @@ class Commune extends TrackableModel
     ];
     protected $dates = ['deleted_at'];
     protected $appends = ['typePersonMoral','dataIndex','id_person','name'];
+
     public function getTypePersonMoralAttribute(){
         return "Commune";
     }
@@ -83,5 +87,46 @@ class Commune extends TrackableModel
     }
     public function files(){
         return GEDFile::with('category')->where('type', 'communes')->where('entity_id', $this->id_commune);
+    }
+
+    public static function sync_api($token, $communes_sirens){
+
+        // $communes = Commune::whereIn('siren', $communes_siret)->get();
+        $q = [];
+
+        foreach($communes_sirens as $siren){
+            $q[] = "siren:".str_replace(' ', '', $siren);
+        }
+
+        $departements = Departement::with('region')->get();        
+        $deps = [];
+
+        foreach($departements as $dep){
+            $deps[strlen($dep->departement_code) == 2 ? $dep->departement_code : '0'.$dep->departement_code] = $dep;
+        }
+
+        $entities = ToolHelper::fetchDataFromInseeAPI($token, $q, function($entity) use ($deps){    
+            $mapping = [];
+            
+            $dep_code = substr($entity['adresseEtablissement']['codePostalEtablissement'], 0, 2);
+            if(isset($deps[$dep_code])){
+                $dep = $deps[$dep_code];
+                $mapping['departement_siege'] = $dep->id_departement;
+                if($dep->region){
+                    $mapping['region_siege'] = $dep->region->id_region;
+                }else{
+                    $mapping['region_siege'] = null;
+                }
+            }
+
+            $mapping['nomCommune'] = $entity['uniteLegale']['denominationUniteLegale'];
+            return $mapping;
+        });
+
+        foreach($entities as $commune){
+            Commune::where('serin', $commune['serin'])->update($commune);
+        }
+        
+        return true;
     }
 }

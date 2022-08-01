@@ -34,6 +34,12 @@ use App\Http\Helpers\ToolHelper;
 // Route::get('sage/test', [App\Http\Controllers\CommuneController::class, "sync_api"]);
 Route::get('sage/test', [App\Http\Controllers\SocieteExploitantController::class, "sync_api"]);
 
+Route::post("start_sync_batch/syndicat_sync_insee",[App\Http\Controllers\SyndicatController::class,"sync_api"]);
+Route::post("start_sync_batch/communes_sync_insee",[App\Http\Controllers\CommuneController::class,"sync_api"]);
+Route::post("start_sync_batch/societies_sync_insee",[App\Http\Controllers\SocieteExploitantController::class,"sync_api"]);
+Route::post("start_sync_batch/epics_sync_insee",[App\Http\Controllers\EPICController::class,"sync_api"]);
+
+
 
 Route::get("data/download/{type}", [App\Http\Controllers\ImportData::class, "download_update_file"]);
 
@@ -125,6 +131,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get("show/{idcompany}",[App\Http\Controllers\SocieteExploitantController::class,"show"]);
             Route::delete("delete",[App\Http\Controllers\SocieteExploitantController::class,"destroy"]);
             Route::patch("updateSoc",[App\Http\Controllers\SocieteExploitantController::class,"update"]);
+            Route::post("sync_insee",[App\Http\Controllers\SocieteExploitantController::class,"sync_api"]);
         });
         Route::prefix("clients/")->group(function(){
             Route::get("list",[App\Http\Controllers\CollectiviteController::class,"index"]);
@@ -135,6 +142,7 @@ Route::middleware('auth:api')->group(function () {
                 Route::get("edit/{idcommune}",[App\Http\Controllers\CommuneController::class,"edit"]);
                 Route::delete("delete",[App\Http\Controllers\CommuneController::class,"destroy"]);
                 Route::patch("update",[App\Http\Controllers\CommuneController::class,"update"]);
+                Route::post("sync_insee",[App\Http\Controllers\CommuneController::class,"sync_api"]);
             });
             Route::prefix("epics/")->group(function(){
                 Route::post("create",[App\Http\Controllers\EPICController::class,"create"]);
@@ -143,6 +151,7 @@ Route::middleware('auth:api')->group(function () {
                 Route::get("edit/{idepic}",[App\Http\Controllers\EPICController::class,"edit"]);
                 Route::delete("delete",[App\Http\Controllers\EPICController::class,"destroy"]);
                 Route::patch("update",[App\Http\Controllers\EPICController::class,"update"]);
+                Route::post("sync_insee",[App\Http\Controllers\EPICController::class,"sync_api"]);
             });
             Route::prefix("syndicats/")->group(function(){
                 Route::post("create",[App\Http\Controllers\SyndicatController::class,"create"]);
@@ -151,6 +160,8 @@ Route::middleware('auth:api')->group(function () {
                 Route::get("edit/{idSyndicat}",[App\Http\Controllers\SyndicatController::class,"edit"]);
                 Route::delete("delete",[App\Http\Controllers\SyndicatController::class,"destroy"]);
                 Route::patch("update",[App\Http\Controllers\SyndicatController::class,"update"]);
+                Route::post("sync_insee",[App\Http\Controllers\SyndicatController::class,"sync_api"]);
+
             });
             Route::post("add/site",[App\Http\Controllers\CollectiviteController::class,"add"]);
             Route::get("all",[App\Http\Controllers\CollectiviteController::class,"index"]);

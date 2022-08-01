@@ -9,6 +9,7 @@ use App\Models\CompetanceDechet;
 use App\Models\InfoClientHistory;
 use Illuminate\Http\Request;
 use App\Http\Helpers\SiteHelper;
+use App\Http\Helpers\ToolHelper;
 
 use Illuminate\Validation\Rule;
 
@@ -526,4 +527,14 @@ class EPICController extends Controller
             'data'=>"no action"
         ]);
     }
+
+    public function sync_api(Request $request){
+        $token = ToolHelper::fetchInseeAPIToken();
+        if($request->input('action') == 'sync_array'){
+            return EPIC::sync_api($token, $request->input('epics'));
+        }else if($request->input('action') == 'sync_all'){
+            \App\Jobs\SyncINSEEAPIEPICs::dispatch($token, 'sync_all');
+        }
+    }
+
 }

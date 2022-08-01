@@ -289,42 +289,15 @@ class CommuneController extends Controller
             'data'=>"no action"
         ]);
     }
+
+
     public function sync_api(Request $request){
-        $communes_insee = [
-            '02102', '02100', '02087'
-        ];
-        $communes = Commune::whereIn('insee', $communes_insee)->get();
-        $q = [];
-
-        foreach($communes as $commune){
-            $q[] = "siren:".$commune->serin;
-        }
-
-        $departements = Departement::with('region')->get();
-        $deps = [];
-
-        foreach($departements as $dep){
-            $deps[strlen($dep->departement_code) == 2 ? $dep->departement_code : '0'.$dep->departement_code] = $dep;
-        }
-
-        $entities = ToolHelper::fetchDataFromInseeAPI($q, function($entity) use ($deps){    
-            $mapping = [];
-            
-            $dep = $deps[substr($entity['adresseEtablissement']['codePostalEtablissement'], 0, 2)];
-
-            $mapping['departement_siege'] = $dep->id_departement;
-            if($dep->region){
-                $mapping['region_siege'] = $dep->region->id_region;
-            }else{
-                $mapping['region_siege'] = null;
-            }
-
-            $mapping['nomCommune'] = $entity['uniteLegale']['denominationUniteLegale'];
-            return $mapping;
-        });
-
-        foreach($entities as $commune){
-            Commune::where('serin', $soc['serin'])->update($commune);
+        $token = ToolHelper::fetchInseeAPIToken();
+        if($request->input('action') == 'sync_array'){
+            return Commune::sync_api($token, $request->input('communes'));
+        }else if($request->input('action') == 'sync_all'){
+            \App\Jobs\SyncINSEEAPICommunes::dispatch($token, 'sync_all');
         }
     }
+    
 }

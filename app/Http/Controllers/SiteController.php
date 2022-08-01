@@ -360,7 +360,7 @@ class SiteController extends Controller
             $siteReturn['siteInfo']['departement_siege']= isset($arraySite['departement_siege']['value']) ? $arraySite['departement_siege']['value'] : '';
             $siteReturn['siteInfo']['region_siege']= isset($arraySite['region_siege']['value']) ? $arraySite['region_siege']['value'] : '';
             $client=$site->client;
-            if($client){
+            if($client && $client->client){
                 $siteReturn['siteInfo']['client']=$client->client->toArray();
                 $siteReturn['siteInfo']['client'] +=$personsData[strtolower($client->typeCollectivite)];
             }
@@ -442,7 +442,15 @@ class SiteController extends Controller
                 $idtext='id_data_'.strtolower($siteInfo["categorieSite"]);
                 $techClassName='App\Models\DataTechn'.$siteInfo["categorieSite"];
                 $idCompare=isset($request[$siteInfo["categorieSite"]][$idtext])?$request[$siteInfo["categorieSite"]][$idtext]:null;
-                $dataTech=$techClassName::updateOrCreate([$idtext=>$idCompare],$techData);
+            
+                
+                $dataTech = $techClassName::where($idtext, $idCompare)->first();
+                if($dataTech){
+                    $dataTech->update($techData);
+                }else{
+                    $dataTech = $techClassName::create($dataTech);
+                }
+
                 $registredData=DataTechn::where('id_site',$sitetoUpdate->id_site)->first();
                 $registredData->update([
                     "typesite"=>$siteInfo["categorieSite"],

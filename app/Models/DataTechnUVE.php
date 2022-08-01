@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class DataTechnUVE extends Model
 {
@@ -161,4 +163,91 @@ class DataTechnUVE extends Model
         // $this->constructeurInstallation=$constru?$constru->__toString():'';
         // $this->typeFoursChaudiere = Enemuration::whereIn('id_enemuration', $this->typeFoursChaudiere)->get();
     }
+    
+    public function update(array $data = [], array $options = []){
+        $user_id = Auth::user()->id;
+        $history = [];
+
+        try{
+            if($data['infos']['capacite'] != $this->infos['capacite']){
+                $history[] = [
+                    'id_reference' => $this->id_data_uve,
+                    'prev_value' => $this->infos['capacite'],
+                    'referenced_table' => 'data_techn_uves',
+                    'referenced_column' => 'infos.capacite',
+                    'date_reference' => Carbon::now(),
+                    'updated_by' => $user_id
+                ];
+            }
+        }catch(\Exception $e){
+
+        }
+        
+        try{
+            if($data['valorisations']['performenceEnergetique'] != $this->valorisations['performenceEnergetique']){
+                $history[] = [
+                    'id_reference' => $this->id_data_uve,
+                    'prev_value' => $this->valorisations['performenceEnergetique'],
+                    'referenced_table' => 'data_techn_uves',
+                    'referenced_column' => 'valorisations.performenceEnergetique',
+                    'date_reference' => Carbon::now(),
+                    'updated_by' => $user_id
+                ];
+            }
+        }catch(\Exception $e){
+
+        }
+
+        try{
+            if($data['valorisations']['electriciteVendue'] != $this->valorisations['electriciteVendue']){
+                $history[] = [
+                    'id_reference' => $this->id_data_uve,
+                    'prev_value' => $this->valorisations['electriciteVendue'],
+                    'referenced_table' => 'data_techn_uves',
+                    'referenced_column' => 'valorisations.electriciteVendue',
+                    'date_reference' => Carbon::now(),
+                    'updated_by' => $user_id
+                ];
+            }
+        }catch(\Exception $e){
+
+        }
+
+        try{
+            if($data['valorisations']['chaleurVendue'] != $this->valorisations['chaleurVendue']){
+                $history[] = [
+                    'id_reference' => $this->id_data_uve,
+                    'prev_value' => $this->valorisations['chaleurVendue'],
+                    'referenced_table' => 'data_techn_uves',
+                    'referenced_column' => 'valorisations.chaleurVendue',
+                    'date_reference' => Carbon::now(),
+                    'updated_by' => $user_id
+                ];
+            }
+        }catch(\Exception $e){
+
+        }
+
+        try{
+            if($data['valorisations']['H2Vendue'] != $this->valorisations['H2Vendue']){
+                $history[] = [
+                    'id_reference' => $this->id_data_uve,
+                    'prev_value' => $this->valorisations['H2Vendue'],
+                    'referenced_table' => 'data_techn_uves',
+                    'referenced_column' => 'valorisations.H2Vendue',
+                    'date_reference' => Carbon::now(),
+                    'updated_by' => $user_id
+                ];
+            }
+        }catch(\Exception $e){
+
+        }
+
+        if(sizeof($history) > 0){
+            InfoClientHistory::insert($history);
+        }
+
+        return parent::update($data, $options);
+    }
+    
 }
