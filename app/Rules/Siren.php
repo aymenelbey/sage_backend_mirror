@@ -25,7 +25,7 @@ class Siren implements Rule
      */
     public function passes($attribute, $value)
     {
-        return strlen($value) == 9 || strlen($value) == 14;
+        return strlen($value) == 9;
     }
 
     /**
@@ -35,6 +35,6 @@ class Siren implements Rule
      */
     public function message()
     {
-        return 'Le champ Siren doit contenir 9 ou 14 chiffres.';
+        return 'Le champ Siren doit contenir 9 chiffres.';
     }
 }

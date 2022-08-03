@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use Intervention\Image\Facades\Image;
-
+use Illuminate\Http\Request;
+use App\Rules\Siren;
+use App\Rules\Siret;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,6 +15,7 @@ use Intervention\Image\Facades\Image;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('/test', [App\Http\Controllers\TestController::class,"export"]);
 Route::get('/', function () {
     return view('welcome');
 });
