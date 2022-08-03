@@ -112,10 +112,15 @@ class SiteController extends Controller
         $this->validate($request,[
             "id_site"=>['exists:sites,id_site']
         ]);
-        $site = Site::with(['client.client', 'exploitant.client','dataTech.dataTech',"gestionnaire","contracts.contractant","departement_siege",'region_siege', 'updated_by', 'status_updated_by'])
+        $site = Site::with(['client.client', 'exploitant.client','dataTech.dataTech',"gestionnaire","contracts.communes","contracts.contractant","contracts.site", "departement_siege",'region_siege', 'updated_by', 'status_updated_by'])
         ->find($request['id_site']);
+
         $site->dataTech->dataTech->withEnums();
-        $site->exploitant->client->withEnums();
+        
+        if(isset($site->exploitant) && isset($site->exploitant->client)){
+            $site->exploitant->client->withEnums();
+        }
+
         $siteReturn=$site->toArray();
         $siteReturn['photos']=$site->photos->map(function($photo){
             return $photo->__toString();
@@ -355,7 +360,7 @@ class SiteController extends Controller
             $siteReturn['siteInfo']['departement_siege']= isset($arraySite['departement_siege']['value']) ? $arraySite['departement_siege']['value'] : '';
             $siteReturn['siteInfo']['region_siege']= isset($arraySite['region_siege']['value']) ? $arraySite['region_siege']['value'] : '';
             $client=$site->client;
-            if($client){
+            if($client && $client->client){
                 $siteReturn['siteInfo']['client']=$client->client->toArray();
                 $siteReturn['siteInfo']['client'] +=$personsData[strtolower($client->typeCollectivite)];
             }
@@ -437,7 +442,15 @@ class SiteController extends Controller
                 $idtext='id_data_'.strtolower($siteInfo["categorieSite"]);
                 $techClassName='App\Models\DataTechn'.$siteInfo["categorieSite"];
                 $idCompare=isset($request[$siteInfo["categorieSite"]][$idtext])?$request[$siteInfo["categorieSite"]][$idtext]:null;
-                $dataTech=$techClassName::updateOrCreate([$idtext=>$idCompare],$techData);
+            
+                
+                $dataTech = $techClassName::where($idtext, $idCompare)->first();
+                if($dataTech){
+                    $dataTech->update($techData);
+                }else{
+                    $dataTech = $techClassName::create($dataTech);
+                }
+
                 $registredData=DataTechn::where('id_site',$sitetoUpdate->id_site)->first();
                 $registredData->update([
                     "typesite"=>$siteInfo["categorieSite"],

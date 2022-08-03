@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Commune;
 use App\Models\Collectivite;
 use App\Models\InfoClientHistory;
+use App\Models\Departement;
+
 use Illuminate\Http\Request;
 use App\Http\Helpers\SiteHelper;
+use App\Http\Helpers\ToolHelper;
 use Validator;
 use App\Rules\Siren;
 use App\Rules\Siret;
@@ -287,4 +290,15 @@ class CommuneController extends Controller
             'data'=>"no action"
         ]);
     }
+
+
+    public function sync_api(Request $request){
+        $token = ToolHelper::fetchInseeAPIToken();
+        if($request->input('action') == 'sync_array'){
+            return Commune::sync_api($token, $request->input('communes'));
+        }else if($request->input('action') == 'sync_all'){
+            \App\Jobs\SyncINSEEAPICommunes::dispatch($token, 'sync_all');
+        }
+    }
+    
 }

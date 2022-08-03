@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 // use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Http\Helpers\ToolHelper;
+use Carbon\Carbon;
 
 use App\Traits\DeleteChecks;
 
@@ -128,4 +130,55 @@ class Syndicat extends TrackableModel
         return GEDFile::with('category')->where('type', 'syndicats')->where('entity_id', $this->id_syndicat);
     }
 
+    public static function sync_api($token, $syndicats_sirens){
+
+        // $communes = Commune::whereIn('siren', $communes_siret)->get();
+        $q = [];
+
+        foreach($syndicats_sirens as $siren){
+            $q[] = "siren:".str_replace(' ', '', $siren);
+        }
+
+        $departements = Departement::with('region')->get();        
+        $deps = [];
+
+        foreach($departements as $dep){
+            $deps[strlen($dep->departement_code) == 2 ? $dep->departement_code : '0'.$dep->departement_code] = $dep;
+        }
+
+        $entities = ToolHelper::fetchDataFromInseeAPI($token, $q, function($entity) use ($deps){    
+            
+            $mapping = [];
+            
+            $dep_code = substr($entity['adresseEtablissement']['codePostalEtablissement'], 0, 2);
+            if(isset($deps[$dep_code])){
+                $dep = $deps[$dep_code];
+                $mapping['departement_siege'] = $dep->id_departement;
+                if($dep->region){
+                    $mapping['region_siege'] = $dep->region->id_region;
+                }else{
+                    $mapping['region_siege'] = null;
+                }
+            }
+
+            $mapping['denominationLegale'] = $entity['uniteLegale']['denominationUniteLegale'];
+            $mapping['nomCourt'] = $entity['uniteLegale']['sigleUniteLegale'];
+
+            $nature = Enemuration::where('code', $entity['uniteLegale']['categorieJuridiqueUniteLegale'])->first();
+
+
+            if($nature){
+                $mapping['nature_juridique'] = $nature->id_enemuration;
+            }else{
+                $mapping['nature_juridique'] = null;
+            }
+
+            return $mapping;
+        });
+        foreach($entities as $syndicat){
+            Syndicat::where('serin', $syndicat['serin'])->update($syndicat);
+        }
+        
+        return true;
+    }
 }
