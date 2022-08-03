@@ -12,6 +12,7 @@ use App\Models\InfoClientHistory;
 use Illuminate\Http\Request;
 use Validator;
 use App\Rules\Siren;
+use App\Rules\Siret;
 use Carbon\Carbon;
 
 use Illuminate\Validation\Rule;
@@ -199,7 +200,7 @@ class SyndicatController extends Controller
         $this->validate($request,[
             "nomCourt"=>["required","string"],
             "serin"=> ["required","numeric", new Siren],
-            "siret"=> ["required","numeric", new Siren],
+            "siret"=> ["numeric", "unique:syndicats", new Siret],
             "sinoe"=>["required", "unique:syndicats"],
             "email"=>["nullable","email"],
             "logo"=>["nullable","uuid","exists:image_sages,uid"],
@@ -268,7 +269,7 @@ class SyndicatController extends Controller
             "id_syndicat"=>["required","exists:syndicats"],
             "nomCourt"=>["required","string"],
             "serin"=> ["required","numeric", new Siren],
-            "siret"=> ["required","numeric", new Siren],
+            "siret"=> ["numeric", Rule::unique('syndicats')->ignore($request["id_syndicat"], 'id_syndicat'), new Siret],
             "sinoe" => ["required", Rule::unique('syndicats', 'sinoe')->ignore($request["id_syndicat"], 'id_syndicat')],
             "email"=>["nullable","email"],
             "logo"=>["nullable","uuid","exists:image_sages,uid"],

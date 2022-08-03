@@ -12,6 +12,7 @@ use App\Http\Helpers\SiteHelper;
 use App\Http\Helpers\ToolHelper;
 use Validator;
 use App\Rules\Siren;
+use App\Rules\Siret;
 use Carbon\Carbon;
 
 use Illuminate\Validation\Rule;
@@ -134,7 +135,7 @@ class CommuneController extends Controller
             "country"=>['required'],
             "postcode"=>['required'],
             "serin"=> ["required","numeric", new Siren],
-            "siret"=> ["required","numeric", new Siren],
+            "siret"=> ["numeric", "unique:communes", new Siret],
             "insee"=>["required","numeric","digits:5", 'unique:communes'],
             "nombreHabitant"=>["required","numeric"],
             'departement_siege'=>["required","exists:enemurations,id_enemuration"],
@@ -172,7 +173,7 @@ class CommuneController extends Controller
             'departement_siege'=>["required","exists:enemurations,id_enemuration"],
             'region_siege'=>["required","exists:enemurations,id_enemuration"],
             "serin"=> ["required","numeric", new Siren],
-            "siret"=> ["required","numeric", new Siren],
+            "siret"=> ["numeric", Rule::unique('communes')->ignore($request["id_commune"], 'id_commune'), new Siret],
             "insee"=>["required","numeric","digits:5", Rule::unique('communes', 'insee')->ignore($request["id_commune"], 'id_commune')]
         ],[],[
             'serin'=>'Siren'

@@ -15,6 +15,7 @@ use Illuminate\Validation\Rule;
 
 use Validator;
 use App\Rules\Siren;
+use App\Rules\Siret;
 use Carbon\Carbon;
 
 class EPICController extends Controller
@@ -211,7 +212,7 @@ class EPICController extends Controller
             "postcode"=>['required'],
             "adresse"=>['required'],
             "serin"=> ["required","numeric", new Siren],
-            "siret"=> ["required","numeric", new Siren],
+            "siret"=> ["numeric", "unique:epics", new Siret],
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],
             'departement_siege'=>["required","exists:departements,id_departement"],
             'region_siege'=>["required","exists:regions,id_region"],
@@ -274,7 +275,7 @@ class EPICController extends Controller
             "nomEpic"=>["required","string"],
             "sinoe" => ['required', Rule::unique('epics', 'sinoe')->ignore($request["id_epic"], 'id_epic')],
             "serin"=> ["required","numeric", new Siren],
-            "siret"=> ["required","numeric", new Siren],
+            "siret"=> ["numeric", Rule::unique('epics')->ignore($request["id_epic"], 'id_epic'), new Siret],
             'nom_court'=>["required"],
             'nature_juridique'=>["required","exists:enemurations,id_enemuration"],
             'region_siege'=>["required","exists:regions,id_region"],
