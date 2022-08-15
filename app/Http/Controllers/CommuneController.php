@@ -295,7 +295,17 @@ class CommuneController extends Controller
     public function sync_api(Request $request){
         $token = ToolHelper::fetchInseeAPIToken();
         if($request->input('action') == 'sync_array'){
-            return Commune::sync_api($token, $request->input('communes'));
+            if(Commune::sync_api($token, $request->input('communes'))){
+                return response([
+                    'ok'=>true,
+                    'data'=>"no action"
+                ]);
+            }
+            return response([
+                "errors" => true,
+                'ok'=> false,
+                'data'=>"not_synced"
+            ]);
         }else if($request->input('action') == 'sync_all'){
             \App\Jobs\SyncINSEEAPICommunes::dispatch($token, 'sync_all');
         }

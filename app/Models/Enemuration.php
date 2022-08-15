@@ -23,6 +23,38 @@ class Enemuration extends Model
     }
     public function canDelete(){
         $values = [
+            'amobe' => [
+                'index' => 'id_syndicat',
+                'table' => 'syndicats',
+                'type' => 'single',
+                'condition' => function($value){
+                    return "amobe = '$value'";
+                }
+            ],
+            'autreActivite' => [
+                'index' => 'id_contrat',
+                'table' => 'contrats',
+                'type' => 'single',
+                'condition' => function($value){
+                    return "autreActivite = '$value'";
+                }
+            ],
+            'fileCategory' => [
+                'index' => 'id',
+                'table' => 'ged_files',
+                'type' => 'single',
+                'condition' => function($value){
+                    return "category = '$value'";
+                }
+            ],
+            'codeape' => [
+                'index' => 'id_societe_exploitant',
+                'table' => 'societe_exploitants',
+                'type' => 'single',
+                'condition' => function($value){
+                    return "codeape = '$value'";
+                }
+            ],
             'groupeList' => [
                 'index' => 'id_societe_exploitant',
                 'table' => 'societe_exploitants',
@@ -30,6 +62,22 @@ class Enemuration extends Model
                 'condition' => function($value){
                     return "(groupe)::jsonb @> '$value'";
                 }   
+            ],
+            'nature_juridique' => [
+                'index' => 'id_societe_exploitant',
+                'table' => 'societe_exploitants',
+                'type' => 'single',
+                'condition' => function($value){
+                    return "nature_juridique = '$value'";
+                }
+            ],
+            'codeape' => [
+                'index' => 'id_societe_exploitant',
+                'table' => 'societe_exploitants',
+                'type' => 'single',
+                'condition' => function($value){
+                    return "codeape = '$value'";
+                }
             ],
             'typeDechetRecus' => [
                 'index' => 'id_data_uve',
@@ -193,12 +241,36 @@ class Enemuration extends Model
             ],
         ];
         
+
+        if($this->key_enum == 'mode_gestion'){
+            if(Site::where("modeGestion", $this->value_enum)->exists()){
+                return false;
+            }
+            return true;
+        }else if($this->key_enum == 'function_person'){
+            if(PersonFunction::where('functionPerson')->exists()){
+                return false;
+            }
+
+            return true;
+
+        }else if(!isset($values[$this->key_enum])){
+            return true;
+        }
+        
         $item = $values[$this->key_enum];
         if($item['type'] == 'single'){
             $condition = $item['condition']($this->id_enemuration);
-            $subquery = DB::select(DB::raw("SELECT count({$item['index']}) as count FROM {$item['table']} where {$condition}"));
-            if($subquery[0]->count > 0){
-                return false;
+
+            $query = DB::raw("SELECT count({$item['index']}) as count FROM {$item['table']} where {$condition}");
+            $subquery = DB::select($query);
+            
+            print_r([
+                'query' => $query,
+                'subquery' => $subquery
+            ]);
+            if($subquery[0]->count == 0){
+                return true;
             }   
         }
         else if($item['type'] == 'array'){
@@ -208,10 +280,10 @@ class Enemuration extends Model
                 'query' => $query,
                 'subquery' => $subquery
             ]);
-            if($subquery[0]->count > 0){
-                return false;
+            if($subquery[0]->count == 0){
+                return true;
             }      
         }
-        return true;
+        return false;
     }
 }

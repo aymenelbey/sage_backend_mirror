@@ -121,7 +121,7 @@ class EnemurationController extends Controller
                         "data"=>$request['enumuration']
                     ],200);
                 }
-                throw new \Exception();
+                throw new \Exception("item already in use");
             }
         }catch(\Exception $e){
             return response([

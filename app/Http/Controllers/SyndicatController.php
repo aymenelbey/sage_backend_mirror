@@ -489,7 +489,17 @@ class SyndicatController extends Controller
     public function sync_api(Request $request){
         $token = ToolHelper::fetchInseeAPIToken();
         if($request->input('action') == 'sync_array'){
-            return Syndicat::sync_api($token, $request->input('syndicats'));
+            if(Syndicat::sync_api($token, $request->input('syndicats'))){
+                return response([
+                    'ok'=>true,
+                    'data'=>"no action"
+                ]);
+            }
+            return response([
+                "errors" => true,
+                'ok'=>false,
+                'data' => "not_synced"
+            ]);
         }else if($request->input('action') == 'sync_all'){
             \App\Jobs\SyncINSEEAPISyndicat::dispatch($token, 'sync_all');
         }
