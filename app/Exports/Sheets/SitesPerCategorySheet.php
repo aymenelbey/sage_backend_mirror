@@ -119,8 +119,8 @@ class SitesPerCategorySheet extends StringValueBinder implements FromCollection,
             $societe = "";
             $name = $exploitant->client[$data["dataIndex"]];
             if (strtolower($exploitant->typeExploitant) == "societe" && $exploitant->client->groupe) {
-                $groupes = json_decode($exploitant->client->groupe);
-                $name = $this->get_enum_array_display($groupes);
+                // $groupes = json_decode($exploitant->client->groupe);
+                $name = $this->get_enum_array_display($exploitant->client->groupe);
             }
             if (!empty($name)) $societe .= " " . $data["name"] . ": $name";
             $societe_name = $exploitant->client->denomination;
@@ -132,7 +132,6 @@ class SitesPerCategorySheet extends StringValueBinder implements FromCollection,
 
         $gestionnaire = $site->gestionnaire;
         $employe = $gestionnaire ? "Nom complet: $gestionnaire->nom $gestionnaire->prenom, Email: $gestionnaire->email, Status: " . ($gestionnaire->status ? "Actif" : "Inactif") : "";
-
         return [
             "#" => $site->id_site,
             "Dénomination" => $site->denomination,

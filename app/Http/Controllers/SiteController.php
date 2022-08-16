@@ -27,6 +27,8 @@ use App\Http\Helpers\SiteHelper;
 use JWTAuth;
 use App\Exports\SitesExport;
 
+use Maatwebsite\Excel\Facades\Excel;
+
 class SiteController extends Controller
 {
     /**
@@ -546,6 +548,8 @@ class SiteController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function export(Request $request) {
-        return (new SitesExport($request->input("categories")))->download('sites.xlsx');
+        return Excel::download(new SitesExport($request->input("categories")),"EPCI_MAJ.xlsx");
+        
+        // return (new SitesExport($request->input("categories")))->download('sites.xlsx');
     }
 }

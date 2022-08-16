@@ -35,6 +35,7 @@ use App\Http\Helpers\ToolHelper;
 
 // Route::get('sage/test', [App\Http\Controllers\CommuneController::class, "sync_api"]);
 Route::get('sage/test', [App\Http\Controllers\SocieteExploitantController::class, "sync_api"]);
+Route::get('sage/export_sites', [App\Http\Controllers\SiteController::class, "export"]);
 
 Route::post("start_sync_batch/syndicat_sync_insee",[App\Http\Controllers\SyndicatController::class,"sync_api"]);
 Route::post("start_sync_batch/communes_sync_insee",[App\Http\Controllers\CommuneController::class,"sync_api"]);
