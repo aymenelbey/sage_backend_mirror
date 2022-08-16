@@ -534,7 +534,18 @@ class EPICController extends Controller
     public function sync_api(Request $request){
         $token = ToolHelper::fetchInseeAPIToken();
         if($request->input('action') == 'sync_array'){
-            return EPIC::sync_api($token, $request->input('epics'));
+             if(EPIC::sync_api($token, $request->input('epics'))){
+                return response([
+                    'ok'=>true,
+                    'data'=>"no action"
+                ]);
+             }
+
+             return response([
+                "errors" => true,
+                'ok'=>false,
+                'data' => "not_synced"
+            ]);
         }else if($request->input('action') == 'sync_all'){
             \App\Jobs\SyncINSEEAPIEPICs::dispatch($token, 'sync_all');
         }
