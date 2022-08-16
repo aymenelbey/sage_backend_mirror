@@ -548,8 +548,8 @@ class SiteController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function export(Request $request) {
-        return Excel::download(new SitesExport($request->input("categories")),"EPCI_MAJ.xlsx");
-        
+        return Excel::download(new SitesExport($request->input("categories")),"sites.xlsx");
+
         // return (new SitesExport($request->input("categories")))->download('sites.xlsx');
     }
 }
