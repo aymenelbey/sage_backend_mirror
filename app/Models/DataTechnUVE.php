@@ -55,6 +55,12 @@ class DataTechnUVE extends Model
             }, Enemuration::whereIn('id_enemuration', $this->infos['typeDechetRecus'])->get()->toArray());
         }
 
+        if(isset($this->infos['installationComplementair'])){
+            $infos['infos']['installationComplementair'] = array_map(function($enum){
+                return $enum['value_enum'];
+            }, Enemuration::whereIn('id_enemuration', $this->infos['installationComplementair'])->get()->toArray());
+        }
+
         foreach($this->lines as $line){
             
             if(isset($line['constructeurChaudiere'])){

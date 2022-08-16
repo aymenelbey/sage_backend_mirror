@@ -135,7 +135,7 @@ class CommuneController extends Controller
             "country"=>['required'],
             "postcode"=>['required'],
             "serin"=> ["required","numeric", new Siren],
-            "siret"=> ["numeric", "unique:communes", new Siret],
+            "siret"=> ["nullable", "numeric", "unique:communes", new Siret],
             "insee"=>["required","numeric","digits:5", 'unique:communes'],
             "nombreHabitant"=>["required","numeric"],
             'departement_siege'=>["required","exists:enemurations,id_enemuration"],
@@ -144,6 +144,7 @@ class CommuneController extends Controller
             "status" => ['required']
         ],[],[
             'serin'=>'Siren',
+            'siret'=>'Siret',
             'id_epic'=>"EPCI de rattachement"
         ]);
         $client = Collectivite::create([
@@ -173,10 +174,11 @@ class CommuneController extends Controller
             'departement_siege'=>["required","exists:enemurations,id_enemuration"],
             'region_siege'=>["required","exists:enemurations,id_enemuration"],
             "serin"=> ["required","numeric", new Siren],
-            "siret"=> ["numeric", Rule::unique('communes')->ignore($request["id_commune"], 'id_commune'), new Siret],
+            "siret"=> ["nullable", "numeric", Rule::unique('communes')->ignore($request["id_commune"], 'id_commune'), new Siret],
             "insee"=>["required","numeric","digits:5", Rule::unique('communes', 'insee')->ignore($request["id_commune"], 'id_commune')]
         ],[],[
-            'serin'=>'Siren'
+            'serin'=>'Siren',
+            'siret'=>'Siret'
         ]);
         $commune =Commune::find($request["id_commune"]);
         $moreItems=[];

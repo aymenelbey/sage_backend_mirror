@@ -25,6 +25,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
 use App\Http\Helpers\SiteHelper;
 use JWTAuth;
+use App\Exports\SitesExport;
 
 class SiteController extends Controller
 {
@@ -536,5 +537,15 @@ class SiteController extends Controller
             'ok'=>true,
             'data'=>"no action"
         ]);
+    }
+
+    /**
+     * Export the list of sites of the specified categories (default: all categories).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function export(Request $request) {
+        return (new SitesExport($request->input("categories")))->download('sites.xlsx');
     }
 }

@@ -33,7 +33,7 @@ class Siret implements Rule, DataAwareRule
      */
     public function passes($attribute, $value)
     {
-        return (strlen($value) == 0) || (strlen($value) == 14 && strncmp($value, $this->data["serin"], 9) == 0);
+        return strlen($value) == 14 && strncmp($value, $this->data["serin"], 9) == 0;
     }
 
     /**

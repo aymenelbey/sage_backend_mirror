@@ -31,6 +31,8 @@ use App\Http\Helpers\ToolHelper;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+
 // Route::get('sage/test', [App\Http\Controllers\CommuneController::class, "sync_api"]);
 Route::get('sage/test', [App\Http\Controllers\SocieteExploitantController::class, "sync_api"]);
 
@@ -98,6 +100,7 @@ Route::middleware('auth:api')->group(function () {
             Route::post("create",[App\Http\Controllers\SiteController::class,"create"]);
             Route::patch("update",[App\Http\Controllers\SiteController::class,"update"]);
             Route::get("edit/{id_site}",[App\Http\Controllers\SiteController::class,"edit"]);
+            Route::get('export', [App\Http\Controllers\SiteController::class, "export"]);
         });
         Route::prefix("gestionnaire/")->group(function(){
             Route::post("create",[App\Http\Controllers\GestionnaireController::class,"create"]);

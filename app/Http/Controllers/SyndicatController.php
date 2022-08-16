@@ -200,7 +200,7 @@ class SyndicatController extends Controller
         $this->validate($request,[
             "nomCourt"=>["required","string"],
             "serin"=> ["required","numeric", new Siren],
-            "siret"=> ["numeric", "unique:syndicats", new Siret],
+            "siret"=> ["nullable", "numeric", "unique:syndicats", new Siret],
             "sinoe"=>["required", "unique:syndicats"],
             "email"=>["nullable","email"],
             "logo"=>["nullable","uuid","exists:image_sages,uid"],
@@ -216,8 +216,10 @@ class SyndicatController extends Controller
             "competance_exercee"=>["array"],
             "competance_delegue"=>["array"],
             'telephoneStandard'=>['nullable','phone:FR']
-        ],[],
-            ['serin'=> 'siren']
+        ],[],[
+            'serin'=> 'Siren',
+            'siret'=>'Siret'
+        ]
         );
         $client = Collectivite::create([
             "typeCollectivite"=>"Syndicat"
@@ -269,7 +271,7 @@ class SyndicatController extends Controller
             "id_syndicat"=>["required","exists:syndicats"],
             "nomCourt"=>["required","string"],
             "serin"=> ["required","numeric", new Siren],
-            "siret"=> ["numeric", Rule::unique('syndicats')->ignore($request["id_syndicat"], 'id_syndicat'), new Siret],
+            "siret"=> ["nullable", "numeric", Rule::unique('syndicats')->ignore($request["id_syndicat"], 'id_syndicat'), new Siret],
             "sinoe" => ["required", Rule::unique('syndicats', 'sinoe')->ignore($request["id_syndicat"], 'id_syndicat')],
             "email"=>["nullable","email"],
             "logo"=>["nullable","uuid","exists:image_sages,uid"],
@@ -283,7 +285,9 @@ class SyndicatController extends Controller
             "competance_delegue"=>["array"],
             'telephoneStandard'=>['nullable','phone:FR']
         ],[],
-            ['serin'=> 'siren']
+            ['serin'=> 'Siren',
+            'siret'=>'Siret'
+            ]
         );
         $syndicat=Syndicat::find($request['id_syndicat']);
         $moreItems=[];
