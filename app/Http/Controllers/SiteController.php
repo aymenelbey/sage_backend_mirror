@@ -25,7 +25,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
 use App\Http\Helpers\SiteHelper;
 use JWTAuth;
-use App\Exports\SitesExport;
+use App\Exports\CollectionsExport;
 
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -548,8 +548,11 @@ class SiteController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function export(Request $request) {
-        return Excel::download(new SitesExport($request->input("categories")),"sites.xlsx");
-
-        // return (new SitesExport($request->input("categories")))->download('sites.xlsx');
+        if ($request->input("category") === null || !in_array($request->input("category"), ["UVE", "TRI", "TMB", "ISDND"]))
+            $category = "UVE";
+        else 
+            $category = $request->input("category");
+        
+        return Excel::download(new CollectionsExport(SiteHelper::get_sites_export_data($category)), "sites.xlsx");
     }
 }
