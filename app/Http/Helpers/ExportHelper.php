@@ -110,27 +110,53 @@ class ExportHelper {
 
         return $array;
     }
-    public static function get_max_count($items, $path) {
+    public static function get_headings($structure, $prefix = null, $mapping = null) {
+        if (isset($prefix) && !is_string($prefix)) $prefix = null;
+        if (isset($mapping) && !is_array($mapping)) $mapping = null;
+        $array = array();
 
-        if (!isset($items) || !is_iterable($items) || empty($path) || !is_string($path)) return null;
+        foreach ($structure as $input => $type) {
 
-        $keys = explode(".", $path);
-        $count = 0;
+            $value = null;
 
-        foreach ($items as $item) {
-            $valid = true;
-            foreach ($keys as $key)
-                if (isset($item[$key])) $item = $item[$key];
-                else {
-                    $valid = false;
-                    break;
+            if (is_string($type)) {
+
+                $value = $input;
+
+            } else if (isset($type["type"])) {
+
+                if (($type["type"] == "map" || $type["type"] == "map_array")) $value = $input;
+                
+                else if ($type["type"] == "list" && isset($type["prefix"]) && isset($type["structure"]) && is_array($type["structure"])) {
+                    $list_prefix = $type["prefix"];
+                    $item_mapping = isset($type["mapping"]) ? $type["mapping"] : null;
+                    $item_structure = $type["structure"];
+                    $count = isset($type["count"]) ? $type["count"] : 0;
+                    for ($index = 1; $index <= $count; $index++) {
+                        $item_prefix = "$list_prefix-$index-";
+                        $list_items = self::get_headings($item_structure, $item_prefix, $item_mapping);
+                        foreach ($list_items as $item) array_push($array, $item);
+                    }
                 }
-            
-            if ($valid && count($item) > $count) $count = count($item);
+                
+                else if ($type["type"] == "child" && isset($type["structure"]) && is_array($type["structure"])) {
+                    $child_prefix = isset($type["prefix"]) ? $type["prefix"] : (isset($prefix) ? $prefix : null);
+                    $child_mapping = isset($type["mapping"]) ? $type["mapping"] : (isset($mapping) ? $mapping : null);
+                    $child_structure = $type["structure"];
+                    $child_items = self::get_headings($child_structure, $child_prefix, $child_mapping);
+                    foreach ($child_items as $item) array_push($array, $item);
+                }
+
+            }
+
+            if (isset($value)) {
+                if (isset($mapping) && array_key_exists($input, $mapping)) $value = $mapping[$value];
+                if (isset($prefix)) $value = $prefix.$value;
+                if (!in_array($value, $array)) array_push($array, $value);
+            }
+
         }
 
-        return $count;
-
+        return $array;
     }
-
 }

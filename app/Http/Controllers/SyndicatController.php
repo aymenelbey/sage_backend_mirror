@@ -14,9 +14,8 @@ use Validator;
 use App\Rules\Siren;
 use App\Rules\Siret;
 use Carbon\Carbon;
-
+use App\Jobs\Export\ExportSyndicats;
 use Illuminate\Validation\Rule;
-
 
 class SyndicatController extends Controller
 {
@@ -507,6 +506,14 @@ class SyndicatController extends Controller
         }else if($request->input('action') == 'sync_all'){
             \App\Jobs\SyncINSEEAPISyndicat::dispatch($token, 'sync_all');
         }
+    }
+
+    public function export(Request $request) {
+        ExportSyndicats::dispatch($request->user(), "syndicats", "/client/communities/syndicat");
+        return response([
+            "ok" => true,
+            "data" => "no action",
+        ], 200);
     }
     
 }

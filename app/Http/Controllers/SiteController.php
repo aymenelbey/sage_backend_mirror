@@ -25,7 +25,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
 use App\Http\Helpers\SiteHelper;
 use JWTAuth;
-use App\Exports\CollectionsExport;
+use App\Jobs\Export\ExportSites;
 
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -542,17 +542,22 @@ class SiteController extends Controller
     }
 
     /**
-     * Export the list of sites of the specified categories (default: all categories).
+     * Export the list of sites of the specified categorie.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function export(Request $request) {
-        if ($request->input("category") === null || !in_array($request->input("category"), ["UVE", "TRI", "TMB", "ISDND"]))
+        if ($request->input("category") === null || !is_string($request->input("category")) || !in_array($request->input("category"), ["UVE", "TRI", "TMB", "ISDND"]))
             $category = "UVE";
         else 
             $category = $request->input("category");
         
-        return Excel::download(new CollectionsExport(SiteHelper::get_sites_export_data($category)), "sites.xlsx");
+        ExportSites::dispatch($request->user(), "sites $category", "/sites", $category);
+
+        return response([
+            "ok" => true,
+            "data" => "no action",
+        ], 200);
     }
 }

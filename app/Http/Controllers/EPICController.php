@@ -9,14 +9,14 @@ use App\Models\CompetanceDechet;
 use App\Models\InfoClientHistory;
 use Illuminate\Http\Request;
 use App\Http\Helpers\SiteHelper;
+use App\Http\Helpers\ExportHelper;
 use App\Http\Helpers\ToolHelper;
-
 use Illuminate\Validation\Rule;
-
 use Validator;
 use App\Rules\Siren;
 use App\Rules\Siret;
 use Carbon\Carbon;
+use App\Jobs\Export\ExportEPCIs;
 
 class EPICController extends Controller
 {
@@ -549,6 +549,15 @@ class EPICController extends Controller
         }else if($request->input('action') == 'sync_all'){
             \App\Jobs\SyncINSEEAPIEPICs::dispatch($token, 'sync_all');
         }
+    }
+
+    public function export(Request $request) {
+        ExportEPCIs::dispatch($request->user(), "epcis", "/client/communities/epic");
+
+        return response([
+            "ok" => true,
+            "data" => "no action",
+        ], 200);
     }
 
 }

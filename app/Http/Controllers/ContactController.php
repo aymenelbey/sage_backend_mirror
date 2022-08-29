@@ -11,6 +11,7 @@ use App\Models\Collectivite;
 use App\Models\SocieteExploitant;
 use App\Models\PersonFunction;
 use Validator;
+use App\Jobs\Export\ExportContacts;
 
 class ContactController extends Controller
 {
@@ -376,5 +377,13 @@ class ContactController extends Controller
             'ok'=>false,
             'data'=>"no action"
         ],400);
+    }
+
+    public function export(Request $request) {
+        ExportContacts::dispatch($request->user(), "contacts", "/contact");
+        return response([
+            "ok" => true,
+            "data" => "no action",
+        ], 200);
     }
 }

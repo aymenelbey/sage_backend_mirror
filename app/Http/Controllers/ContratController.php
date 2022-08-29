@@ -8,6 +8,7 @@ use App\Models\CommunHasContrat;
 use App\Models\Enemuration;
 use Illuminate\Http\Request;
 use Validator;
+use App\Jobs\Export\ExportContrats;
 
 class ContratController extends Controller
 {
@@ -236,5 +237,14 @@ class ContratController extends Controller
             'contracts'=>$deletedLis,
             'not_deleted' => $notDeletedLis
         ]);
+    }
+
+    public function export(Request $request) {
+        ExportContrats::dispatch($request->user(), "contrats", "/contrat");
+
+        return response([
+            "ok" => true,
+            "data" => "no action",
+        ], 200);
     }
 }
