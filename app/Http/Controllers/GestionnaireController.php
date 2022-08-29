@@ -13,6 +13,7 @@ use Illuminate\Validation\Rule;
 use App\Models\GestionnaireHasSite;
 use Validator;
 use JWTAuth;
+use App\Jobs\Export\ExportGestionnaires;
 
 class GestionnaireController extends Controller
 {
@@ -395,6 +396,15 @@ class GestionnaireController extends Controller
             "ok"=>true,
             "data"=> $sites
         ],200);
+    }
+
+    public function export(Request $request) {
+        ExportGestionnaires::dispatch($request->user(), "gestionnaires", "/manager");
+
+        return response([
+            "ok" => true,
+            "data" => "no action",
+        ], 200);
     }
     
 }

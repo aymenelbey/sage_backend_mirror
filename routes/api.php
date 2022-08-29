@@ -112,6 +112,7 @@ Route::middleware('auth:api')->group(function () {
             Route::delete("delete",[App\Http\Controllers\GestionnaireController::class,"destroy"]);
             Route::get("sites/{idgestionnaire}",[App\Http\Controllers\GestionnaireController::class,"show_sites"]);
             Route::delete("sites/remove",[App\Http\Controllers\GestionnaireController::class,"destroy_sites"]);
+            Route::get("export",[App\Http\Controllers\GestionnaireController::class,"export"]);
         });
         Route::prefix("usersimple/")->group(function(){
             Route::post("create",[App\Http\Controllers\UserSimpleController::class,"create"]);
@@ -136,6 +137,7 @@ Route::middleware('auth:api')->group(function () {
             Route::delete("delete",[App\Http\Controllers\SocieteExploitantController::class,"destroy"]);
             Route::patch("updateSoc",[App\Http\Controllers\SocieteExploitantController::class,"update"]);
             Route::post("sync_insee",[App\Http\Controllers\SocieteExploitantController::class,"sync_api"]);
+            Route::get("export",[App\Http\Controllers\SocieteExploitantController::class,"export"]);
         });
         Route::prefix("clients/")->group(function(){
             Route::get("list",[App\Http\Controllers\CollectiviteController::class,"index"]);
@@ -147,6 +149,7 @@ Route::middleware('auth:api')->group(function () {
                 Route::delete("delete",[App\Http\Controllers\CommuneController::class,"destroy"]);
                 Route::patch("update",[App\Http\Controllers\CommuneController::class,"update"]);
                 Route::post("sync_insee",[App\Http\Controllers\CommuneController::class,"sync_api"]);
+                Route::get("export",[App\Http\Controllers\CommuneController::class,"export"]);
             });
             Route::prefix("epics/")->group(function(){
                 Route::post("create",[App\Http\Controllers\EPICController::class,"create"]);
@@ -156,6 +159,7 @@ Route::middleware('auth:api')->group(function () {
                 Route::delete("delete",[App\Http\Controllers\EPICController::class,"destroy"]);
                 Route::patch("update",[App\Http\Controllers\EPICController::class,"update"]);
                 Route::post("sync_insee",[App\Http\Controllers\EPICController::class,"sync_api"]);
+                Route::get("export",[App\Http\Controllers\EPICController::class,"export"]);
             });
             Route::prefix("syndicats/")->group(function(){
                 Route::post("create",[App\Http\Controllers\SyndicatController::class,"create"]);
@@ -165,7 +169,7 @@ Route::middleware('auth:api')->group(function () {
                 Route::delete("delete",[App\Http\Controllers\SyndicatController::class,"destroy"]);
                 Route::patch("update",[App\Http\Controllers\SyndicatController::class,"update"]);
                 Route::post("sync_insee",[App\Http\Controllers\SyndicatController::class,"sync_api"]);
-
+                Route::get("export",[App\Http\Controllers\SyndicatController::class,"export"]);
             });
             Route::post("add/site",[App\Http\Controllers\CollectiviteController::class,"add"]);
             Route::get("all",[App\Http\Controllers\CollectiviteController::class,"index"]);
@@ -178,6 +182,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get("show/{idContract}",[App\Http\Controllers\ContratController::class,"show"]);
             Route::get("edit/{idContract}",[App\Http\Controllers\ContratController::class,"edit"]);
             Route::patch("update",[App\Http\Controllers\ContratController::class,"update"]);
+            Route::get("export",[App\Http\Controllers\ContratController::class,"export"]);
         });
         Route::prefix("ged/")->group(function(){
             
@@ -200,6 +205,7 @@ Route::middleware('auth:api')->group(function () {
             Route::patch("update",[App\Http\Controllers\ContactController::class,"update"]);
             Route::delete("function/delete",[App\Http\Controllers\ContactController::class,"delete_function"]);
             Route::patch("function/status",[App\Http\Controllers\ContactController::class,"handle_function"]);
+            Route::get("export",[App\Http\Controllers\ContactController::class,"export"]);
         });
     });
     Route::middleware(['premission:UserPremieume'])->group(function(){

@@ -14,7 +14,7 @@ use Validator;
 use App\Rules\Siren;
 use App\Rules\Siret;
 use Carbon\Carbon;
-
+use App\Jobs\Export\ExportCommunes;
 use Illuminate\Validation\Rule;
 
 class CommuneController extends Controller
@@ -311,6 +311,17 @@ class CommuneController extends Controller
         }else if($request->input('action') == 'sync_all'){
             \App\Jobs\SyncINSEEAPICommunes::dispatch($token, 'sync_all');
         }
+    }
+
+    public function export(Request $request) {
+
+        ExportCommunes::dispatch($request->user(), "communes", "/client/communities/communes");
+
+        return response([
+            "ok" => true,
+            "data" => "no action",
+        ], 200);
+    
     }
     
 }

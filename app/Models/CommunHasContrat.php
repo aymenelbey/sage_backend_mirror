@@ -30,6 +30,7 @@ class CommunHasContrat extends Model
                 'dataIndex'=>$this->person->dataIndex,
                 'adresse'=>$this->person->adresse,
                 'city' => $this->person->city,
+                'siren' => $this->person->serin,
                 $this->person->dataIndex=>$this->person[$this->person->dataIndex]
             ];
         }else{
