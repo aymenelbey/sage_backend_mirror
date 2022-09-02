@@ -109,8 +109,11 @@ class ContactController extends Controller
             "linkedin"=>[],
             'telephone'=>['nullable','phone:FR'],
             "persons_moral"=>["required","array"],
+            "city" => ['required'],
+            "country" => ['required'],
+            "postcode" => ['required']
         ]);
-        $contact = Contact::create($request->only(['status','genre','nom','prenom','telephone','mobile','email','informations','address', 'linkedin']));
+        $contact = Contact::create($request->only(['status','genre','nom','prenom','telephone','mobile','email','informations', 'address', "city", "country", "postcode", 'linkedin']));
         foreach($request['persons_moral'] as $presonMorl){
             if(in_array($presonMorl['type'],['Syndicat','Epic','Commune','Societe']) && !ContactHasPersonMoral::where('idPersonMoral', $presonMorl['id_person'])->where('typePersonMoral',$presonMorl['type'])->where('id_contact',$contact->id_contact)->exists()){
                 $contactCollect = ContactHasPersonMoral::create([
@@ -151,9 +154,12 @@ class ContactController extends Controller
             "linkedin" => [],
             "address"=>["required"],
             'telephone'=>['nullable','phone:FR'],
-            "persons_moral"=>["required","array"]
+            "persons_moral"=>["required","array"],
+            "city" => ['required'],
+            "country" => ['required'],
+            "postcode" => ['required']
         ]);
-        $cont=Contact::find($request["id_contact"])->update($request->only(["status","genre","nom","prenom","telephone","mobile","email","informations","address", "linkedin"]));
+        $cont=Contact::find($request["id_contact"])->update($request->only(["status","genre","nom","prenom","telephone","mobile","email","informations","address", "city", "country", "postcode", "linkedin"]));
         $ignorekey=[];
         $persons=ContactHasPersonMoral::where('id_contact',$request["id_contact"])->get();
         $personSearch=array_column($request['persons_moral'],'id_person');

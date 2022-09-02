@@ -126,5 +126,12 @@
         "dateOuverture",
         "dateFermeture",
         "dateFermeturePrev"
+    ],
+    "contracts": [
+        "dateDebut",
+        "dateFin",
+        "contractant_denomination",
+        "commune_nomCommune",
+        "site_modeGestion"
     ]
 }

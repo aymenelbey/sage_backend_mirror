@@ -17,6 +17,7 @@ class ShareSite extends Model
         "end",
         "columns",
         "files",
+        "contracts",
         "id_user_premieum",
         "id_data_share",
         "type_data_share",
@@ -26,6 +27,7 @@ class ShareSite extends Model
     protected $casts = [
         'files' => 'json',
         'columns' => 'json',
+        'contracts' => 'json',
     ];
     protected $dates = ["deleted_at"];
     public function site(){

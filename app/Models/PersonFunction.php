@@ -18,7 +18,8 @@ class PersonFunction extends Model
     protected $dates = ['deleted_at'];
     public function getFunctionStringAttribute()
     {
-        $func=$this->hasOne(Enemuration::class,'id_enemuration', 'functionPerson')->first();
-        return $func->__toString();
+        $func = $this->hasOne(Enemuration::class,'id_enemuration', 'functionPerson')->first();
+        if($func) return $func->__toString();
+        return '';
     }
 }
