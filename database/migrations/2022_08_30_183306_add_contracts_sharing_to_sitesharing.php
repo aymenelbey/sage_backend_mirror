@@ -5,7 +5,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
-class AlterFunctionPersonName extends Migration
+
+class AddContractsSharingToSitesharing extends Migration
 {
     /**
      * Run the migrations.
@@ -14,10 +15,9 @@ class AlterFunctionPersonName extends Migration
      */
     public function up()
     {
-        Schema::table('person_functions', function (Blueprint $table) {
-            DB::statement("ALTER TABLE person_functions RENAME COLUMN functionPerson TO functionperson;");
+        Schema::table('share_sites', function (Blueprint $table) {
+            $table->json('contracts')->default('{}')->nullable();
         });
-        
     }
 
     /**
@@ -27,6 +27,8 @@ class AlterFunctionPersonName extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('share_sites', function (Blueprint $table) {
+            
+        });
     }
 }

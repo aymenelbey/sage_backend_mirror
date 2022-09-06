@@ -20,6 +20,9 @@ class Contact extends Model
         "email",
         "informations",
         'address',
+        'city',
+        'postcode',
+        'country',
         'linkedin'
     ];
     protected $dates = ['deleted_at'];

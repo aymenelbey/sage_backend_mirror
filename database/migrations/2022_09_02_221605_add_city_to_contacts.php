@@ -3,9 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
-class AlterFunctionPersonName extends Migration
+class AddCityToContacts extends Migration
 {
     /**
      * Run the migrations.
@@ -14,10 +13,11 @@ class AlterFunctionPersonName extends Migration
      */
     public function up()
     {
-        Schema::table('person_functions', function (Blueprint $table) {
-            DB::statement("ALTER TABLE person_functions RENAME COLUMN functionPerson TO functionperson;");
+        Schema::table('contacts', function (Blueprint $table) {
+            $table->text('city')->nullable();
+            $table->text('country')->nullable();
+            $table->text('postcode')->nullable();
         });
-        
     }
 
     /**
@@ -27,6 +27,8 @@ class AlterFunctionPersonName extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('contacts', function (Blueprint $table) {
+            //
+        });
     }
 }

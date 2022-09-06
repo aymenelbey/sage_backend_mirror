@@ -166,7 +166,7 @@ class UserSitesController extends Controller{
             if($detail->type_data_share=="Site"){
    
                 $site=Site::where("id_site",$detail->id_data_share)
-                ->with(['client.client','exploitant.client'])
+                ->with(['client.client','exploitant.client', 'contracts.site','contracts.contractant', 'contracts.communes'])
                 ->first();
 
                 if($detail['files'] && !empty($detail['files'])){
@@ -176,12 +176,50 @@ class UserSitesController extends Controller{
                     }, ARRAY_FILTER_USE_BOTH);
 
                     $files = $site->files(array_keys($file_categories))->where('shareable', '1')->get();
+
                 }else{
                     $files = [];
                 }
                 foreach($files as $file){
                     $file->name = asset(Storage::url("GED/".$file->name));
                 }
+                
+                $contracts = [];
+                if($detail['contracts'] && !empty($detail['contracts'])){
+                    $contracts = array_map(function($contract) use ($detail){
+                        $result = [];
+                        // $result['id_contrat'] = $contract['id_contrat'];
+                        // $result['id_site'] = $contract['id_site'];
+                        
+                        if(isset($detail['contracts']['dateDebut']) && $detail['contracts']['dateDebut']){
+                            $result['dateDebut'] = $contract['dateDebut'];
+                        }
+
+                        if(isset($detail['contracts']['dateFin']) && $detail['contracts']['dateFin']){
+                            $result['dateFin'] = $contract['dateFin'];
+                        }
+
+                        if(isset($detail['contracts']['contractant_denomination']) && $detail['contracts']['contractant_denomination']){
+                            $result['contractant_denomination'] = $contract['contractant']['denomination'];
+                        }
+
+                        
+                        if(isset($detail['contracts']['commune_nomCommune']) && $detail['contracts']['commune_nomCommune']){
+                            $result['commune_nomCommune'] = implode(", ", array_map(function($commune){
+                                return $commune['nomCommune'];
+                            }, $contract['communes']));
+                        }
+
+                        
+                        if(isset($detail['contracts']['site_modeGestion']) && $detail['contracts']['site_modeGestion']){
+                            $result['site_modeGestion'] = $contract['site']['modeGestion'];
+                        }
+
+
+                        return $result;
+                    }, $site->contracts->toArray());
+                }
+
             }else{
 
                 $site= Site::where("id_site",$idSite)->with(['client.client','exploitant.client']);
@@ -306,6 +344,7 @@ class UserSitesController extends Controller{
                         'company'=> $company,
                         "photos"=> $photos,
                         "files" => $files,
+                        "contracts" => $contracts,
                         "categories" => $file_categories,
                     ]
                 ],200);
