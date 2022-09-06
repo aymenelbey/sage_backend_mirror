@@ -9,6 +9,9 @@ use App\Models\Enemuration;
 use Illuminate\Http\Request;
 use Validator;
 use App\Jobs\Export\ExportContrats;
+use App\Exports\ArrayExport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Helpers\ExportHelper;
 
 class ContratController extends Controller
 {
@@ -246,5 +249,64 @@ class ContratController extends Controller
             "ok" => true,
             "data" => "no action",
         ], 200);
+    }
+
+    public function export_model(Request $request) {
+        $count_acteurs = 1;
+        $structure = [
+            "site" => [
+                "type" => "child",
+                "structure" => [
+                    "sinoe" => "value",
+                    "denomination" => "value",
+                    "categorieSite" => "value",
+                    "modeGestion" => "value",
+                    "city" => "value"
+                ],
+                "prefix" => "Site - "
+            ],
+            "communes" => [
+                "type" => "list",
+                "structure" => [
+                    "typePersonMoral" => "value",
+                    "siren" => "value",
+                    "dataIndex" => "ref",
+                    "city" => "value"
+                ],
+                "prefix" => "acteurs",
+                "mapping" => [
+                    "typePersonMoral" => "type",
+                    "nomEpic" => "nom",
+                    "nomCourt" => "nom",
+                    "nomCommune" => "nom",
+                    "dataIndex" => "nom"
+                ],
+                "prefix" => "acteur",
+                "count" => $count_acteurs
+            ],
+            "contractant" => [
+                "type" => "child",
+                "structure" => [
+                    "sinoe" => "value",
+                    "groupe" => "enum_array",
+                    "denomination" => "value"
+                ],
+                "prefix" => "Contractant - "
+            ],
+            "dateDebut" => "value",
+            "dateFin" => "value"
+        ];
+        $mapping = [
+            "sinoe" => "Sinoe",
+            "denomination" => "Dénomination",
+            "categorieSite" => "Catégorie",
+            "modeGestion" => "Mode de gestion",
+            "city" => "Ville",
+            "serin" => "Siren",
+            "groupe" => "Groupe",
+            "dateDebut" => "Début du Contrat",
+            "dateFin" => "Fin du Contrat"
+        ];
+        return Excel::download(new ArrayExport(ExportHelper::get_headings($structure, null, $mapping)), 'contrats_export_model.xlsx');
     }
 }

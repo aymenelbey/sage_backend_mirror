@@ -12,6 +12,9 @@ use App\Models\SocieteExploitant;
 use App\Models\PersonFunction;
 use Validator;
 use App\Jobs\Export\ExportContacts;
+use App\Exports\ArrayExport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Helpers\ExportHelper;
 
 class ContactController extends Controller
 {
@@ -385,5 +388,66 @@ class ContactController extends Controller
             "ok" => true,
             "data" => "no action",
         ], 200);
+    }
+
+    public function export_model(Request $request) {
+        $persons_count = 1;
+        $yes_no_values = ["Non", "Oui"];
+        $structure = [
+            "genre" => "value",
+            "status" => $yes_no_values,
+            "nom" => "value",
+            "prenom" => "value",
+            "telephone" => "value",
+            "mobile" => "value",
+            "email" => "value",
+            "address" => "value",
+            "informations" => "value",
+            "linkedin" => "value",
+            "persons_moral" => [
+                "type" => "list",
+                "structure" => [
+                    "typePersonMoral" => "value",
+                    "person" => [
+                        "type" => "child",
+                        "structure" => [
+                            "serin" => "value",
+                            "dataIndex" => "ref",
+                            "denomination" => "value",
+                            "groupe" => "enum_array",
+                            "city" => "value"
+                        ],
+                        "mapping" => [
+                            "denomination" => "nom",
+                            "dataIndex" => "nom",
+                            "nomEpic" => "nom",
+                            "nomCourt" => "nom",
+                            "nomCommune" => "nom",
+                            "serin" => "siren",
+                            "city" => "ville"
+                        ]
+                    ],
+                    "fonctions" => "enum_array"
+                ],
+                "prefix" => "person",
+                "mapping" => [
+                    "typePersonMoral" => "type"
+                ],
+                "count" => $persons_count
+            ]
+        ];
+        $mapping = [
+            "genre" => "Civilité",
+            "status" => "Statut",
+            "nom" => "Nom",
+            "prenom" => "Prénom",
+            "telephone" => "Téléphone",
+            "mobile" => "Mobile",
+            "email" => "Email",
+            "address" => "Adresse",
+            "informations" => "Informations",
+            "linkedin" => "LinkedIn"
+        ];
+        return Excel::download(new ArrayExport(ExportHelper::get_headings($structure, null, $mapping)), 'contacts_export_model.xlsx');
     }
 }

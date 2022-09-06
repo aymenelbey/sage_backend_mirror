@@ -16,6 +16,9 @@ use App\Rules\Siret;
 use Carbon\Carbon;
 use App\Jobs\Export\ExportCommunes;
 use Illuminate\Validation\Rule;
+use App\Exports\ArrayExport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Helpers\ExportHelper;
 
 class CommuneController extends Controller
 {
@@ -324,4 +327,65 @@ class CommuneController extends Controller
     
     }
     
+    public function export_model(Request $request) {
+        $status_values = ["VALIDATED" => "Validée / publiable", "NOT_VALIDATED" => "Non validée mais publiable", "NOT_PUBLISHED" => "Non publiable"];
+        $structure = [
+            "nomCommune" => "value",
+            "serin" => "value",
+            "siret" => "value",
+            "departement_siege" => [
+                "type" => "child",
+                "structure" => [
+                    "departement_code" => "value",
+                    "name_departement" => "value",
+                ],
+                "prefix" => "Département - "
+            ],
+            "region_siege" => [
+                "type" => "child",
+                "structure" => [
+                    "region_code" => "value",
+                    "name_region" => "value",
+                ],
+                "prefix" => "Région - "
+            ],
+            "adresse" => "value",
+            "city" => "value",
+            "country" => "value",
+            "postcode" => "value",
+            "insee" => "value",
+            "nombreHabitant" => "value",
+            "status" => [
+                "type" => "map",
+                "values" => $status_values
+            ],
+            "epic" => [
+                "type" => "child",
+                "structure" => [
+                    "serin" => "value",
+                    "nomEpic" => "value",
+                    "adresse" => "value"
+                ],
+                "prefix" => "EPCI de rattachement - "
+            ]
+        ];
+        $mapping = [
+            "serin" => "Siren",
+            "adresse" => "Adresse",
+            "nomCommune" => "Nom Commune",
+            "siret" => "Siret",
+            "insee" => "INSEE",
+            "city" => "Ville",
+            "country" => "Pays",
+            "postcode" => "Code postal",
+            "departement_code" => "Code",
+            "name_departement" => "Nom",
+            "region_code" => "Code",
+            "name_region" => "Nom",
+            "nombreHabitant" => "Nbr d'habitants",
+            "status" => "Statut de la fiche",
+            "nomEpic" => "Nom",
+        ];
+        return Excel::download(new ArrayExport(ExportHelper::get_headings($structure, null, $mapping)), 'communes_export_model.xlsx');
+    }
 }

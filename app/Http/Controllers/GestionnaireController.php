@@ -14,6 +14,9 @@ use App\Models\GestionnaireHasSite;
 use Validator;
 use JWTAuth;
 use App\Jobs\Export\ExportGestionnaires;
+use App\Exports\ArrayExport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Helpers\ExportHelper;
 
 class GestionnaireController extends Controller
 {
@@ -405,6 +408,42 @@ class GestionnaireController extends Controller
             "ok" => true,
             "data" => "no action",
         ], 200);
+    }
+
+    public function export_model(Request $request) {
+        $status_values = ["Inactif", "Actif"];
+        $societe_values = [
+            "Sage_engineering" => "SAGE ENGINEERING",
+            "Sage_expert" => "SAGE EXPERT",
+            "Sage_industry" => "SAGE INDUSTRY"
+        ];
+        $structure = [
+            "genre" => "value",
+            "status" => [
+                "type" => "map",
+                "values" => $status_values
+            ],
+            "nom" => "value",
+            "prenom" => "value",
+            "mobile" => "value",
+            "telephone" => "value",
+            "email" => "value",
+            "societe" => [
+                "type" => "map",
+                "values" => $societe_values
+            ],
+        ];
+        $mapping = [
+            "genre" => "Civilité",
+            "status" => "Statut",
+            "nom" => "Nom",
+            "prenom" => "Prénom",
+            "mobile" => "Mobile",
+            "telephone" => "Téléphone",
+            "email" => "Email",
+            "societe" => "Société",
+        ];
+        return Excel::download(new ArrayExport(ExportHelper::get_headings($structure, null, $mapping)), 'gestionnaires_export_model.xlsx');
     }
     
 }
