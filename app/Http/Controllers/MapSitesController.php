@@ -38,7 +38,7 @@ class MapSitesController extends Controller
             $sitemapQuery=$sitemapQuery->whereBetween("langititude",$lang);
         }*/
         //$sitemapQuery=$sitemapQuery->skip(0)->take(50);
-        $sites=$sitemapQuery->get(['latitude AS lat','langititude AS lang','id_site','adresse','categorieSite AS iconType']);
+        $sites=$sitemapQuery->get(['latitude AS lat','langititude AS lang','id_site','adresse','categorieSite AS iconType','denomination AS deno']);
         return response([
             'ok'=>true,
             'data'=>$sites
