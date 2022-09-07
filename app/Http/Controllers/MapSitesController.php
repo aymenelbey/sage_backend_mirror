@@ -20,7 +20,7 @@ class MapSitesController extends Controller
         if($catg && in_array($catg,['UVE',"TMB",'TRI','ISDND'])){
             $sitemapQuery=$sitemapQuery->{$function}("categorieSite","=",$catg);
         }
-        if($mode && !empty($mode)){
+        if($mode && $mode != "all"){
             $sitemapQuery=$sitemapQuery->{$function}("modeGestion","=",$mode);
         }
         if($reg){
