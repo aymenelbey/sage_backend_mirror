@@ -107,20 +107,50 @@ class ImportContacts implements ShouldQueue
             }
             try{
                 if(in_array($contact['status'], ['actif', 'inactif']) && in_array($contact['civilite'], ['MME', 'MR'])){
-                    $created = Contact::create([
-                        "status" => $contact['status'] == 'actif',
-                        "genre" => $contact['civilite'],
-                        "nom" => $contact['nom'],
-                        "prenom" => $contact['prenom'],
-                        "telephone" => $contact['telephone'],
-                        "mobile" => $contact['mobile'],
-                        "email" => $contact['email'],
-                        "informations" => $contact['informations'],
-                        'address' => $contact['adresse']
-                    ]);
-
+                    $created = null;
+                    if(isset($contact['email']) && !empty($contact['email'])){
+                        $created = Contact::where('email', $contact['email'])->first();
+                        if($created){
+                            $created->update([
+                                "status" => $contact['status'] == 'actif',
+                                "genre" => $contact['civilite'],
+                                "nom" => $contact['nom'],
+                                "prenom" => $contact['prenom'],
+                                "telephone" => $contact['telephone'],
+                                "mobile" => $contact['mobile'],
+                                "email" => $contact['email'],
+                                "informations" => $contact['informations'],
+                                'address' => $contact['adresse']
+                            ]);
+                        }else{
+                            $created = Contact::create([
+                                "status" => $contact['status'] == 'actif',
+                                "genre" => $contact['civilite'],
+                                "nom" => $contact['nom'],
+                                "prenom" => $contact['prenom'],
+                                "telephone" => $contact['telephone'],
+                                "mobile" => $contact['mobile'],
+                                "email" => $contact['email'],
+                                "informations" => $contact['informations'],
+                                'address' => $contact['adresse']
+                            ]);
+                        }
+                    }else{
+                        $created = Contact::create([
+                            "status" => $contact['status'] == 'actif',
+                            "genre" => $contact['civilite'],
+                            "nom" => $contact['nom'],
+                            "prenom" => $contact['prenom'],
+                            "telephone" => $contact['telephone'],
+                            "mobile" => $contact['mobile'],
+                            "email" => $contact['email'],
+                            "informations" => $contact['informations'],
+                            'address' => $contact['adresse']
+                        ]);
+                    }
+                    
                     if($created){
-                        // echo 'Created '.json_encode($created);
+                        echo 'Contact '.json_encode($created);
                         $communes = array_map(function($fon){
                             return explode(':', $fon);
                         }, explode(',', $contact['communes']));
