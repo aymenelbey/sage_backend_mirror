@@ -24,7 +24,7 @@ class ContratController extends Controller
         $query = Contrat::query();
         $pageSize=$request->get('pageSize')?$request->get('pageSize'):10;
         $query = $query->with(['contractant', 'site', 'communes']);
-        $contra = $query->orderBy("created_at","DESC")->paginate($pageSize)->toArray();
+        $contra = $query->orderBy("created_at","ASC")->paginate($pageSize)->toArray();
         foreach($contra['data'] as &$contract){
             if(isset($contract['contractant']) && !empty($contract['contractant']) && isset($contract['contractant']['groupe'])){
                     $contract['contractant']['groupe'] = SocieteExploitant::getGroupeStatic($contract['contractant']['groupe']); 

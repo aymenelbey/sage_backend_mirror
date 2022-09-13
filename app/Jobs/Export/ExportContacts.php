@@ -73,7 +73,7 @@ class ExportContacts extends ExportDefault
             "email" => "Email",
             "address" => "Adresse",
             "informations" => "Informations",
-            "linkedin" => "LinkedIn"
+            "linkedin" => "LinkedIn",
         ];
 
         $writer->addRow(WriterEntityFactory::createRowFromArray(ExportHelper::get_headings($structure, null, $mapping)));

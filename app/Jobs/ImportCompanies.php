@@ -61,28 +61,48 @@ class ImportCompanies implements ShouldQueue
         foreach($dataImport as $item){
             if(isset($item['siret'])){
                 $nature=Enemuration::where('key_enum','nature_juridique')
-                    ->where('value_enum',$item['categorie_juridqiue_lib'])
+                    ->where('value_enum',$item['nature_juridique'])
                     ->first();
-                if($nature){
+                    
+                $code_ape=Enemuration::where('key_enum','codeape')
+                    ->where('value_enum',$item['code_ape'])
+                    ->first();
+
+                $groupes = explode(',', $item['groupe']);
+                $groupes = Enemuration::where('key_enum','groupeList')->whereIn('value_enum', $groupes)->get();
+
+                if($nature && $code_ape  && sizeof($groupes) > 0){
                     $adresse= $item['adresse'];
                     SocieteExploitant::create([
                         "denomination"=>$item['denomination'],
-                        "groupe"=>$item['groupe'],
-                        "serin"=>$item['siret'],
-                        "codeape"=>$item['code_ape'],
-                        "adresse"=>$adresse,
-                        "city"=>$item['libellecommuneetablissement'],
-                        "effectifs"=>$item['effectif'],
-                        "telephoneStandrad"=>$item['telephone'],
-                        "date_enter"=>date(($item['anneeeffectifsunitelegale']?$item['anneeeffectifsunitelegale']:now()->format('Y')).'-01-01'),
-                        'nature_juridique'=>$nature,
+                        "groupe"=> array_map(function($groupe){
+                            return $groupe['id_enemuration'];
+                        }, $groupes->toArray()),
                         "sinoe"=>$item['sinoe'],
+                        "serin"=>$item['siren'],
+                        "siret"=>$item['siret'],
+                        "codeape"=> $code_ape->id_enemuration,
+                        "adresse"=>$adresse,
+                        "city" => $item['ville'],
+                        "postcode" => $item['code_postal'],
+                        "effectifs"=>$item['effectifs'],
+                        "telephoneStandrad"=>$item['tel_standard'],
+                        "siteInternet"=>$item['site_internet'],
+                        // "date_enter"=>date(($item['anneeeffectifsunitelegale']?$item['anneeeffectifsunitelegale']:now()->format('Y')).'-01-01'),
+                        'nature_juridique'=>$nature->id_enemuration,
                         "country"=>"France",
-                        "postcode"=>$item['codepostaletablissement'],
                     ]);
                 }else{
-                    echo 'Nature inexistante';
-                    $ignoredData []=$item + ['Problem trouvé' => 'Nature inexistante'];
+                    if(!$nature){
+                        $ignoredData[]=$item + ['Problem trouvé' => 'Nature inexistante'];
+                    }
+                    if(!$code_ape){
+                        $ignoredData[]=$item + ['Problem trouvé' => 'Code APE inexistant'];
+                    }
+
+                    if(sizeof($groupes) < 0){
+                        $ignoredData[]=$item + ['Problem trouvé' => 'Groupe inexistant'];
+                    }
                 }
             }else{
                 $ignoredData []=$item;
