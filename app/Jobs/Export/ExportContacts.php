@@ -17,11 +17,14 @@ class ExportContacts extends ExportDefault
             ->orderByRaw("count DESC")
             ->value("count");
 
-        $yes_no_values = ["Non", "Oui"];
+        $status_values = ["Inactif", "Actif"];
 
         $structure = [
             "genre" => "value",
-            "status" => $yes_no_values,
+            "status" => [
+                "type" => "map",
+                "values" => $status_values
+            ],
             "nom" => "value",
             "prenom" => "value",
             "telephone" => "value",
